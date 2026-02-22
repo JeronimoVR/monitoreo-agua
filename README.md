@@ -32,5 +32,5 @@ Antes de iniciar, asegúrate de tener instalado:
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone [https://github.com/tu-usuario/monitoreo-agua-arca.git](https://github.com/tu-usuario/monitoreo-agua-arca.git)
-   cd monitoreo-agua-arca
+   git clone [https://github.com/JeronimoVR/monitoreo-agua](https://github.com/JeronimoVR/monitoreo-agua)
+   cd monitoreo-agua
