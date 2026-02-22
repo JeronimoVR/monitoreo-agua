@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # --- INFRAESTRUCTURA DE DATOS ---
+  db:
+    image: postgres:15-alpine
+    container_name: agua_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+      - agua_network
+
+  # --- BROKER MQTT (IoT) ---
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: agua_mosquitto
+    restart: always
+    ports:
+      - "${MQTT_PORT}:1883"     # Puerto MQTT estándar
+      - "${MQTT_DASHBOARD_PORT}:9001" # WebSockets (para ver datos en el navegador)
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - agua_network
+
+  # --- BACKEND (NestJS) ---
+  backend:
+    build: ./backend
+    container_name: agua_backend
+    restart: always
+    ports:
+      - "${PORT_BACKEND}:3001"
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: ${DB_PORT}
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+    depends_on:
+      - db
+      - mosquitto
+    networks:
+      - agua_network
+
+  # Frontend (Next.js)
+  frontend:
+    build: ./frontend
+    container_name: agua_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+    networks:
+      - agua_network
+
+networks:
+  agua_network:
+    driver: bridge

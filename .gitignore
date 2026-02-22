@@ -1,0 +1,57 @@
+# --- DOCKER & PERSISTENCIA ---
+# Ignorar los datos físicos de la base de datos (se generan en tu PC local)
+data/
+.docker_data/
+
+# --- SEGURIDAD ---
+# NUNCA subir las credenciales y llaves maestras
+.env
+.env.local
+.env.*.local
+
+# --- DEPENDENCIAS ---
+# Las dependencias se instalan vía Docker o npm install localmente
+node_modules/
+/backend/node_modules/
+/frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- COMPILACIÓN Y PRODUCCIÓN ---
+# Archivos generados por los frameworks
+/backend/dist/
+/frontend/.next/
+/frontend/out/
+/frontend/build/
+.cache/
+
+# --- INTELIGENCIA ARTIFICIAL (ia-service) ---
+# Ignorar entornos virtuales de Python y datasets pesados
+ia-service/venv/
+ia-service/__pycache__/
+ia-service/.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+ia-service/data/*.csv
+ia-service/data/*.json
+
+# --- FIRMWARE (Microcontrolador) ---
+# Archivos temporales de compilación de Arduino/ESP32
+firmware/build/
+firmware/bin/
+.pio/
+.vscode/arduino.json
+
+# --- SISTEMA OPERATIVO ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDEs / EDITORES ---
+.vscode/
+.idea/
+.antigravity/
+*.swp
+*.swo
