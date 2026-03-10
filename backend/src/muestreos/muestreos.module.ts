@@ -6,14 +6,16 @@ import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { IrcMotorReglasModule } from '../ircaMotorReglas/ircaMotorReglas.module';
 
+/**
+ * Módulo encargado de la gestión de muestreos y sus medidas asociadas.
+ */
 @Module({
   imports: [
-    // Registramos las entidades para que TypeORM cree los repositorios
     TypeOrmModule.forFeature([Muestreo, Medida]),
     IrcMotorReglasModule,
   ],
   controllers: [MuestreosController],
   providers: [MuestreosService],
-  exports: [MuestreosService], // Lo exportamos por si el motor de reglas necesita usarlo
+  exports: [MuestreosService],
 })
 export class MuestreosModule { }

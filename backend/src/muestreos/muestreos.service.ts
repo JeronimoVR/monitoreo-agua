@@ -16,41 +16,48 @@ export class MuestreosService {
         private ircaClasificacionService: IrcMotorReglasService,
     ) { }
 
+    /**
+     * Crea un nuevo muestreo calculando su IRCA y asociando sus medidas.
+     * @param createMuestreoDto Objeto de transferencia de datos con la información del muestreo
+     * @returns El muestreo creado con su clasificación IRCA
+     */
     async crear(createMuestreoDto: CreateMuestreoDto) {
-        // 1. Calcular IRCA usando el Motor de Reglas
-        // Este servicio ya nos devuelve el puntaje y la entidad de clasificación (objeto)
         const resultadoIrca = await this.ircaClasificacionService.calcularIrca(
             createMuestreoDto.medidas
         );
 
-        // 2. Crear la instancia del Muestreo con los resultados del cálculo
-        // Nota: Pasamos el objeto 'clasificacion' completo para que TypeORM guarde el ID correcto
         const nuevoMuestreo = this.muestreoRepo.create({
-            estacion: { id: createMuestreoDto.id_estacion }, // Relación por ID
+            estacion: { id: createMuestreoDto.id_estacion },
             irca_calculado: resultadoIrca.puntaje,
-            clasificacionIrca: resultadoIrca.clasificacion, // Objeto entidad ClasificacionIrca
+            clasificacionIrca: resultadoIrca.clasificacion,
         });
 
-        // Guardar el muestreo padre
         const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
 
-        // 3. Mapear y guardar todas las medidas asociadas
         const medidas = createMuestreoDto.medidas.map(m => ({
             valor: m.valor,
             parametro: { id: m.id_parametro },
-            muestreo: muestreoGuardado // Vinculamos la medida al muestreo recién creado
+            muestreo: muestreoGuardado
         }));
 
         await this.medidaRepo.save(medidas);
 
-        // Retornamos el muestreo guardado (puedes usar relaciones en el find si quieres ver el detalle)
         return muestreoGuardado;
     }
 
+    /**
+     * Obtiene todos los muestreos registrados.
+     * @returns Lista de muestreos
+     */
     async findAll() {
         return await this.muestreoRepo.find();
     }
 
+    /**
+     * Obtiene un muestreo específico por su identificador.
+     * @param id Identificador único del muestreo
+     * @returns El muestreo encontrado
+     */
     async findOne(id: number) {
         return await this.muestreoRepo.findOne({ where: { id } });
     }

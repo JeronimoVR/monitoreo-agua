@@ -4,11 +4,14 @@ import { IrcMotorReglasService } from './ircaClasificacion.service';
 import { Parametro } from './entities/parametros.entity';
 import { ClasificacionesIRCA } from './entities/clasificacionesIRCA.entity';
 
+/**
+ * Módulo para el motor de reglas de cálculo del IRCA.
+ */
 @Module({
   imports: [
     TypeOrmModule.forFeature([Parametro, ClasificacionesIRCA])
   ],
   providers: [IrcMotorReglasService],
-  exports: [IrcMotorReglasService], // Vital para que MuestreosService lo use
+  exports: [IrcMotorReglasService],
 })
-export class IrcMotorReglasModule {}
+export class IrcMotorReglasModule { }

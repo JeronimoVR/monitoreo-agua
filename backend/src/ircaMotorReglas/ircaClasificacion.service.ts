@@ -14,8 +14,12 @@ export class IrcMotorReglasService {
     ) { }
 
     /**
-     * Calcula el IRCA basado en una lista de medidas
-     * @param medidas Array de { id_parametro, valor }
+     * Calcula el IRCA (Índice de Riesgo de la Calidad del Agua) basado en una lista de medidas.
+     * Evalúa cada medida contra los límites permitidos de su parámetro correspondiente
+     * y acumula un puntaje de riesgo si está fuera de rango.
+     * 
+     * @param medidas Arreglo de objetos que contienen el ID del parámetro y el valor medido
+     * @returns Un objeto con el puntaje total calculado y su respectiva clasificación IRCA
      */
     async calcularIrca(medidas: { id_parametro: number; valor: number }[]) {
         let puntajeRiesgoTotal = 0;
@@ -25,15 +29,11 @@ export class IrcMotorReglasService {
 
             if (!parametro) continue;
 
-            // Si el valor está FUERA de los rangos permitidos, se suma el puntaje de riesgo
-            // Nota: En un sistema real, el puntaje de riesgo suele ser un campo en la tabla parametros
             if (medida.valor < parametro.valorMinimo || medida.valor > parametro.valorMaximo) {
-                // Ejemplo de lógica: si falla, suma un peso (esto puede variar según la norma)
                 puntajeRiesgoTotal += 15;
             }
         }
 
-        // Buscamos la clasificación que corresponde al puntaje obtenido
         const clasificacion = await this.clasificacionRepo.findOne({
             where: {
                 rango_min: LessThanOrEqual(puntajeRiesgoTotal),
