@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('irca_clasificacion')
-export class IrcaClasificacion {
+@Entity('clasificaciones_irca')
+export class ClasificacionesIRCA {
     @PrimaryGeneratedColumn()
     id: number;
 
