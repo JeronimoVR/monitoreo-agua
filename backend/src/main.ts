@@ -1,28 +1,30 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  // --- CONFIGURACIÓN MQTT ---
+  // 1. Configuración de la API REST
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+  app.enableCors(); // Permitir que Next.js se conecte
+
+  // 2. Configuración del Microservicio MQTT
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
-      url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:1883`,
+      subscribeOptions: { qos: 1 },
+      url: `mqtt://${process.env.MQTT_HOST || 'localhost'}:${process.env.MQTT_PORT || 1883}`,
     },
   });
 
-  // IMPORTANTE: Esto debe ejecutarse y retornar una promesa exitosa
-  await app.startAllMicroservices()
-    .then(() => logger.log('🟢 Microservicio MQTT escuchando...'))
-    .catch((err) => logger.error('🔴 Error conectando a MQTT:', err));
-
-  await app.listen(3001, '0.0.0.0'); // Inicia la API HTTP para el Dashboard
-  logger.log('🚀 Backend Híbrido: HTTP (3001) y MQTT (1883) activos');
+  // Iniciar microservicios y luego la app HTTP
+  await app.startAllMicroservices();
+  await app.listen(process.env.PORT || 3001);
+  
+  console.log(`🚀 API corriendo en: ${await app.getUrl()}`);
+  console.log(`📡 Microservicio MQTT escuchando...`);
 }
-
 bootstrap();

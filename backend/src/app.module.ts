@@ -1,35 +1,29 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MeasuresModule } from './modules/measures/measures.module';
-// import { UsersModule } from './modules/users/users.module';
-// import { StationsModule } from './modules/stations/stations.module';
 
 @Module({
   imports: [
-    // 1. Cargar variables de entorno (.env)
-    ConfigModule.forRoot({ isGlobal: true }),
-
-    // 2. Configurar conexión a PostgreSQL
+    // Carga de variables de entorno
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    // Configuración asíncrona de TypeORM (PostgreSQL)
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USER'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: false,
+        host: configService.get<string>('DB_HOST'), // Usando el nombre del servicio 'db'
+        port: configService.get<number>('DB_PORT'), // Puerto interno del contenedor
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        autoLoadEntities: true, // Carga automáticamente las entidades que definamos
+        synchronize: true,      // Solo para desarrollo (crea las tablas automáticamente)
       }),
     }),
-
-    // 3. Importar módulos de negocio
-    MeasuresModule,
-    // UsersModule,
-    // StationsModule,
+    // Aquí iremos agregando nuestros módulos: UsuariosModule, MuestreosModule, etc.
   ],
 })
 export class AppModule { }

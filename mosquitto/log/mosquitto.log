@@ -323,3 +323,118 @@
 1771985427: New client connected from ::1:33634 as auto-C0D8E0D6-FAE6-0402-946A-574DE0AB3701 (p4, c1, k60).
 1771985684: mosquitto version 2.1.2 terminating
 1771985684: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771985686: mosquitto version 2.1.2 starting
+1771985686: Config loaded from /mosquitto/config/mosquitto.conf.
+1771985686: Bridge support available.
+1771985686: Persistence support available.
+1771985686: TLS support available.
+1771985686: TLS-PSK support available.
+1771985686: Websockets support available.
+1771985686: Opening ipv4 listen socket on port 1883.
+1771985686: Opening ipv4 listen socket on port 9001.
+1771985686: mosquitto version 2.1.2 running
+1771985688: New connection from 172.18.0.5:53910 on port 1883.
+1771985688: New client connected from 172.18.0.5:53910 as mqttjs_415ab1a8 (p4, c1, k60).
+1771986104: New connection from 172.18.0.1:32988 on port 1883.
+1771986104: New client connected from 172.18.0.1:32988 as 1 (p4, c1, k60).
+1771986200: New connection from 127.0.0.1:45562 on port 1883.
+1771986200: New client connected from 127.0.0.1:45562 as auto-37D8F9D5-2D65-C7D8-4CCE-100733DD0537 (p4, c1, k60).
+1771987495: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771988719: Client 1 [172.18.0.1:32988] disconnected: exceeded timeout.
+1771988750: New connection from 172.18.0.1:48872 on port 1883.
+1771988750: New client connected from 172.18.0.1:48872 as 1 (p4, c1, k60).
+1771989310: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771989764: Client mqttjs_415ab1a8 [172.18.0.5:53910] disconnected: connection closed by client.
+1771989778: New connection from 172.18.0.5:32834 on port 1883.
+1771989778: New client connected from 172.18.0.5:32834 as mqttjs_79940026 (p4, c1, k60).
+1771990103: Client 1 [172.18.0.1:48872] disconnected: exceeded timeout.
+1771990788: New connection from 172.18.0.1:38406 on port 1883.
+1771990788: New client connected from 172.18.0.1:38406 as 1 (p4, c1, k60).
+1771991152: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771991196: Client auto-37D8F9D5-2D65-C7D8-4CCE-100733DD0537 [127.0.0.1:45562] disconnected.
+1771991201: New connection from 127.0.0.1:45676 on port 1883.
+1771991201: New client connected from 127.0.0.1:45676 as auto-20C246A7-70E5-FCF9-F918-CEE47B0FBE35 (p4, c1, k60).
+1771991839: Client 1 [172.18.0.1:38406] disconnected: connection closed by client.
+1771991873: New connection from 172.18.0.1:39950 on port 1883.
+1771991873: New client connected from 172.18.0.1:39950 as 1 (p4, c1, k60).
+1771992213: New connection from 172.18.0.1:38644 on port 1883.
+1771992213: Client 1 [172.18.0.1:39950] disconnected: session taken over.
+1771992213: New client connected from 172.18.0.1:38644 as 1 (p4, c1, k60).
+1771992999: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771993314: New connection from 172.18.0.1:47828 on port 1883.
+1771993314: Client 1 [172.18.0.1:38644] disconnected: session taken over.
+1771993314: New client connected from 172.18.0.1:47828 as 1 (p4, c1, k60).
+1771993344: New connection from 172.18.0.1:45584 on port 1883.
+1771993344: Client 1 [172.18.0.1:47828] disconnected: session taken over.
+1771993344: New client connected from 172.18.0.1:45584 as 1 (p4, c1, k60).
+1771993381: Client 1 [172.18.0.1:45584] disconnected: connection closed by client.
+1771993381: New connection from 172.18.0.1:33502 on port 1883.
+1771993381: New client connected from 172.18.0.1:33502 as 1 (p4, c1, k60).
+1771993500: Client auto-20C246A7-70E5-FCF9-F918-CEE47B0FBE35 [127.0.0.1:45676] disconnected.
+1771993504: New connection from 127.0.0.1:57716 on port 1883.
+1771993504: New client connected from 127.0.0.1:57716 as auto-22FCD0F7-E1F3-2914-F153-8E77121B9EC6 (p4, c1, k60).
+1771993534: New connection from 172.18.0.1:57792 on port 1883.
+1771993535: Client 1 [172.18.0.1:33502] disconnected: exceeded timeout.
+1771993553: New connection from 172.18.0.1:51286 on port 1883.
+1771993553: New client connected from 172.18.0.1:51286 as 1 (p4, c1, k60).
+1771993553: Client 1 [172.18.0.1:51286] disconnected: session taken over.
+1771993553: New client connected from 172.18.0.1:57792 as 1 (p4, c1, k60).
+1771993554: Client 1 [172.18.0.1:57792] disconnected: connection closed by client.
+1771993555: New connection from 172.18.0.1:51288 on port 1883.
+1771993576: New client connected from 172.18.0.1:51288 as 1 (p4, c1, k60).
+1771993577: New connection from 172.18.0.1:46870 on port 1883.
+1771993577: Client 1 [172.18.0.1:51288] disconnected: session taken over.
+1771993577: New client connected from 172.18.0.1:46870 as 1 (p4, c1, k60).
+1771993622: Client 1 [172.18.0.1:46870] disconnected: connection closed by client.
+1771993622: New connection from 172.18.0.1:36126 on port 1883.
+1771993623: New client connected from 172.18.0.1:36126 as 1 (p4, c1, k60).
+1771993661: New connection from 172.18.0.1:38274 on port 1883.
+1771993661: Client 1 [172.18.0.1:36126] disconnected: session taken over.
+1771993661: New client connected from 172.18.0.1:38274 as 1 (p4, c1, k60).
+1771993689: New connection from 172.18.0.1:41524 on port 1883.
+1771993689: Client 1 [172.18.0.1:38274] disconnected: session taken over.
+1771993689: New client connected from 172.18.0.1:41524 as 1 (p4, c1, k60).
+1771993727: New connection from 172.18.0.1:46304 on port 1883.
+1771993752: Client 1 [172.18.0.1:41524] disconnected: connection closed by client.
+1771993753: New connection from 172.18.0.1:45758 on port 1883.
+1771993753: New client connected from 172.18.0.1:45758 as 1 (p4, c1, k60).
+1771993757: Client 172.18.0.1 [172.18.0.1:46304] disconnected: connection closed by client.
+1771993794: New connection from 172.18.0.1:46272 on port 1883.
+1771993794: Client 1 [172.18.0.1:45758] disconnected: session taken over.
+1771993794: New client connected from 172.18.0.1:46272 as 1 (p4, c1, k60).
+1771993808: New connection from 172.18.0.1:58730 on port 1883.
+1771993808: Client 1 [172.18.0.1:46272] disconnected: session taken over.
+1771993808: New client connected from 172.18.0.1:58730 as 1 (p4, c1, k60).
+1771993911: Client 1 [172.18.0.1:58730] disconnected: exceeded timeout.
+1771994592: New connection from 172.18.0.1:55638 on port 1883.
+1771994592: New client connected from 172.18.0.1:55638 as 1 (p4, c1, k60).
+1771994685: Client 1 [172.18.0.1:55638] disconnected: exceeded timeout.
+1771994707: New connection from 172.18.0.1:47590 on port 1883.
+1771994707: New client connected from 172.18.0.1:47590 as 1 (p4, c1, k60).
+1771994851: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1771994888: Client 1 [172.18.0.1:47590] disconnected: connection closed by client.
+1772032089: New connection from 172.18.0.1:53188 on port 1883.
+1772032089: New client connected from 172.18.0.1:53188 as 1 (p4, c1, k60).
+1772032422: Client 1 [172.18.0.1:53188] disconnected: connection closed by client.
+1772032526: New connection from 172.18.0.1:60636 on port 1883.
+1772032526: New client connected from 172.18.0.1:60636 as 1 (p4, c1, k60).
+1772032587: Client 1 [172.18.0.1:60636] disconnected: connection closed by client.
+1772032589: Client auto-22FCD0F7-E1F3-2914-F153-8E77121B9EC6 [127.0.0.1:57716] disconnected.
+1772032650: New connection from 172.18.0.1:54374 on port 1883.
+1772032650: New client connected from 172.18.0.1:54374 as 1 (p4, c1, k60).
+1772032952: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1772034831: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1772036711: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1772038595: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1772155921: mosquitto version 2.1.2 starting
+1772155921: Config loaded from /mosquitto/config/mosquitto.conf.
+1772155921: Bridge support available.
+1772155921: Persistence support available.
+1772155921: TLS support available.
+1772155921: TLS-PSK support available.
+1772155921: Websockets support available.
+1772155921: Opening ipv4 listen socket on port 1883.
+1772155921: Opening ipv4 listen socket on port 9001.
+1772155921: mosquitto version 2.1.2 running
+1772155944: mosquitto version 2.1.2 terminating
+1772155944: Saving in-memory database to /mosquitto/data//mosquitto.db.

@@ -31,11 +31,11 @@ const unsigned long SEND_INTERVAL = 300000;  // 5 minutos
 const int PIN_HUMEDAD = 34;
 
 struct WaterData {
-  float ph;
-  float turbidity;
-  float temperature;
-  float conductivity;
-  float dissolved_oxygen;
+  float pH;
+  float turbidez;
+  float temperatura;
+  float conductividad;
+  float oxigeno;
   float humidity_provisional;
 };
 
@@ -225,11 +225,11 @@ WaterData readSensors() {
 
   data.humidity_provisional = moisture_percent;
 
-  data.ph = random(65, 85) / 10.0;
-  data.turbidity = random(0, 100) / 10.0;
-  data.temperature = random(200, 280) / 10.0;
-  data.conductivity = random(50, 500);
-  data.dissolved_oxygen = random(50, 90) / 10.0;
+  data.pH = random(65, 85) / 10.0;
+  data.turbidez = random(0, 100) / 10.0;
+  data.temperatura = random(200, 280) / 10.0;
+  data.conductividad = random(50, 500);
+  data.oxigeno = random(50, 90) / 10.0;
 
   return data;
 }
@@ -240,29 +240,44 @@ WaterData readSensors() {
 void sendData(WaterData data) {
 
   StaticJsonDocument<512> doc;
-  doc["device_id"] = device_id;
+
+  // Obtener tiempo actual
   time_t now = time(NULL);
+
+  // Identificación del dispositivo
+  doc["device_id"] = device_id;
   doc["timestamp"] = now;
 
-  // Fecha legible opcional
+  // Fecha formateada
   struct tm timeinfo;
   if (getLocalTime(&timeinfo)) {
-    char buffer[25];
+    char buffer[20];
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
-    doc["datetime"] = buffer;
+    doc["fecha"] = buffer;
+  } else {
+    doc["fecha"] = "NO_SYNC";
   }
-  JsonObject values = doc.createNestedObject("values");
-  values["ph"] = data.ph;
-  values["turbidity"] = data.turbidity;
-  values["temperature"] = data.temperature;
-  values["conductivity"] = data.conductivity;
-  values["dissolved_oxygen"] = data.dissolved_oxygen;
-  values["humidity"] = data.humidity_provisional;
 
+  // Datos de sensores
+  doc["pH"] = data.pH;
+  doc["turbidez"] = data.turbidez;
+  doc["temperatura"] = data.temperatura;
+  doc["conductividad"] = data.conductividad;
+  doc["oxigeno"] = data.oxigeno;
+  doc["humidity"] = data.humidity_provisional;
 
+  // Serializar JSON
   String jsonString;
   serializeJson(doc, jsonString);
 
+  // 🔥 Validar fecha mínima (2026)
+  if (now < 1767225600) {
+    Serial.println("Hora no válida (antes de 2026). Guardando en buffer...");
+    saveToBuffer(jsonString);
+    return;  // No intentar enviar aún
+  }
+
+  // Intentar enviar
   if (!sendNow(jsonString)) {
     Serial.println("No se pudo enviar, guardando en buffer...");
     saveToBuffer(jsonString);
