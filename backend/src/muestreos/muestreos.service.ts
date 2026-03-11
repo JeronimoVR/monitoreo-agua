@@ -29,7 +29,7 @@ export class MuestreosService {
         const nuevoMuestreo = this.muestreoRepo.create({
             estacion: { id: createMuestreoDto.id_estacion },
             irca_calculado: resultadoIrca.puntaje,
-            clasificacionIrca: resultadoIrca.clasificacion,
+            clasificacionIrca: resultadoIrca.clasificacion || undefined,
         });
 
         const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);

@@ -1,22 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('clasificaciones_irca')
-export class ClasificacionesIRCA {
-    @PrimaryGeneratedColumn()
-    id: number;
+export class ClasificacionIrca {
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
 
-    @Column()
-    nivel_riesgo: string;
+  @Column({ type: 'text' })
+  clasificacion: string;
 
-    @Column({ type: 'float' })
-    rango_min: number;
+  @Column({ type: 'float8' })
+  valor_min: number;
 
-    @Column({ type: 'float' })
-    rango_max: number;
+  @Column({ type: 'float8' })
+  valor_max: number;
 
-    @Column()
-    color_hex: string;
-
-    @Column('text')
-    recomendacion: string;
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
 }

@@ -12,21 +12,33 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
   app.enableCors();
 
+  // Configuración del Microservicio Híbrido
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
+      url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:${process.env.MQTT_PORT || 1883}`,
+      // Importante: En Docker, a veces Nest necesita el clientId para no desconectarse
+      clientId: 'backend_water_project', 
       subscribeOptions: { qos: 1 },
-      url: `mqtt://${process.env.MQTT_HOST || 'localhost'}:${process.env.MQTT_PORT || 1883}`,
     },
   });
 
-  await app.startAllMicroservices();
-  await app.listen(process.env.PORT || 3001);
+  // Pipe Global (Afecta a HTTP)
+  app.useGlobalPipes(new ValidationPipe({ 
+    whitelist: true, 
+    forbidNonWhitelisted: true 
+  }));
 
-  console.log(`🚀 API corriendo en: ${await app.getUrl()}`);
-  console.log(`📡 Microservicio MQTT escuchando...`);
+  // Arrancar primero los microservicios
+  await app.startAllMicroservices();
+  
+  // Luego arrancar HTTP
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+
+  console.log(`🚀 API REST: http://localhost:${port}/api`);
+  console.log(`📡 MQTT: Conectado a ${process.env.MQTT_HOST || 'mosquitto'}`);
 }
 bootstrap();
