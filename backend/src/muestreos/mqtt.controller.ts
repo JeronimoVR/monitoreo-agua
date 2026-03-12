@@ -11,24 +11,19 @@ export class MqttController {
   constructor(private readonly muestreosService: MuestreosService) { }
 
   /**
-   * Maneja los datos enviados por los sensores a través del tópico MQTT.
-   * @param data Datos del sensor recibidos (CreateMuestreoDto)
-   * @returns El muestreo procesado y creado
+   * Maneja los datos enviados por los sensores a través del tópico MQTT "sensores/datos".
+   * Este método procesa los datos entrantes enviándolos al servicio de muestreo.
+   * 
+   * @param data Datos crudos del sensor recibidos a través del broker MQTT.
+   * @param context Contexto de la conexión y mensaje MQTT.
+   * @returns El objeto de muestreo procesado y persistido.
    */
-  // @MessagePattern('sensores/datos')
-  // handleSensorData(@Payload() data: CreateMuestreoDto) {
-  //   console.info('Datos recibidos del ESP32:', data);
-  //   return this.muestreosService.crear(data);
-  // }
   @MessagePattern('sensores/datos')
   async handleSensorData(@Payload() data: any, @Ctx() context: MqttContext) {
-    // 1. Ver qué llega exactamente (Crucial para debug)
     console.log('--- NUEVO MENSAJE MQTT ---');
     console.log('Payload recibido:', JSON.stringify(data, null, 2));
 
     try {
-      // 2. Construir el DTO manualmente si quieres seguir usando validaciones
-      // o simplemente mapear los datos si los nombres no coinciden
       const nuevoMuestreo: CreateMuestreoDto = {
         id_estacion: data.id_estacion || data.idEstacion,
         medidas: (data.medidas || []).map(m => ({
@@ -39,7 +34,6 @@ export class MqttController {
 
       console.info('DTO Construido:', nuevoMuestreo);
 
-      // 3. Guardar en DB
       return await this.muestreosService.crear(nuevoMuestreo);
 
     } catch (error) {

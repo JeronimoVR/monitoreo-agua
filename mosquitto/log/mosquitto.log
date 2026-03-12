@@ -73,3 +73,4 @@
 1773273575: Client backend_water_project_dokcer [172.18.0.5:54146] disconnected: connection closed by client.
 1773273583: New connection from 172.18.0.5:36200 on port 1883.
 1773273583: New client connected from 172.18.0.5:36200 as backend_water_project_dokcer (p4, c1, k60).
+1773274311: Saving in-memory database to /mosquitto/data//mosquitto.db.

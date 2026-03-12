@@ -18,17 +18,15 @@ export class MuestreosService {
 
     /**
      * Crea un nuevo muestreo calculando su IRCA y asociando sus medidas.
-     * @param createMuestreoDto Objeto de transferencia de datos con la información del muestreo
-     * @returns El muestreo creado con su clasificación IRCA
+     * 
+     * @param createMuestreoDto Objeto de transferencia de datos con la información del muestreo.
+     * @returns El muestreo creado junto con su clasificación IRCA calculada.
      */
     async crear(createMuestreoDto: CreateMuestreoDto) {
-        // 1. Delegamos el cálculo y la clasificación al otro servicio
-        // El MuestreosService solo envía las medidas y espera el resultado
         const resultadoIrca = await this.ircaClasificacionService.calcularIrca(
             createMuestreoDto.medidas
         );
 
-        // 2. Guardamos el Muestreo con el resultado obtenido
         const nuevoMuestreo = this.muestreoRepo.create({
             estacion: { id: createMuestreoDto.id_estacion },
             irca_calculado: resultadoIrca.puntaje,
@@ -37,7 +35,6 @@ export class MuestreosService {
 
         const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
 
-        // 3. Guardamos las medidas
         const medidasEntities = createMuestreoDto.medidas.map(m => ({
             valor: m.valor,
             parametro: { id: m.id_parametro },
@@ -50,17 +47,19 @@ export class MuestreosService {
     }
 
     /**
-     * Obtiene todos los muestreos registrados.
-     * @returns Lista de muestreos
+     * Obtiene todos los muestreos registrados en la base de datos.
+     * 
+     * @returns Una lista con todos los muestreos registrados.
      */
     async findAll() {
         return await this.muestreoRepo.find();
     }
 
     /**
-     * Obtiene un muestreo específico por su identificador.
-     * @param id Identificador único del muestreo
-     * @returns El muestreo encontrado
+     * Obtiene un muestreo específico basado en su identificador.
+     * 
+     * @param id Identificador único del muestreo que se desea buscar.
+     * @returns El muestreo encontrado o undefined si no existe.
      */
     async findOne(id: number) {
         return await this.muestreoRepo.findOne({ where: { id } });

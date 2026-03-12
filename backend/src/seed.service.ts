@@ -13,17 +13,22 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectRepository(Estacion) private estacionRepo: Repository<Estacion>,
   ) { }
 
-  // Se ejecuta automáticamente al arrancar NestJS
+  /**
+   * Método del ciclo de vida de NestJS que se ejecuta automáticamente
+   * una vez que todos los módulos han sido inicializados.
+   */
   async onApplicationBootstrap() {
     await this.ejecutarSeeds();
   }
 
-// seed.service.ts
-
-async ejecutarSeeds() {
+  /**
+   * Ejecuta el proceso de siembra de datos (seeding).
+   * Verifica la existencia de registros y, si no existen, inserta
+   * estaciones, parámetros iniciales y clasificaciones IRCA.
+   */
+  async ejecutarSeeds() {
   console.log('🌱 Iniciando Seeding de base de datos...');
 
-  // 1. Sembrar Estación (ID 1 para el ESP32)
   const estacionCount = await this.estacionRepo.count();
   if (estacionCount === 0) {
     await this.estacionRepo.save([
@@ -32,7 +37,6 @@ async ejecutarSeeds() {
     console.log('✅ Estaciones sembradas');
   }
 
-  // 2. Sembrar Parámetros con TODOS los campos obligatorios
   const paramCount = await this.paramRepo.count();
   if (paramCount === 0) {
     await this.paramRepo.save([
@@ -80,7 +84,6 @@ async ejecutarSeeds() {
     console.log('✅ Parámetros oficiales sembrados');
   }
 
-  // 3. Sembrar Clasificaciones IRCA
   const ircaCount = await this.ircaRepo.count();
   if (ircaCount === 0) {
     await this.ircaRepo.save([
