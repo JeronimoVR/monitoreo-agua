@@ -20,7 +20,7 @@ async function bootstrap() {
     options: {
       url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:${process.env.MQTT_PORT || 1883}`,
       // Importante: En Docker, a veces Nest necesita el clientId para no desconectarse
-      clientId: 'backend_water_project', 
+      clientId: 'backend_water_project_dokcer', 
       subscribeOptions: { qos: 1 },
     },
   });

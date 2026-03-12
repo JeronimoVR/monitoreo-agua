@@ -7,7 +7,7 @@ import { CreateMuestreoDto } from './dto/create-muestreo.dto';
  * Controlador específico para la recepción de mensajes MQTT.
  */
 @Controller()
-export class MuestreosController {
+export class MqttController {
   constructor(private readonly muestreosService: MuestreosService) { }
 
   /**

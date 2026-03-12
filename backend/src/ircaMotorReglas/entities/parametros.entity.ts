@@ -18,6 +18,9 @@ export class Parametro {
   @Column({ name: 'valor_maximo', type: 'float' })
   valorMaximo: number;
 
+  @Column({ name: 'puntaje_riesgo', type: 'float' })
+  puntajeRiesgo: number;
+
   @Column({ type: 'text', nullable: true })
   descripcion: string;
 

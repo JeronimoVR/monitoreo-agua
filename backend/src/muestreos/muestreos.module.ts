@@ -6,6 +6,7 @@ import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { IrcMotorReglasModule } from '../ircaMotorReglas/ircaMotorReglas.module';
 import { Estacion } from 'src/estaciones/entities/estacion.entity';
+import { MqttController } from './mqtt.controller';
 
 /**
  * Módulo encargado de la gestión de muestreos y sus medidas asociadas.
@@ -16,7 +17,7 @@ import { Estacion } from 'src/estaciones/entities/estacion.entity';
     ]),
     IrcMotorReglasModule,
   ],
-  controllers: [MuestreosController],
+  controllers: [MuestreosController, MqttController],
   providers: [MuestreosService],
   exports: [MuestreosService],
 })

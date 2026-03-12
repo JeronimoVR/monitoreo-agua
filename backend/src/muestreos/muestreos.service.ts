@@ -22,10 +22,13 @@ export class MuestreosService {
      * @returns El muestreo creado con su clasificación IRCA
      */
     async crear(createMuestreoDto: CreateMuestreoDto) {
+        // 1. Delegamos el cálculo y la clasificación al otro servicio
+        // El MuestreosService solo envía las medidas y espera el resultado
         const resultadoIrca = await this.ircaClasificacionService.calcularIrca(
             createMuestreoDto.medidas
         );
 
+        // 2. Guardamos el Muestreo con el resultado obtenido
         const nuevoMuestreo = this.muestreoRepo.create({
             estacion: { id: createMuestreoDto.id_estacion },
             irca_calculado: resultadoIrca.puntaje,
@@ -34,13 +37,14 @@ export class MuestreosService {
 
         const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
 
-        const medidas = createMuestreoDto.medidas.map(m => ({
+        // 3. Guardamos las medidas
+        const medidasEntities = createMuestreoDto.medidas.map(m => ({
             valor: m.valor,
             parametro: { id: m.id_parametro },
             muestreo: muestreoGuardado
         }));
 
-        await this.medidaRepo.save(medidas);
+        await this.medidaRepo.save(medidasEntities);
 
         return muestreoGuardado;
     }
