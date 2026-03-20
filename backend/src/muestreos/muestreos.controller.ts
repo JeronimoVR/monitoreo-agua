@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MuestreosService } from './muestreos.service';
 import { CreateMuestreoDto } from './dto/create-muestreo.dto';
@@ -35,8 +35,18 @@ export class MuestreosController {
    * @returns Muestreo encontrado
    */
   @Get(':id')
-  async obtenerUno(@Param('id') id: number) {
+  async obtenerUno(@Param('id', ParseIntPipe) id: number) {
     return await this.muestreosService.findOne(id);
+  }
+
+  /**
+   * Elimina un muestreo específico por su identificador.
+   * @param id Identificador único del muestreo a eliminar
+   * @returns El muestreo eliminado
+   */
+  @Delete(':id')
+  async eliminar(@Param('id', ParseIntPipe) id: number) {
+    return await this.muestreosService.eliminar(id);
   }
 
   /**

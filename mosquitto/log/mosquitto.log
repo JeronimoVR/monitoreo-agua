@@ -177,3 +177,14 @@
 1774022232: New connection from 172.18.0.2:48676 on port 1883.
 1774022232: New client connected from 172.18.0.2:48676 as backend_water_project_dokcer (p4, c1, k60).
 1774023007: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774024799: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774025132: Client backend_water_project_dokcer [172.18.0.2:48676] disconnected: connection closed by client.
+1774025136: New connection from 172.18.0.2:40550 on port 1883.
+1774025136: New client connected from 172.18.0.2:40550 as backend_water_project_dokcer (p4, c1, k60).
+1774025139: Client backend_water_project_dokcer [172.18.0.2:40550] disconnected: connection closed by client.
+1774025141: New connection from 172.18.0.2:40566 on port 1883.
+1774025141: New client connected from 172.18.0.2:40566 as backend_water_project_dokcer (p4, c1, k60).
+1774025141: Client backend_water_project_dokcer [172.18.0.2:40566] disconnected: connection closed by client.
+1774025143: New connection from 172.18.0.2:53952 on port 1883.
+1774025143: New client connected from 172.18.0.2:53952 as backend_water_project_dokcer (p4, c1, k60).
+1774026598: Saving in-memory database to /mosquitto/data//mosquitto.db.

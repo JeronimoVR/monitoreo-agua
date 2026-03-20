@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Muestreo } from './entities/muestreos.entity';
@@ -23,27 +23,31 @@ export class MuestreosService {
      * @returns El muestreo creado junto con su clasificación IRCA calculada.
      */
     async crear(createMuestreoDto: CreateMuestreoDto) {
-        const resultadoIrca = await this.ircaClasificacionService.calcularIrca(
-            createMuestreoDto.medidas
-        );
+        try {
+            const resultadoIrca = await this.ircaClasificacionService.calcularIrca(
+                createMuestreoDto.medidas
+            );
 
-        const nuevoMuestreo = this.muestreoRepo.create({
-            estacion: { id: createMuestreoDto.id_estacion },
-            irca_calculado: resultadoIrca.puntaje,
-            clasificacionIrca: resultadoIrca.clasificacion || undefined,
-        });
+            const nuevoMuestreo = this.muestreoRepo.create({
+                estacion: { id: createMuestreoDto.id_estacion },
+                irca_calculado: resultadoIrca.puntaje,
+                clasificacionIrca: resultadoIrca.clasificacion || undefined,
+            });
 
-        const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
+            const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
 
-        const medidasEntities = createMuestreoDto.medidas.map(m => ({
-            valor: m.valor,
-            parametro: { id: m.id_parametro },
-            muestreo: muestreoGuardado
-        }));
+            const medidasEntities = createMuestreoDto.medidas.map(m => ({
+                valor: m.valor,
+                parametro: { id: m.id_parametro },
+                muestreo: muestreoGuardado
+            }));
 
-        await this.medidaRepo.save(medidasEntities);
+            await this.medidaRepo.save(medidasEntities);
 
-        return muestreoGuardado;
+            return muestreoGuardado;
+        } catch (error) {
+            throw new InternalServerErrorException('Error inesperado al crear el muestreo y sus medidas.');
+        }
     }
 
     /**
@@ -52,7 +56,11 @@ export class MuestreosService {
      * @returns Una lista con todos los muestreos registrados.
      */
     async findAll() {
-        return await this.muestreoRepo.find();
+        try {
+            return await this.muestreoRepo.find();
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener la lista de muestreos.');
+        }
     }
 
     /**
@@ -62,7 +70,27 @@ export class MuestreosService {
      * @returns El muestreo encontrado o undefined si no existe.
      */
     async findOne(id: number) {
-        return await this.muestreoRepo.findOne({ where: { id } });
+        const muestreo = await this.muestreoRepo.findOne({ where: { id } });
+        if (!muestreo) {
+            throw new NotFoundException(`Muestreo con ID ${id} no encontrado`);
+        }
+        return muestreo;
+    }
+
+    /**
+     * Elimina un muestreo específico y sus medidas relacionadas.
+     * 
+     * @param id Identificador único del muestreo a eliminar.
+     * @returns El muestreo eliminado o el resultado de la operación.
+     */
+    async eliminar(id: number) {
+        const muestreo = await this.findOne(id);
+        
+        try {
+            return await this.muestreoRepo.remove(muestreo);
+        } catch (error) {
+            throw new InternalServerErrorException(`Error al intentar eliminar el muestreo con ID ${id}`);
+        }
     }
 
 }
