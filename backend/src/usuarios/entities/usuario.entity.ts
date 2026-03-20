@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ConfigAlerta } from "./config-alerta.entity";
 
 @Entity('usuarios')
 export class Usuario {
@@ -16,4 +17,7 @@ export class Usuario {
 
   @Column()
   rol: string;
+
+  @OneToMany(() => ConfigAlerta, (config) => config.usuario)
+  configuraciones: ConfigAlerta[];
 }

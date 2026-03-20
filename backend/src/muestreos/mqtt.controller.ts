@@ -20,8 +20,8 @@ export class MqttController {
    */
   @MessagePattern('sensores/datos')
   async handleSensorData(@Payload() data: any, @Ctx() context: MqttContext) {
-    console.log('--- NUEVO MENSAJE MQTT ---');
-    console.log('Payload recibido:', JSON.stringify(data, null, 2));
+    console.info('--- NUEVO MENSAJE MQTT ---');
+    console.info('Payload recibido:', JSON.stringify(data, null, 2));
 
     try {
       const nuevoMuestreo: CreateMuestreoDto = {

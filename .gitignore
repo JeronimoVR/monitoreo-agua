@@ -93,3 +93,9 @@ desktop.ini
 # --- MOSQUITTO ---
 mosquitto/log/
 mosquitto/data/
+
+.sonarqube/
+.scannerwork/
+.sonarqube.properties
+sonar-project.properties
+.sonarqube.properties

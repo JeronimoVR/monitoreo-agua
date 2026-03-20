@@ -2,10 +2,10 @@ import { Injectable, ConflictException, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from './entities/usuario.entity';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import * as bcrypt from 'bcrypt';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { ConfigAlerta } from './entities/config-alerta.entity';
+import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
@@ -13,55 +13,51 @@ export class UsuariosService {
     @InjectRepository(Usuario)
     private readonly usuarioRepo: Repository<Usuario>,
     @InjectRepository(ConfigAlerta)
-    private configRepo: Repository<ConfigAlerta>,
+    private readonly configRepo: Repository<ConfigAlerta>,
   ) {}
 
-  async crear(createUsuarioDto: CreateUsuarioDto) {
-    const { password, correo, ...datosUsuario } = createUsuarioDto;
-
-    // Verificar si el correo ya existe
-    const existe = await this.usuarioRepo.findOne({ where: { correo } });
+  async crear(dto: CreateUsuarioDto) {
+    const existe = await this.usuarioRepo.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
 
-    // Hashear contraseña
     const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(dto.password, salt);
 
-    const nuevoUsuario = this.usuarioRepo.create({
-      ...datosUsuario,
-      correo,
-      passwordHash,
-    });
-
-    return await this.usuarioRepo.save(nuevoUsuario);
+    const nuevo = this.usuarioRepo.create({ ...dto, passwordHash });
+    return await this.usuarioRepo.save(nuevo);
   }
 
-  async buscarPorCorreo(correo: string) {
-    return await this.usuarioRepo.findOne({ 
-      where: { correo },
-      select: ['id', 'nombre', 'correo', 'passwordHash', 'rol'] // Incluimos el hash para Auth
-    });
-  }
-
-  async findAll() {
-    return await this.usuarioRepo.find();
-  }
-
-  async actualizarPerfil(id: number, updateDto: UpdateUsuarioDto) {
+  async buscarPorId(id: number) {
     const usuario = await this.usuarioRepo.findOneBy({ id });
-    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+    if (!usuario) throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    return usuario;
+  }
 
-    if (updateDto.password) {
+  // Este lo usará tu AuthModule para el login
+  async buscarPorCorreoConPassword(correo: string) {
+    return await this.usuarioRepo.createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.correo = :correo', { correo })
+      .getOne();
+  }
+
+  async actualizar(id: number, dto: UpdateUsuarioDto) {
+    const usuario = await this.buscarPorId(id);
+
+    if (dto.password) {
       const salt = await bcrypt.genSalt(10);
-      usuario.passwordHash = await bcrypt.hash(updateDto.password, salt);
+      usuario.passwordHash = await bcrypt.hash(dto.password, salt);
     }
-
-    if (updateDto.nombre) usuario.nombre = updateDto.nombre;
-
+    
+    if (dto.nombre) usuario.nombre = dto.nombre;
     return await this.usuarioRepo.save(usuario);
   }
 
-  // Editar configuración de alertas
+  async eliminar(id: number) {
+    const usuario = await this.buscarPorId(id);
+    return await this.usuarioRepo.softRemove(usuario); // Borrado lógico
+  }
+
   async actualizarConfigAlerta(usuarioId: number, estacionId: number, recibe: boolean) {
     let config = await this.configRepo.findOne({
       where: { usuario: { id: usuarioId }, estacion: { id: estacionId } }
@@ -76,7 +72,6 @@ export class UsuariosService {
     } else {
       config.recibeAlerta = recibe;
     }
-
     return await this.configRepo.save(config);
   }
 }

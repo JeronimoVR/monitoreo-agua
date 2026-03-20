@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 
 /**
  * Función encargada de inicializar la aplicación de NestJS,
@@ -14,27 +14,24 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableCors();
 
-  // Configuración del Microservicio Híbrido
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
       url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:${process.env.MQTT_PORT || 1883}`,
-      // Importante: En Docker, a veces Nest necesita el clientId para no desconectarse
-      clientId: 'backend_water_project_dokcer', 
+      clientId: 'backend_water_project_docker', 
       subscribeOptions: { qos: 1 },
     },
   });
 
-  // Pipe Global (Afecta a HTTP)
   app.useGlobalPipes(new ValidationPipe({ 
     whitelist: true, 
     forbidNonWhitelisted: true 
   }));
 
-  // Arrancar primero los microservicios
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
   await app.startAllMicroservices();
   
-  // Luego arrancar HTTP
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
