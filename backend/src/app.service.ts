@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-/**
- * Servicio principal de la aplicación.
- */
 @Injectable()
 export class AppService {
   /**

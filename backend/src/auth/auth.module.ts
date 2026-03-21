@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
+import { MailModule } from '../notificaciones/mail/mail.module';
 
 /**
  * Módulo de Autenticación.
@@ -21,8 +22,9 @@ import { TokenRecuperacion } from './entities/token-recuperacion.entity';
     UsuariosModule,
     PassportModule,
     TypeOrmModule.forFeature([TokenRecuperacion]),
+    MailModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule,MailModule,UsuariosModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET, // Usa variables de entorno (.env)

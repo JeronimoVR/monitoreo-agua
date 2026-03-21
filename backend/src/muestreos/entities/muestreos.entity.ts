@@ -13,7 +13,7 @@ export class Muestreo {
   id_estacion: number;
 
   @ManyToOne(() => Estacion)
-  @JoinColumn({ name: 'id_estacion' }) // Une la entidad con la FK del SQL
+  @JoinColumn({ name: 'id_estacion' })
   estacion: Estacion;
 
   @Column({ name: 'id_clasificacion_irca', type: 'bigint' })

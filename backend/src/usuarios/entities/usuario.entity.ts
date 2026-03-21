@@ -15,9 +15,6 @@ export class Usuario {
   @Column({ name: 'password_hash', select: false })
   passwordHash: string;
 
-  @Column()
-  rol: string;
-
   @OneToMany(() => ConfigAlerta, (config) => config.usuario)
   configuraciones: ConfigAlerta[];
 }

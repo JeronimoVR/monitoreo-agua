@@ -3,11 +3,6 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 
-/**
- * Función encargada de inicializar la aplicación de NestJS,
- * incluyendo la configuración de la API REST (HTTP) y
- * los microservicios usando MQTT.
- */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

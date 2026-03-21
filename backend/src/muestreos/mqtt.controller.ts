@@ -3,9 +3,6 @@ import { MessagePattern, Payload, Ctx, MqttContext } from '@nestjs/microservices
 import { MuestreosService } from './muestreos.service';
 import { CreateMuestreoDto } from './dto/create-muestreo.dto';
 
-/**
- * Controlador específico para la recepción de mensajes MQTT.
- */
 @Controller()
 export class MqttController {
   constructor(private readonly muestreosService: MuestreosService) { }

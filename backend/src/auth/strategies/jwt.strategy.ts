@@ -18,10 +18,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService
   ) {
     super({
-      // Extrae el token del header: Authorization: Bearer <token>
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      // IMPORTANTE: En producción, usa una variable de entorno (.env)
       secretOrKey: configService.get<string>('JWT_SECRET') || 'TU_SEMILLA_SECRETA', 
     });
   }
@@ -35,16 +33,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @throws {UnauthorizedException} Si el UUID asociado ya no es admisible en base de datos.
    * @returns Objeto inyectado en la API del router internamente como `req.user`.
    */
-  // Este método se ejecuta automáticamente si el token es válido
   async validate(payload: any) {
-    // El payload contiene 'sub' (ID del usuario), 'email' y 'rol'
     const usuario = await this.usuariosService.buscarPorId(payload.sub);
     
     if (!usuario) {
       throw new UnauthorizedException('Usuario no encontrado o token inválido');
     }
 
-    // Lo que retornes aquí se inyectará en req.user
     return { 
       id: payload.sub, 
       correo: payload.email, 

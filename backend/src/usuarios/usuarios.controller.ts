@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put, ParseIntPipe, U
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 /**
  * Controlador que maneja las rutas HTTP para la gestión de usuarios.
@@ -37,6 +38,7 @@ export class UsuariosController {
    * @returns El usuario actualizado.
    */
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
   actualizar(
     @Param('id', ParseIntPipe) id: number, 
     @Body() updateUsuarioDto: UpdateUsuarioDto
@@ -50,6 +52,7 @@ export class UsuariosController {
    * @returns El resultado de la operación.
    */
   @Delete(':id')
+    @UseGuards(AuthGuard('jwt'))
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.eliminar(id);
   }
@@ -62,15 +65,13 @@ export class UsuariosController {
    * @param recibeAlerta Indica si el usuario desea recibir alertas.
    * @returns La configuración de alerta actualizada.
    */
-  // Ejemplo de ruta de alertas usando el ID del usuario autenticado
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Put('config-alertas/:estacionId')
   actualizarAlertas(
     @Request() req,
     @Param('estacionId', ParseIntPipe) estacionId: number,
     @Body('recibeAlerta') recibeAlerta: boolean,
   ) {
-    // El ID se saca del token JWT para mayor seguridad
     return this.usuariosService.actualizarConfigAlerta(req.user.id, estacionId, recibeAlerta);
   }
 }

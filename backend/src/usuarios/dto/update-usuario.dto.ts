@@ -8,5 +8,5 @@ export class UpdateUsuarioDto {
   @IsString()
   @IsOptional()
   @MinLength(6)
-  password?: string; // Si envía password, el servicio debe hashearla
+  password?: string;
 }

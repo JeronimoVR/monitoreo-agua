@@ -7,20 +7,21 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { MuestreosModule } from './muestreos/muestreos.module';
 import { IrcMotorReglasModule } from './ircaMotorReglas/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
-
-// IMPORTA LAS ENTIDADES PARA EL SEED
-import { Parametro } from './ircaMotorReglas/entities/parametros.entity'; // Ajusta las rutas
+import { Parametro } from './ircaMotorReglas/entities/parametros.entity';
 import { ClasificacionIrca } from './ircaMotorReglas/entities/clasificacionesIRCA.entity';
 import { Estacion } from './estaciones/entities/estacion.entity';
+import { AuthModule } from './auth/auth.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
-    // 1. REGISTRA LAS ENTIDADES AQUÍ PARA QUE EL SEED SERVICE LAS VEA
     TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion]),
 
     UsuariosModule,
     MuestreosModule,
     IrcMotorReglasModule,
+    AuthModule,
+    NotificacionesModule,
 
     ClientsModule.register([
       {

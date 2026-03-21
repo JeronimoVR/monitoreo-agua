@@ -188,3 +188,90 @@
 1774025143: New connection from 172.18.0.2:53952 on port 1883.
 1774025143: New client connected from 172.18.0.2:53952 as backend_water_project_dokcer (p4, c1, k60).
 1774026598: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774042634: mosquitto version 2.1.2 starting
+1774042634: Config loaded from /mosquitto/config/mosquitto.conf.
+1774042634: Bridge support available.
+1774042634: Persistence support available.
+1774042634: TLS support available.
+1774042634: TLS-PSK support available.
+1774042634: Websockets support available.
+1774042634: Opening ipv4 listen socket on port 1883.
+1774042634: Opening ipv4 listen socket on port 9001.
+1774042634: mosquitto version 2.1.2 running
+1774042654: New connection from 172.18.0.3:60346 on port 1883.
+1774042654: New client connected from 172.18.0.3:60346 as backend_water_project_dokcer (p4, c1, k60).
+1774044210: mosquitto version 2.1.2 starting
+1774044210: Config loaded from /mosquitto/config/mosquitto.conf.
+1774044210: Bridge support available.
+1774044210: Persistence support available.
+1774044210: TLS support available.
+1774044210: TLS-PSK support available.
+1774044210: Websockets support available.
+1774044210: Opening ipv4 listen socket on port 1883.
+1774044210: Opening ipv4 listen socket on port 9001.
+1774044210: mosquitto version 2.1.2 running
+1774044229: New connection from 172.18.0.4:51800 on port 1883.
+1774044229: New client connected from 172.18.0.4:51800 as backend_water_project_docker (p4, c1, k60).
+1774044499: Client backend_water_project_docker [172.18.0.4:51800] disconnected: connection closed by client.
+1774044500: mosquitto version 2.1.2 terminating
+1774044500: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774044511: mosquitto version 2.1.2 starting
+1774044511: Config loaded from /mosquitto/config/mosquitto.conf.
+1774044511: Bridge support available.
+1774044511: Persistence support available.
+1774044511: TLS support available.
+1774044511: TLS-PSK support available.
+1774044511: Websockets support available.
+1774044511: Opening ipv4 listen socket on port 1883.
+1774044511: Opening ipv4 listen socket on port 9001.
+1774044511: mosquitto version 2.1.2 running
+1774044520: New connection from 172.18.0.5:33236 on port 1883.
+1774044520: New client connected from 172.18.0.5:33236 as backend_water_project_docker (p4, c1, k60).
+1774044653: Client backend_water_project_docker [172.18.0.5:33236] disconnected: connection closed by client.
+1774044654: mosquitto version 2.1.2 terminating
+1774044654: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774044694: mosquitto version 2.1.2 starting
+1774044694: Config loaded from /mosquitto/config/mosquitto.conf.
+1774044694: Bridge support available.
+1774044694: Persistence support available.
+1774044694: TLS support available.
+1774044694: TLS-PSK support available.
+1774044694: Websockets support available.
+1774044694: Opening ipv4 listen socket on port 1883.
+1774044694: Opening ipv4 listen socket on port 9001.
+1774044694: mosquitto version 2.1.2 running
+1774044709: New connection from 172.18.0.4:46864 on port 1883.
+1774044709: New client connected from 172.18.0.4:46864 as backend_water_project_docker (p4, c1, k60).
+1774045105: Client backend_water_project_docker [172.18.0.4:46864] disconnected: connection closed by client.
+1774045117: New connection from 172.18.0.4:53428 on port 1883.
+1774045117: New client connected from 172.18.0.4:53428 as backend_water_project_docker (p4, c1, k60).
+1774045521: Client backend_water_project_docker [172.18.0.4:53428] disconnected: connection closed by client.
+1774045534: New connection from 172.18.0.4:43890 on port 1883.
+1774045534: New client connected from 172.18.0.4:43890 as backend_water_project_docker (p4, c1, k60).
+1774046497: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774047186: Client backend_water_project_docker [172.18.0.4:43890] disconnected: connection closed by client.
+1774047202: New connection from 172.18.0.4:35136 on port 1883.
+1774047202: New client connected from 172.18.0.4:35136 as backend_water_project_docker (p4, c1, k60).
+1774048300: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774050104: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774051908: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774053714: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774055520: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774057328: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774057901: Client backend_water_project_docker [172.18.0.4:35136] disconnected: connection closed by client.
+1774058960: New connection from 172.18.0.4:58172 on port 1883.
+1774058960: New client connected from 172.18.0.4:58172 as backend_water_project_docker (p4, c1, k60).
+1774059124: Client backend_water_project_docker [172.18.0.4:58172] disconnected: connection closed by client.
+1774059136: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774060132: New connection from 172.18.0.4:43466 on port 1883.
+1774060132: New client connected from 172.18.0.4:43466 as backend_water_project_docker (p4, c1, k60).
+1774060945: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774061039: Client backend_water_project_docker [172.18.0.4:43466] disconnected: connection closed by client.
+1774061056: New connection from 172.18.0.4:44146 on port 1883.
+1774061056: New client connected from 172.18.0.4:44146 as backend_water_project_docker (p4, c1, k60).
+1774061488: Client backend_water_project_docker [172.18.0.4:44146] disconnected: connection closed by client.
+1774061500: New connection from 172.18.0.4:37034 on port 1883.
+1774061500: New client connected from 172.18.0.4:37034 as backend_water_project_docker (p4, c1, k60).
+1774061990: Client backend_water_project_docker [172.18.0.4:37034] disconnected: connection closed by client.
+1774062002: New connection from 172.18.0.4:55154 on port 1883.
+1774062002: New client connected from 172.18.0.4:55154 as backend_water_project_docker (p4, c1, k60).

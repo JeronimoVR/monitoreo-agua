@@ -24,7 +24,6 @@ export class Parametro {
   @Column({ type: 'text', nullable: true })
   descripcion: string;
 
-  // Relación inversa para poder consultar todas las medidas asociadas a este parámetro
   @OneToMany(() => Medida, (medida) => medida.parametro)
   medidas: Medida[];
 }

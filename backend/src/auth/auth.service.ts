@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
+import { MailService } from '../notificaciones/mail/mail.service';
 
 /**
  * Servicio de Autenticación.
@@ -20,8 +21,9 @@ export class AuthService {
     private usuariosService: UsuariosService,
     @InjectRepository(TokenRecuperacion)
     private tokenRepo: Repository<TokenRecuperacion>,
+    private readonly mailService: MailService,
     private jwtService: JwtService
-  ) {}
+  ) { }
 
   /**
    * Valida si existe un usuario con el correo solicitado y comprueba que 
@@ -31,13 +33,12 @@ export class AuthService {
    * @param pass La contraseña sin encriptar.
    * @returns Datos del usuario si hay coincidencias, u objeto `null` en caso de error.
    */
-  // 1. Validar que el usuario existe y la contraseña es correcta
   async validateUser(correo: string, pass: string): Promise<any> {
     const usuario = await this.usuariosService.buscarPorCorreoConPassword(correo);
-    
+
     if (usuario && (await bcrypt.compare(pass, usuario.passwordHash))) {
       const { passwordHash, ...result } = usuario;
-      return result; // Retornamos el usuario sin el hash
+      return result;
     }
     return null;
   }
@@ -49,7 +50,6 @@ export class AuthService {
    * @param user El usuario resultante del método `validateUser`.
    * @returns El Bearer Token configurado basado en las opciones del servidor.
    */
-  // 2. Generar el JWT
   async login(user: any) {
     const payload = { sub: user.id, email: user.correo, rol: user.rol };
     return {
@@ -69,26 +69,40 @@ export class AuthService {
    * @throws {NotFoundException} Si no existe cuenta bajo el correo proveído.
    * @returns Objeto de información y el `token` creado.
    */
-  // Paso 4, 5 y 6 del Caso de Uso
   async generarTokenRecuperacion(correo: string) {
     const usuario = await this.usuariosService.buscarPorCorreoParaAuth(correo);
-    if (!usuario) throw new NotFoundException('No hay una cuenta asociada a ese email');
+    if (!usuario) {
+      throw new NotFoundException('No hay una cuenta asociada a ese email');
+    }
 
     const token = randomBytes(32).toString('hex');
     const fechaExpiracion = new Date();
-    fechaExpiracion.setHours(fechaExpiracion.getHours() + 1); // Expira en 1 hora
-
+    fechaExpiracion.setHours(fechaExpiracion.getHours() + 1);
     const nuevoToken = this.tokenRepo.create({
       token,
       fechaExpiracion,
       usuario,
       usado: false,
     });
-
     await this.tokenRepo.save(nuevoToken);
-    
-    // Por ahora retornamos el token para tus pruebas en Postman
-    return { message: 'Token generado', token }; 
+
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    try {
+      await this.mailService.enviarCorreo(
+        usuario.correo,
+        'Recuperación de Contraseña - Sistema IoT',
+        'recuperación',
+        {
+          nombre: usuario.nombre,
+          url: resetLink
+        }
+      );
+    } catch (error) {
+      console.error('Error al enviar correo:', error);
+      throw new InternalServerErrorException('No se pudo enviar el correo de recuperación');
+    }
+
+    return { message: 'Se ha enviado un código de recuperación a su correo' };
   }
 
   /**
@@ -101,7 +115,6 @@ export class AuthService {
    * @throws {UnauthorizedException} Si el token caducó en tiempo, o ya fue reclamado.
    * @returns Objeto `{ message: string }` indicando la correcta renovación de credencial.
    */
-  // Paso 9 y 12 del Caso de Uso
   async restablecerPassword(token: string, nuevaPassword: string) {
     const registro = await this.tokenRepo.findOne({
       where: { token, usado: false },
@@ -112,10 +125,8 @@ export class AuthService {
       throw new UnauthorizedException('El token es inválido o ha expirado');
     }
 
-    // Actualizamos la contraseña en el servicio de usuarios
     await this.usuariosService.actualizarPassword(registro.usuario.id, nuevaPassword);
 
-    // Marcamos el token como usado para que no se repita (Seguridad)
     registro.usado = true;
     await this.tokenRepo.save(registro);
 
