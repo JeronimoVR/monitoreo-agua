@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { CreateMuestreoDto } from './dto/create-muestreo.dto';
-import { IrcMotorReglasService } from '../ircaMotorReglas/ircaClasificacion.service';
+import { IrcaMotorReglasService } from '../ircaMotorReglas/ircaClasificacion.service';
 
 @Injectable()
 export class MuestreosService {
@@ -13,7 +13,7 @@ export class MuestreosService {
         private muestreoRepo: Repository<Muestreo>,
         @InjectRepository(Medida)
         private medidaRepo: Repository<Medida>,
-        private ircaClasificacionService: IrcMotorReglasService,
+        private ircaClasificacionService: IrcaMotorReglasService,
     ) { }
 
     /**
@@ -90,6 +90,23 @@ export class MuestreosService {
             return await this.muestreoRepo.remove(muestreo);
         } catch (error) {
             throw new InternalServerErrorException(`Error al intentar eliminar el muestreo con ID ${id}`);
+        }
+    }
+
+    /**
+     * Consulta los muestreos asociados a una estación específica.
+     * 
+     * @param id_estacion Identificador de la estación.
+     * @returns Lista de muestreos encontrados.
+     */
+    async consultarPorEstacion(id_estacion: number) {
+        try {
+            return await this.muestreoRepo.find({
+                where: { id_estacion },
+                relations: ['medidas', 'clasificacionIrca'],
+            });
+        } catch (error) {
+            throw new InternalServerErrorException(`Error al consultar muestreos para la estación ${id_estacion}`);
         }
     }
 

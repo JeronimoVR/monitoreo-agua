@@ -5,7 +5,7 @@ import { Parametro } from './entities/parametros.entity';
 import { ClasificacionIrca } from './entities/clasificacionesIRCA.entity';
 
 @Injectable()
-export class IrcMotorReglasService {
+export class IrcaMotorReglasService {
     constructor(
         @InjectRepository(Parametro)
         private parametroRepo: Repository<Parametro>,

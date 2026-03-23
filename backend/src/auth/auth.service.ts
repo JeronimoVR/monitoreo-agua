@@ -34,13 +34,19 @@ export class AuthService {
    * @returns Datos del usuario si hay coincidencias, u objeto `null` en caso de error.
    */
   async validateUser(correo: string, pass: string): Promise<any> {
-    const usuario = await this.usuariosService.buscarPorCorreoConPassword(correo);
+    const user = await this.usuariosService.buscarPorCorreoConPassword(correo);
 
-    if (usuario && (await bcrypt.compare(pass, usuario.passwordHash))) {
-      const { passwordHash, ...result } = usuario;
-      return result;
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
     }
-    return null;
+
+    const isMatch = await bcrypt.compare(pass, user.passwordHash);
+
+    if (!isMatch) {
+      throw new UnauthorizedException('La contraseña es incorrecta');
+    }
+    const { passwordHash, ...result } = user;
+    return result;
   }
 
   /**

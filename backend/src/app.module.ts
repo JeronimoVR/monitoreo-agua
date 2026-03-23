@@ -12,6 +12,7 @@ import { ClasificacionIrca } from './ircaMotorReglas/entities/clasificacionesIRC
 import { Estacion } from './estaciones/entities/estacion.entity';
 import { AuthModule } from './auth/auth.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
+import { EstacionesModule } from './estaciones/estaciones.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NotificacionesModule } from './notificaciones/notificaciones.module';
     IrcMotorReglasModule,
     AuthModule,
     NotificacionesModule,
+    EstacionesModule,
 
     ClientsModule.register([
       {

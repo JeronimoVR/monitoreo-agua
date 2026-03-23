@@ -18,7 +18,13 @@ export class UsuariosService {
     private readonly usuarioRepo: Repository<Usuario>,
     @InjectRepository(ConfigAlerta)
     private readonly configRepo: Repository<ConfigAlerta>,
-  ) {}
+  ) { }
+
+  validateEmail(email: string): boolean {
+    const emailRegex = /^(([^<>()[\]\\.,;:\s@”]+(\.[^<>()[\]\\.,;:\s@”]+)*)|(“.+”))@((\[[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}])|(([a-zA-Z\-0–9]+\.)+[a-zA-Z]{2,}))$/;
+    return emailRegex.test(email);
+  }
+
 
   /**
    * Crea un nuevo usuario validando que el correo no exista previamente
@@ -27,18 +33,32 @@ export class UsuariosService {
    * @returns El usuario recién creado guardado en base de datos.
    * @throws ConflictException Si el correo ya está registrado.
    */
-  async crear(dto: CreateUsuarioDto) {
+async crear(dto: CreateUsuarioDto) {
     const existe = await this.usuarioRepo.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
+    
+    if (dto.correo && !this.validateEmail(dto.correo)) {
+      throw new BadRequestException('El formato del correo es inválido');
+    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     try {
       const nuevo = this.usuarioRepo.create({ ...dto, passwordHash });
-      return await this.usuarioRepo.save(nuevo);
+      const usuarioGuardado = await this.usuarioRepo.save(nuevo);
+
+      const nuevaConfig = this.configRepo.create({
+        usuario: usuarioGuardado,
+        recibeAlerta: true,
+      });
+      await this.configRepo.save(nuevaConfig);
+
+      return usuarioGuardado;
     } catch (error) {
-      throw new InternalServerErrorException('Error inesperado al crear el usuario. Por favor, inténtelo de nuevo más tarde.');
+      throw new InternalServerErrorException(
+        'Error inesperado al crear el usuario. Por favor, inténtelo de nuevo más tarde.'
+      );
     }
   }
 
@@ -67,10 +87,7 @@ export class UsuariosService {
       .where('user.correo = :correo', { correo })
       .getOne();
 
-    if (!usuario) {
-      throw new NotFoundException(`Usuario con correo ${correo} no encontrado`);
-    }
-    return usuario;
+    return usuario || null;
   }
 
   /**
@@ -87,7 +104,7 @@ export class UsuariosService {
       const salt = await bcrypt.genSalt(10);
       usuario.passwordHash = await bcrypt.hash(dto.password, salt);
     }
-    
+
     if (dto.nombre) usuario.nombre = dto.nombre;
     try {
       return await this.usuarioRepo.save(usuario);

@@ -5,7 +5,7 @@ import { MuestreosController } from './muestreos.controller';
 import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { IrcMotorReglasModule } from '../ircaMotorReglas/ircaMotorReglas.module';
-import { Estacion } from 'src/estaciones/entities/estacion.entity';
+import { Estacion } from '../estaciones/entities/estacion.entity';
 import { MqttController } from './mqtt.controller';
 
 /**
@@ -16,6 +16,7 @@ import { MqttController } from './mqtt.controller';
     TypeOrmModule.forFeature([Muestreo, Medida,Estacion
     ]),
     IrcMotorReglasModule,
+
   ],
   controllers: [MuestreosController, MqttController],
   providers: [MuestreosService],

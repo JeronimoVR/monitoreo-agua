@@ -275,3 +275,35 @@
 1774061990: Client backend_water_project_docker [172.18.0.4:37034] disconnected: connection closed by client.
 1774062002: New connection from 172.18.0.4:55154 on port 1883.
 1774062002: New client connected from 172.18.0.4:55154 as backend_water_project_docker (p4, c1, k60).
+1774062660: Client backend_water_project_docker [172.18.0.4:55154] disconnected: connection closed by client.
+1774062661: mosquitto version 2.1.2 terminating
+1774062661: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774062727: mosquitto version 2.1.2 starting
+1774062727: Config loaded from /mosquitto/config/mosquitto.conf.
+1774062727: Bridge support available.
+1774062727: Persistence support available.
+1774062727: TLS support available.
+1774062727: TLS-PSK support available.
+1774062727: Websockets support available.
+1774062727: Opening ipv4 listen socket on port 1883.
+1774062727: Opening ipv4 listen socket on port 9001.
+1774062727: mosquitto version 2.1.2 running
+1774062738: New connection from 172.18.0.5:52084 on port 1883.
+1774062738: New client connected from 172.18.0.5:52084 as backend_water_project_docker (p4, c1, k60).
+1774302611: mosquitto version 2.1.2 starting
+1774302611: Config loaded from /mosquitto/config/mosquitto.conf.
+1774302611: Bridge support available.
+1774302611: Persistence support available.
+1774302611: TLS support available.
+1774302611: TLS-PSK support available.
+1774302611: Websockets support available.
+1774302611: Opening ipv4 listen socket on port 1883.
+1774302611: Opening ipv4 listen socket on port 9001.
+1774302611: mosquitto version 2.1.2 running
+1774302621: New connection from 172.18.0.1:45462 on port 1883.
+1774302621: New client connected from 172.18.0.1:45462 as 01 (p4, c1, k15).
+1774302636: New connection from 172.18.0.4:49350 on port 1883.
+1774302636: New client connected from 172.18.0.4:49350 as backend_water_project_docker (p4, c1, k60).
+1774304415: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774306225: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774308036: Saving in-memory database to /mosquitto/data//mosquitto.db.
