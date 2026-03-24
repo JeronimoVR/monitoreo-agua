@@ -1,5 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 
@@ -17,6 +18,16 @@ async function bootstrap() {
       subscribeOptions: { qos: 1 },
     },
   });
+
+  const config = new DocumentBuilder()
+    .setTitle('Monitoreo de Agua')
+    .setDescription('API para el monitoreo de la calidad del agua')
+    .setVersion('1.0')
+    .addTag('monitoreo-agua')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, documentFactory);
 
   app.useGlobalPipes(new ValidationPipe({ 
     whitelist: true, 

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { IrcMotorReglasService } from './ircaClasificacion.service';
+import { IrcaMotorReglasService } from './ircaClasificacion.service';
 import { Parametro } from './entities/parametros.entity';
 import { ClasificacionIrca } from './entities/clasificacionesIRCA.entity';
 
@@ -8,7 +8,7 @@ import { ClasificacionIrca } from './entities/clasificacionesIRCA.entity';
   imports: [
     TypeOrmModule.forFeature([Parametro, ClasificacionIrca])
   ],
-  providers: [IrcMotorReglasService],
-  exports: [IrcMotorReglasService],
+  providers: [IrcaMotorReglasService],
+  exports: [IrcaMotorReglasService],
 })
-export class IrcMotorReglasModule { }
+export class IrcaMotorReglasModule { }

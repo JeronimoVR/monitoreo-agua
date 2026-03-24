@@ -5,7 +5,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { MuestreosModule } from './muestreos/muestreos.module';
-import { IrcMotorReglasModule } from './ircaMotorReglas/ircaMotorReglas.module';
+import { IrcaMotorReglasModule } from './ircaMotorReglas/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
 import { Parametro } from './ircaMotorReglas/entities/parametros.entity';
 import { ClasificacionIrca } from './ircaMotorReglas/entities/clasificacionesIRCA.entity';
@@ -20,7 +20,7 @@ import { EstacionesModule } from './estaciones/estaciones.module';
 
     UsuariosModule,
     MuestreosModule,
-    IrcMotorReglasModule,
+    IrcaMotorReglasModule,
     AuthModule,
     NotificacionesModule,
     EstacionesModule,

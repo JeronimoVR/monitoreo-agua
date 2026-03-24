@@ -40,16 +40,6 @@ export class MuestreosController {
   }
 
   /**
-   * Elimina un muestreo específico por su identificador.
-   * @param id Identificador único del muestreo a eliminar
-   * @returns El muestreo eliminado
-   */
-  @Delete(':id')
-  async eliminar(@Param('id', ParseIntPipe) id: number) {
-    return await this.muestreosService.eliminar(id);
-  }
-
-  /**
    * Maneja los datos de muestreo entrantes a través del protocolo MQTT provenientes de los sensores IoT.
    * @param data Datos del muestreo recibidos por MQTT
    * @returns El muestreo creado

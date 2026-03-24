@@ -307,3 +307,7 @@
 1774304415: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1774306225: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1774308036: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774309335: Client backend_water_project_docker [172.18.0.4:49350] disconnected: connection closed by client.
+1774309335: Client 01 [172.18.0.1:45462] disconnected: exceeded timeout.
+1774309336: mosquitto version 2.1.2 terminating
+1774309336: Saving in-memory database to /mosquitto/data//mosquitto.db.
