@@ -1,4 +1,4 @@
-import { IsNumber, IsArray, ValidateNested, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsArray, ValidateNested, IsNotEmpty, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class MedidaDto {
@@ -15,6 +15,10 @@ export class CreateMuestreoDto {
   @IsNumber()
   @IsNotEmpty()
   id_estacion: number;
+
+  @IsDate()
+  @IsNotEmpty()
+  fecha_muestreo: Date;
 
   @IsArray()
   @ValidateNested({ each: true })

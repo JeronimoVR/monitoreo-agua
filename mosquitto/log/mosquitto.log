@@ -311,3 +311,146 @@
 1774309335: Client 01 [172.18.0.1:45462] disconnected: exceeded timeout.
 1774309336: mosquitto version 2.1.2 terminating
 1774309336: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774310536: mosquitto version 2.1.2 starting
+1774310536: Config loaded from /mosquitto/config/mosquitto.conf.
+1774310536: Bridge support available.
+1774310536: Persistence support available.
+1774310536: TLS support available.
+1774310536: TLS-PSK support available.
+1774310536: Websockets support available.
+1774310536: Opening ipv4 listen socket on port 1883.
+1774310536: Opening ipv4 listen socket on port 9001.
+1774310536: mosquitto version 2.1.2 running
+1774310553: New connection from 172.18.0.5:37564 on port 1883.
+1774310553: New client connected from 172.18.0.5:37564 as backend_water_project_docker (p4, c1, k60).
+1774310923: Client backend_water_project_docker [172.18.0.5:37564] disconnected: connection closed by client.
+1774310924: mosquitto version 2.1.2 terminating
+1774310924: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774324252: mosquitto version 2.1.2 starting
+1774324252: Config loaded from /mosquitto/config/mosquitto.conf.
+1774324252: Bridge support available.
+1774324252: Persistence support available.
+1774324252: TLS support available.
+1774324252: TLS-PSK support available.
+1774324252: Websockets support available.
+1774324252: Opening ipv4 listen socket on port 1883.
+1774324252: Opening ipv4 listen socket on port 9001.
+1774324252: mosquitto version 2.1.2 running
+1774324263: mosquitto version 2.1.2 terminating
+1774324263: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774324752: mosquitto version 2.1.2 starting
+1774324752: Config loaded from /mosquitto/config/mosquitto.conf.
+1774324752: Bridge support available.
+1774324752: Persistence support available.
+1774324752: TLS support available.
+1774324752: TLS-PSK support available.
+1774324752: Websockets support available.
+1774324752: Opening ipv4 listen socket on port 1883.
+1774324752: Opening ipv4 listen socket on port 9001.
+1774324752: mosquitto version 2.1.2 running
+1774324763: New connection from 172.18.0.5:47832 on port 1883.
+1774324763: New client connected from 172.18.0.5:47832 as backend_water_project_docker (p4, c1, k60).
+1774324892: mosquitto version 2.1.2 terminating
+1774324892: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774386857: mosquitto version 2.1.2 starting
+1774386857: Config loaded from /mosquitto/config/mosquitto.conf.
+1774386857: Bridge support available.
+1774386857: Persistence support available.
+1774386857: TLS support available.
+1774386857: TLS-PSK support available.
+1774386857: Websockets support available.
+1774386857: Opening ipv4 listen socket on port 1883.
+1774386857: Opening ipv4 listen socket on port 9001.
+1774386857: mosquitto version 2.1.2 running
+1774386881: New connection from 172.18.0.2:46848 on port 1883.
+1774386881: New client connected from 172.18.0.2:46848 as backend_water_project_docker (p4, c1, k60).
+1774387890: New connection from 172.18.0.1:46966 on port 1883.
+1774387890: New client connected from 172.18.0.1:46966 as 01 (p4, c1, k15).
+1774387912: Client 01 [172.18.0.1:46966] disconnected: exceeded timeout.
+1774387917: New connection from 172.18.0.1:52894 on port 1883.
+1774387917: New client connected from 172.18.0.1:52894 as 01 (p4, c1, k15).
+1774388210: Client 01 [172.18.0.1:52894] disconnected: exceeded timeout.
+1774388217: New connection from 172.18.0.1:57514 on port 1883.
+1774388220: New client connected from 172.18.0.1:57514 as 01 (p4, c1, k15).
+1774388498: Client 01 [172.18.0.1:57514] disconnected: exceeded timeout.
+1774388517: New connection from 172.18.0.1:34682 on port 1883.
+1774388517: New client connected from 172.18.0.1:34682 as 01 (p4, c1, k15).
+1774388737: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774389421: Client backend_water_project_docker [172.18.0.2:46848] disconnected: connection closed by client.
+1774389446: New connection from 172.18.0.2:58820 on port 1883.
+1774389446: New client connected from 172.18.0.2:58820 as backend_water_project_docker (p4, c1, k60).
+1774390130: Client backend_water_project_docker [172.18.0.2:58820] disconnected: connection closed by client.
+1774390146: New connection from 172.18.0.2:57250 on port 1883.
+1774390146: New client connected from 172.18.0.2:57250 as backend_water_project_docker (p4, c1, k60).
+1774390539: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774390698: Client backend_water_project_docker [172.18.0.2:57250] disconnected: connection closed by client.
+1774390711: New connection from 172.18.0.2:49032 on port 1883.
+1774390711: New client connected from 172.18.0.2:49032 as backend_water_project_docker (p4, c1, k60).
+1774391225: Client 01 [172.18.0.1:34682] disconnected: exceeded timeout.
+1774391226: New connection from 172.18.0.1:52068 on port 1883.
+1774391226: New client connected from 172.18.0.1:52068 as 01 (p4, c1, k15).
+1774391248: Client 01 [172.18.0.1:52068] disconnected: exceeded timeout.
+1774391257: New connection from 172.18.0.1:55680 on port 1883.
+1774391257: New client connected from 172.18.0.1:55680 as 01 (p4, c1, k15).
+1774391296: Client backend_water_project_docker [172.18.0.2:49032] disconnected: connection closed by client.
+1774391316: New connection from 172.18.0.2:54206 on port 1883.
+1774391316: New client connected from 172.18.0.2:54206 as backend_water_project_docker (p4, c1, k60).
+1774391525: Client 01 [172.18.0.1:55680] disconnected: exceeded timeout.
+1774391525: New connection from 172.18.0.1:52540 on port 1883.
+1774391525: New client connected from 172.18.0.1:52540 as 01 (p4, c1, k15).
+1774391608: Client 01 [172.18.0.1:52540] disconnected: exceeded timeout.
+1774391619: New connection from 172.18.0.1:52276 on port 1883.
+1774391619: New client connected from 172.18.0.1:52276 as 01 (p4, c1, k15).
+1774392342: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774393262: Client 01 [172.18.0.1:52276] disconnected: exceeded timeout.
+1774393262: New connection from 172.18.0.1:41822 on port 1883.
+1774393262: New client connected from 172.18.0.1:41822 as 01 (p4, c1, k15).
+1774394145: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774395191: Client 01 [172.18.0.1:41822] disconnected: exceeded timeout.
+1774395210: New connection from 172.18.0.1:34594 on port 1883.
+1774395210: New client connected from 172.18.0.1:34594 as 01 (p4, c1, k15).
+1774395442: Client 01 [172.18.0.1:34594] disconnected: exceeded timeout.
+1774395949: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774397754: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774399559: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774401366: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774403173: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774404981: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774406789: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774408737: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774410552: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774412382: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774414225: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774470844: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774472735: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774474599: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774476417: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774493935: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774495787: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774562736: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774564553: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774566364: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774568173: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774569979: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774571785: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774573594: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774575400: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774577206: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774579014: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774580822: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774582631: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774584441: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774622716: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774624589: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774626466: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774628346: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774630228: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774638217: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774640115: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774642018: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774643926: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774645837: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774647750: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774649666: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774653168: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774654969: Saving in-memory database to /mosquitto/data//mosquitto.db.

@@ -74,4 +74,10 @@ export class UsuariosController {
   ) {
     return this.usuariosService.actualizarConfigAlerta(req.user.id, estacionId, recibeAlerta);
   }
+
+  @Get('config-alertas/:estacionId')
+  @UseGuards(AuthGuard('jwt'))
+  async getConfig(@Param('estacionId') estacionId: string) {
+    return this.usuariosService.getAlertConfig(estacionId);
+  }
 }

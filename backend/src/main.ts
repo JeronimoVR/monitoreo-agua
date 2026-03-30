@@ -8,13 +8,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
       url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:${process.env.MQTT_PORT || 1883}`,
-      clientId: 'backend_water_project_docker', 
+      clientId: 'backend_water_project_docker',
       subscribeOptions: { qos: 1 },
     },
   });
@@ -29,15 +33,15 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, documentFactory);
 
-  app.useGlobalPipes(new ValidationPipe({ 
-    whitelist: true, 
-    forbidNonWhitelisted: true 
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true
   }));
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.startAllMicroservices();
-  
+
   const port = process.env.PORT || 3001;
   await app.listen(port);
 

@@ -18,5 +18,8 @@ export const databaseProvider = {
     autoLoadEntities: true,
     synchronize: true,
     logging: true,
+    extra: {
+      timezone: 'America/Bogota',
+    },
   }),
 };

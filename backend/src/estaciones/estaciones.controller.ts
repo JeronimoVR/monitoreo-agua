@@ -3,7 +3,7 @@ import { EstacionesService } from './estaciones.service';
 import { CreateEstacionDto } from './dto/create-estacion.dto';
 import { UpdateEstacionDto } from './dto/update-estacion.dto';
 
-@Controller('api/estaciones')
+@Controller('estaciones')
 export class EstacionesController {
     constructor(private readonly estacionesService: EstacionesService) { }
 

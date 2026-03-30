@@ -58,6 +58,7 @@ services:
       DATABASE_PORT: ${DB_PORT}
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
+      NEST_API_URL: http://192.168.110.87:${PORT_BACKEND}
     depends_on:
       - db
       - mosquitto
@@ -72,7 +73,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_URL: http://192.168.110.87:3001
     depends_on:
       - backend
     volumes:

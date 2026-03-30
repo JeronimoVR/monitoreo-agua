@@ -10,7 +10,7 @@ import { IrcaMotorReglasService } from '../ircaMotorReglas/ircaClasificacion.ser
 export class MuestreosService {
     constructor(
         @InjectRepository(Muestreo)
-        private muestreoRepo: Repository<Muestreo>,
+        private muestreoRepository: Repository<Muestreo>,
         @InjectRepository(Medida)
         private medidaRepo: Repository<Medida>,
         private ircaClasificacionService: IrcaMotorReglasService,
@@ -28,13 +28,14 @@ export class MuestreosService {
                 createMuestreoDto.medidas
             );
 
-            const nuevoMuestreo = this.muestreoRepo.create({
+            const nuevoMuestreo = this.muestreoRepository.create({
                 estacion: { id: createMuestreoDto.id_estacion },
+                fecha_muestreo: createMuestreoDto.fecha_muestreo,
                 irca_calculado: resultadoIrca.puntaje,
                 clasificacionIrca: resultadoIrca.clasificacion || undefined,
             });
 
-            const muestreoGuardado = await this.muestreoRepo.save(nuevoMuestreo);
+            const muestreoGuardado = await this.muestreoRepository.save(nuevoMuestreo);
 
             const medidasEntities = createMuestreoDto.medidas.map(m => ({
                 valor: m.valor,
@@ -57,7 +58,7 @@ export class MuestreosService {
      */
     async findAll() {
         try {
-            return await this.muestreoRepo.find();
+            return await this.muestreoRepository.find();
         } catch (error) {
             throw new InternalServerErrorException('Error al obtener la lista de muestreos.');
         }
@@ -70,7 +71,7 @@ export class MuestreosService {
      * @returns El muestreo encontrado o undefined si no existe.
      */
     async findOne(id: number) {
-        const muestreo = await this.muestreoRepo.findOne({ where: { id } });
+        const muestreo = await this.muestreoRepository.findOne({ where: { id } });
         if (!muestreo) {
             throw new NotFoundException(`Muestreo con ID ${id} no encontrado`);
         }
@@ -87,7 +88,7 @@ export class MuestreosService {
         const muestreo = await this.findOne(id);
         
         try {
-            return await this.muestreoRepo.remove(muestreo);
+            return await this.muestreoRepository.remove(muestreo);
         } catch (error) {
             throw new InternalServerErrorException(`Error al intentar eliminar el muestreo con ID ${id}`);
         }
@@ -101,7 +102,7 @@ export class MuestreosService {
      */
     async consultarPorEstacion(id_estacion: number) {
         try {
-            return await this.muestreoRepo.find({
+            return await this.muestreoRepository.find({
                 where: { id_estacion },
                 relations: ['medidas', 'clasificacionIrca'],
             });
@@ -110,4 +111,34 @@ export class MuestreosService {
         }
     }
 
+
+    async getFilteredMuestreos(filters: any) {
+    const { estacionId, parametro, fechaInicio, fechaFin } = filters;
+    
+    const query = this.muestreoRepository.createQueryBuilder('m')
+      .where('m.estacionId = :estacionId', { estacionId });
+
+    if (parametro) {
+      query.andWhere('m.parametro = :parametro', { parametro });
+    }
+
+    if (fechaInicio && fechaFin) {
+      query.andWhere('m.fecha BETWEEN :inicio AND :fin', { 
+        inicio: new Date(fechaInicio), 
+        fin: new Date(fechaFin) 
+      });
+    }
+
+    return await query.orderBy('m.fecha', 'DESC').getMany();
+  }
+
+  async generateCsvBuffer(filters: any): Promise<string> {
+    const data = await this.getFilteredMuestreos(filters);
+    const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
+    const rows = data.map(m => 
+      `${m.fecha_muestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
+    ).join('\n');
+    
+    return header + rows;
+  }
 }

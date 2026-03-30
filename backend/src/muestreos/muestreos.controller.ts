@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Query, Res, Post, Body, Get, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MuestreosService } from './muestreos.service';
 import { CreateMuestreoDto } from './dto/create-muestreo.dto';
+import express from 'express';
 
 /**
  * Controlador para la gestión de muestreos y medidas de calidad de agua.
@@ -49,4 +50,41 @@ export class MuestreosController {
     console.log('📥 Dato recibido vía MQTT:', data);
     return await this.muestreosService.crear(data);
   }
+
+  @Get('muestreos/all')
+  async obtenerMuestreos() {
+    return await this.muestreosService.findAll();
+  }
+
+  @Get()
+  async findAll(
+    @Query('estacionId') estacionId: string,
+    @Query('parametro') parametro: string,
+    @Query('fechaInicio') fechaInicio: string,
+    @Query('fechaFin') fechaFin: string,
+  ) {
+    return this.muestreosService.getFilteredMuestreos({
+      estacionId,
+      parametro,
+      fechaInicio,
+      fechaFin,
+    });
+  }
+
+  // GET /api/muestreos/export
+  @Get('export')
+  async exportData(
+    @Query() filters: any,
+    @Res() res: express.Response,
+  ) {
+    const buffer = await this.muestreosService.generateCsvBuffer(filters);
+    
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename="reporte-muestreo-${Date.now()}.csv"`,
+    });
+
+    return res.send(buffer);
+  }
+
 }

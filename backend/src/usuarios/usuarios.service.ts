@@ -165,4 +165,8 @@ async crear(dto: CreateUsuarioDto) {
   async buscarPorCorreoParaAuth(correo: string) {
     return await this.usuarioRepo.findOne({ where: { correo } });
   }
+
+  async getAlertConfig(estacionId: string) {
+    return await this.configRepo.find({ where: { estacion: { id: parseInt(estacionId) } }, relations: ['usuario'] });
+  }
 }

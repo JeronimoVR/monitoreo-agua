@@ -23,6 +23,7 @@ export class MqttController {
     try {
       const nuevoMuestreo: CreateMuestreoDto = {
         id_estacion: data.id_estacion || data.idEstacion,
+        fecha_muestreo: data.fecha || data.fecha,
         medidas: (data.medidas || []).map(m => ({
           id_parametro: m.id_parametro || m.idParametro,
           valor: m.valor
