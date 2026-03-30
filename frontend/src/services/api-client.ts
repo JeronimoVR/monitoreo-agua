@@ -81,8 +81,8 @@ export const apiClient = {
     },
 
     estaciones: {
-        getAll: () => fetch(`${BASE_URL}/api/estaciones`, { headers: getHeaders() }).then(res => res.json()),
+        getAll: () => fetch(`${BASE_URL}/estaciones`, { headers: getHeaders() }).then(res => res.json()),
         getById: (id: string) =>
-            fetch(`${BASE_URL}/api/estaciones/${id}`, { headers: getHeaders() }).then(res => res.json()),
+            fetch(`${BASE_URL}/estaciones/${id}`, { headers: getHeaders() }).then(res => res.json()),
     },
 };

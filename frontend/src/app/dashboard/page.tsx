@@ -1,61 +1,112 @@
-// src/app/dashboard/page.tsx
 'use client';
+
 import { useNotificationsContext } from '@context/notificationContext';
+import { useEstacionesContext } from '@context/estacionesContext';
 import { MetricCard } from '@components/ui/metricCard';
-import { Droplets, Thermometer, Zap, Activity } from 'lucide-react';
+import { RealTimeChart } from '@components/graficos/realTimeChart';
+import { 
+  Droplets, 
+  Thermometer, 
+  Zap, 
+  Activity, 
+  Waves, 
+  Search 
+} from 'lucide-react';
 
 export default function Dashboard() {
   const { notifications } = useNotificationsContext();
-  
-  // Extraemos el último valor de cada parámetro desde el stream
-  // Esto es una simplificación, en la vida real filtrarías el array
-  const latest = notifications[0] || {}; 
+  const { estacionSeleccionada } = useEstacionesContext();
+
+  // Función para obtener el último valor registrado de un parámetro específico
+  const getLatestValue = (parametro: string) => {
+    const record = notifications.find((n) => n.parametro === parametro);
+    return record ? record.valor : '--';
+  };
+
+  // Preparamos los datos para el gráfico (invertidos para orden cronológico)
+  const chartData = [...notifications].reverse();
 
   return (
-    <div className="p-8 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Panel de Control</h1>
-        <p className="text-gray-500">Monitoreo en tiempo real de la estación seleccionada.</p>
-      </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Encabezado del Dashboard */}
+      <header className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Panel de monitoreo</h1>
+          <p className="text-slate-500 text-sm">
+            Visualización de datos para: <span className="font-semibold text-blue-600">{estacionSeleccionada?.nombre || 'Seleccione una estación'}</span>
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button className="p-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors">
+            <Search size={20} className="text-gray-400" />
+          </button>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Grid de Métricas (5 Columnas para cubrir los sensores del DFRobot) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard 
           label="Nivel de pH" 
-          value={latest.parametro === 'pH' ? latest.valor : '--'} 
+          value={getLatestValue('pH')} 
           unit="pH" 
           icon={<Droplets />} 
-          status={latest.valor > 9 || latest.valor < 6 ? 'alert' : 'normal'}
+          status={Number(getLatestValue('pH')) > 9 || Number(getLatestValue('pH')) < 6 ? 'alert' : 'normal'}
+        />
+        <MetricCard 
+          label="Oxígeno Dis." 
+          value={getLatestValue('DO')} 
+          unit="mg/L" 
+          icon={<Waves />} 
         />
         <MetricCard 
           label="Temperatura" 
-          value={latest.parametro === 'TEMP' ? latest.valor : '--'} 
+          value={getLatestValue('TEMP')} 
           unit="°C" 
           icon={<Thermometer />} 
         />
         <MetricCard 
           label="Turbidez" 
-          value={latest.parametro === 'TURB' ? latest.valor : '--'} 
+          value={getLatestValue('TURB')} 
           unit="NTU" 
           icon={<Activity />} 
         />
         <MetricCard 
           label="Conductividad" 
-          value={latest.parametro === 'COND' ? latest.valor : '--'} 
+          value={getLatestValue('COND')} 
           unit="µS/cm" 
           icon={<Zap />} 
         />
       </div>
 
-      {/* Aquí iría la lista de alertas recientes */}
-      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <h3 className="font-bold mb-4">Registro de Alertas Recientes</h3>
-        <div className="space-y-4">
-          {notifications.slice(0, 5).map((n, i) => (
-            <div key={i} className="flex gap-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-100">
-              <span className="font-bold">{new Date(n.fecha).toLocaleTimeString()}</span>
-              <span>{n.mensaje}</span>
-            </div>
-          ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Gráfico de comportamiento (Ocupa 2/3) */}
+        <div className="lg:col-span-2">
+          <RealTimeChart data={chartData} />
+        </div>
+
+        {/* Log de Actividad / Terminal (Ocupa 1/3) */}
+        <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-lg flex flex-col h-[400px]">
+          <div className="p-4 border-b border-slate-800 flex justify-between items-center">
+            <h3 className="text-white text-sm font-bold flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              Actividad en tiempo real
+            </h3>
+            <span className="text-slate-500 text-[10px] font-mono uppercase tracking-widest">Live Stream</span>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 font-mono text-[11px] space-y-2 custom-scrollbar">
+            {notifications.length === 0 && (
+              <p className="text-slate-600 italic">Estableciendo conexión con los sensores...</p>
+            )}
+            {notifications.map((n, i) => (
+              <div key={i} className="flex gap-2 border-l border-slate-700 pl-2 py-1">
+                <span className="text-blue-500 shrink-0">[{new Date(n.fecha).toLocaleTimeString()}]</span>
+                <span className={n.tipo === 'ALERTA' ? 'text-red-400' : 'text-slate-300'}>
+                  {n.mensaje}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
