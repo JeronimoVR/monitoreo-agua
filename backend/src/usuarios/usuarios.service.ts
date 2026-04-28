@@ -15,9 +15,9 @@ import * as bcrypt from 'bcrypt';
 export class UsuariosService {
   constructor(
     @InjectRepository(Usuario)
-    private readonly usuarioRepo: Repository<Usuario>,
+    private readonly usuariosRepository: Repository<Usuario>,
     @InjectRepository(ConfigAlerta)
-    private readonly configRepo: Repository<ConfigAlerta>,
+    private readonly configRepository: Repository<ConfigAlerta>,
   ) { }
 
   validateEmail(email: string): boolean {
@@ -33,8 +33,8 @@ export class UsuariosService {
    * @returns El usuario recién creado guardado en base de datos.
    * @throws ConflictException Si el correo ya está registrado.
    */
-async crear(dto: CreateUsuarioDto) {
-    const existe = await this.usuarioRepo.findOne({ where: { correo: dto.correo } });
+  async crear(dto: CreateUsuarioDto) {
+    const existe = await this.usuariosRepository.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
     
     if (dto.correo && !this.validateEmail(dto.correo)) {
@@ -45,14 +45,14 @@ async crear(dto: CreateUsuarioDto) {
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     try {
-      const nuevo = this.usuarioRepo.create({ ...dto, passwordHash });
-      const usuarioGuardado = await this.usuarioRepo.save(nuevo);
+      const nuevo = this.usuariosRepository.create({ ...dto, passwordHash });
+      const usuarioGuardado = await this.usuariosRepository.save(nuevo);
 
-      const nuevaConfig = this.configRepo.create({
+      const nuevaConfig = this.configRepository.create({
         usuario: usuarioGuardado,
         recibeAlerta: true,
       });
-      await this.configRepo.save(nuevaConfig);
+      await this.configRepository.save(nuevaConfig);
 
       return usuarioGuardado;
     } catch (error) {
@@ -69,7 +69,7 @@ async crear(dto: CreateUsuarioDto) {
    * @throws NotFoundException Si no existe un usuario con ese ID.
    */
   async buscarPorId(id: number) {
-    const usuario = await this.usuarioRepo.findOneBy({ id });
+    const usuario = await this.usuariosRepository.findOneBy({ id });
     if (!usuario) throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     return usuario;
   }
@@ -82,7 +82,7 @@ async crear(dto: CreateUsuarioDto) {
    */
   // Este lo usará tu AuthModule para el login
   async buscarPorCorreoConPassword(correo: string) {
-    const usuario = await this.usuarioRepo.createQueryBuilder('user')
+    const usuario = await this.usuariosRepository.createQueryBuilder('user')
       .addSelect('user.passwordHash')
       .where('user.correo = :correo', { correo })
       .getOne();
@@ -107,7 +107,7 @@ async crear(dto: CreateUsuarioDto) {
 
     if (dto.nombre) usuario.nombre = dto.nombre;
     try {
-      return await this.usuarioRepo.save(usuario);
+      return await this.usuariosRepository.save(usuario);
     } catch (error) {
       throw new InternalServerErrorException(`Error al actualizar el usuario con ID ${id}`);
     }
@@ -121,7 +121,7 @@ async crear(dto: CreateUsuarioDto) {
   async eliminar(id: number) {
     const usuario = await this.buscarPorId(id);
     try {
-      return await this.usuarioRepo.softRemove(usuario); // Borrado lógico
+      return await this.usuariosRepository.softRemove(usuario); // Borrado lógico
     } catch (error) {
       throw new InternalServerErrorException(`Error al eliminar el usuario con ID ${id}`);
     }
@@ -136,12 +136,12 @@ async crear(dto: CreateUsuarioDto) {
    */
   async actualizarConfigAlerta(usuarioId: number, estacionId: number, recibe: boolean) {
     try {
-      let config = await this.configRepo.findOne({
+      let config = await this.configRepository.findOne({
         where: { usuario: { id: usuarioId }, estacion: { id: estacionId } }
       });
 
       if (!config) {
-        config = this.configRepo.create({
+        config = this.configRepository.create({
           usuario: { id: usuarioId },
           estacion: { id: estacionId },
           recibeAlerta: recibe
@@ -149,7 +149,7 @@ async crear(dto: CreateUsuarioDto) {
       } else {
         config.recibeAlerta = recibe;
       }
-      return await this.configRepo.save(config);
+      return await this.configRepository.save(config);
     } catch (error) {
       throw new BadRequestException('Error al actualizar la configuración de alertas. Verifique que la estación exista.');
     }
@@ -159,14 +159,14 @@ async crear(dto: CreateUsuarioDto) {
     const usuario = await this.buscarPorId(id);
     const salt = await bcrypt.genSalt(10);
     usuario.passwordHash = await bcrypt.hash(nuevaPassword, salt);
-    return await this.usuarioRepo.save(usuario);
+    return await this.usuariosRepository.save(usuario);
   }
 
   async buscarPorCorreoParaAuth(correo: string) {
-    return await this.usuarioRepo.findOne({ where: { correo } });
+    return await this.usuariosRepository.findOne({ where: { correo } });
   }
 
   async getAlertConfig(estacionId: string) {
-    return await this.configRepo.find({ where: { estacion: { id: parseInt(estacionId) } }, relations: ['usuario'] });
+    return await this.configRepository.find({ where: { estacion: { id: parseInt(estacionId) } }, relations: ['usuario'] });
   }
 }

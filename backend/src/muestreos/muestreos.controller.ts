@@ -51,7 +51,7 @@ export class MuestreosController {
     return await this.muestreosService.crear(data);
   }
 
-  @Get('muestreos/all')
+  @Get('all')
   async obtenerMuestreos() {
     return await this.muestreosService.findAll();
   }
@@ -78,7 +78,7 @@ export class MuestreosController {
     @Res() res: express.Response,
   ) {
     const buffer = await this.muestreosService.generateCsvBuffer(filters);
-    
+
     res.set({
       'Content-Type': 'text/csv',
       'Content-Disposition': `attachment; filename="reporte-muestreo-${Date.now()}.csv"`,
@@ -87,4 +87,8 @@ export class MuestreosController {
     return res.send(buffer);
   }
 
+  @Get('historial/:idEstacion')
+  async getHistorial(@Param('idEstacion', ParseIntPipe) idEstacion: number) {
+    return this.muestreosService.findAllHistory(idEstacion);
+  }
 }

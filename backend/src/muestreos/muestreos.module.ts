@@ -7,6 +7,7 @@ import { Medida } from './entities/medidas.entity';
 import { IrcaMotorReglasModule } from '../ircaMotorReglas/ircaMotorReglas.module';
 import { Estacion } from '../estaciones/entities/estacion.entity';
 import { MqttController } from './mqtt.controller';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 /**
  * Módulo encargado de la gestión de muestreos y sus medidas asociadas.
@@ -16,7 +17,7 @@ import { MqttController } from './mqtt.controller';
     TypeOrmModule.forFeature([Muestreo, Medida,Estacion
     ]),
     IrcaMotorReglasModule,
-
+    NotificacionesModule
   ],
   controllers: [MuestreosController, MqttController],
   providers: [MuestreosService],

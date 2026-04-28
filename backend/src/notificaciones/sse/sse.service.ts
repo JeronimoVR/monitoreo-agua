@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, MessageEvent } from '@nestjs/common';
 import { Subject, Observable, map } from 'rxjs';
 
 @Injectable()
 export class SseService {
   private readonly events$ = new Subject<any>();
 
-  enviarEvento(data: any, tipo: string = 'sensor-update') {
+  enviarEvento(data: any, tipo: string) {
     this.events$.next({ data, tipo });
   }
 
@@ -17,4 +17,6 @@ export class SseService {
       } as MessageEvent))
     );
   }
-}
+
+
+}

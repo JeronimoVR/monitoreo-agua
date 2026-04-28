@@ -33,17 +33,13 @@ export class MuestreosService {
                 fecha_muestreo: createMuestreoDto.fecha_muestreo,
                 irca_calculado: resultadoIrca.puntaje,
                 clasificacionIrca: resultadoIrca.clasificacion || undefined,
+                medidas: createMuestreoDto.medidas.map(m => ({
+                    valor: m.valor,
+                    parametro: { id: m.id_parametro }
+                }))
             });
 
             const muestreoGuardado = await this.muestreoRepository.save(nuevoMuestreo);
-
-            const medidasEntities = createMuestreoDto.medidas.map(m => ({
-                valor: m.valor,
-                parametro: { id: m.id_parametro },
-                muestreo: muestreoGuardado
-            }));
-
-            await this.medidaRepo.save(medidasEntities);
 
             return muestreoGuardado;
         } catch (error) {
@@ -112,6 +108,13 @@ export class MuestreosService {
     }
 
 
+    /**
+     * Filtra los muestreos en la base de datos basándose en criterios específicos.
+     * Útil para la generación de reportes y visualización de datos históricos.
+     * 
+     * @param filters Objeto con los filtros a aplicar: estacionId, parametro, fechaInicio, fechaFin.
+     * @returns Una lista de muestreos que coinciden con los filtros, ordenados descendentemente por fecha.
+     */
     async getFilteredMuestreos(filters: any) {
     const { estacionId, parametro, fechaInicio, fechaFin } = filters;
     
@@ -132,6 +135,13 @@ export class MuestreosService {
     return await query.orderBy('m.fecha', 'DESC').getMany();
   }
 
+  /**
+   * Genera un buffer de texto en formato CSV a partir de los datos filtrados.
+   * Ideal para la exportación de reportes tabulares para el usuario final.
+   * 
+   * @param filters Criterios de filtrado para los datos a exportar.
+   * @returns Un string formateado como CSV listo para ser descargado o enviado en la respuesta HTTP.
+   */
   async generateCsvBuffer(filters: any): Promise<string> {
     const data = await this.getFilteredMuestreos(filters);
     const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
@@ -141,4 +151,25 @@ export class MuestreosService {
     
     return header + rows;
   }
+
+  /**
+   * Obtiene el historial reciente de muestreos de una estación específica.
+   * Limita la consulta a los últimos 20 registros para optimizar el rendimiento y evitar
+   * sobrecarga en el frontend al cargar gráficas o tablas en tiempo real.
+   * 
+   * @param idEstacion Identificador de la estación a consultar.
+   * @returns Los últimos 20 muestreos con sus relaciones (clasificación y medidas).
+   */
+  async findAllHistory(idEstacion: number) {
+  return await this.muestreoRepository.find({
+    where: { id_estacion: idEstacion },
+    relations: [
+      'clasificacionIrca', // Carga el nombre del riesgo
+      'medidas',           // Carga el array de medidas
+      'medidas.parametro'  // Carga el nombre del parámetro (pH, Turbiedad, etc.)
+    ],
+    order: { fecha_muestreo: 'DESC' },
+    take: 20, // Limitamos a los últimos 20 para no saturar el reporte
+  });
+}
 }

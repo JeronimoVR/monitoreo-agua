@@ -18,7 +18,6 @@ export class NotificacionesService {
     const limite = 9.0;
     
     if (valor > limite) {
-      this.sseService.enviarEvento({ valor, estacionId }, 'alerta-visual');
 
       const ultimaAlerta = await this.alertaRepo.findOne({
         where: { estacion: { id: estacionId }, tipo: 'CRITICA' },
@@ -45,8 +44,6 @@ export class NotificacionesService {
       estacion: { id: estacionId }
     });
     const alertaGuardada = await this.alertaRepo.save(nuevaAlerta);
-
-    this.sseService.enviarEvento(alertaGuardada, 'nueva-alerta');
 
     if (tipo === 'CRITICA') {
       await this.mailService.enviarCorreo('admin@tesis.com', 'ALERTA CRÍTICA', 'alerta', { mensaje });

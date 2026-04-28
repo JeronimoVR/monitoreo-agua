@@ -10,13 +10,8 @@ export class NotificacionesController {
     private readonly sseService: SseService
   ) {}
 
-  @Sse('stream')
-  streamEvents(): Observable<MessageEvent> {
-    return this.sseService.getEventStream();
-  }
-
   @Get('historial')
   obtenerHistorial() {
     return this.notificacionesService.obtenerAlertasRecientes();
   }
-}
+}

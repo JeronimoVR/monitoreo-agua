@@ -62,7 +62,8 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
-        nombre: user.nombre
+        nombre: user.nombre,
+        rol: user.rol
       }
     };
   }
@@ -78,7 +79,8 @@ export class AuthService {
   async generarTokenRecuperacion(correo: string) {
     const usuario = await this.usuariosService.buscarPorCorreoParaAuth(correo);
     if (!usuario) {
-      throw new NotFoundException('No hay una cuenta asociada a ese email');
+      // Devolver éxito genérico para prevenir enumeración
+      return { message: 'Si el correo está registrado, recibirá un enlace de recuperación pronto' };
     }
 
     const token = randomBytes(32).toString('hex');
@@ -108,7 +110,7 @@ export class AuthService {
       throw new InternalServerErrorException('No se pudo enviar el correo de recuperación');
     }
 
-    return { message: 'Se ha enviado un código de recuperación a su correo' };
+    return { message: 'Si el correo está registrado, recibirá un enlace de recuperación pronto' };
   }
 
   /**

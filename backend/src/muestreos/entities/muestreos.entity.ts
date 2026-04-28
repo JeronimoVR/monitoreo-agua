@@ -29,6 +29,6 @@ export class Muestreo {
   @Column({ type: 'float8' })
   irca_calculado: number;
 
-  @OneToMany(() => Medida, (medida) => medida.muestreo)
+  @OneToMany(() => Medida, (medida) => medida.muestreo, { cascade: true })
   medidas: Medida[];
 }

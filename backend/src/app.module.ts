@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -13,10 +14,11 @@ import { Estacion } from './estaciones/entities/estacion.entity';
 import { AuthModule } from './auth/auth.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { EstacionesModule } from './estaciones/estaciones.module';
+import { Usuario } from './usuarios/entities/usuario.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion]),
+    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion,Usuario]),
 
     UsuariosModule,
     MuestreosModule,
@@ -39,6 +41,10 @@ import { EstacionesModule } from './estaciones/estaciones.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 60 segundos (1 minuto)
+      limit: 10,  // Máximo 10 peticiones por minuto por IP
+    }]),
   ],
   providers: [SeedService],
 })

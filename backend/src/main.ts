@@ -27,6 +27,7 @@ async function bootstrap() {
     .setTitle('Monitoreo de Agua')
     .setDescription('API para el monitoreo de la calidad del agua')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('monitoreo-agua')
     .build();
 
