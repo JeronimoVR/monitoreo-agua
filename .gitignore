@@ -99,3 +99,21 @@ mosquitto/data/
 .sonarqube.properties
 sonar-project.properties
 .sonarqube.properties
+
+# backend
+/backend/node_modules
+/backend/dist
+
+# frontend
+/frontend/node_modules
+/frontend/.next
+/frontend/build
+
+#firmware
+/firmware/include/
+/firmware/src/
+
+#mosquito
+/mosquitto/data
+/mosquitto/log
+/mosquitto/config
