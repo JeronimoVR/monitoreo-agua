@@ -5,7 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuariosModule } from './users/usuarios.module';
-import { MuestreosModule } from './muestreos/muestreos.module';
+import { MuestreosModule } from './ingestion/ingestion.module';
 import { IrcaMotorReglasModule } from './ircaRulesEngine/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
 import { Parametro } from './ircaRulesEngine/entities/parametros.entity';

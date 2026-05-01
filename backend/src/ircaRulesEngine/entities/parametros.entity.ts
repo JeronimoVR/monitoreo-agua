@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Medida } from '../../muestreos/entities/medidas.entity';
+import { Medida } from '../../sampling/entities/medidas.entity';
 
 @Entity('parametros')
 export class Parametro {

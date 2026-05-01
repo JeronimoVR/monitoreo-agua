@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Muestreo } from './entities/muestreos.entity';
-import { Medida } from './entities/medidas.entity';
-import { CreateMuestreoDto } from './dto/create-muestreo.dto';
+import { Muestreo } from '../sampling/entities/muestreos.entity';
+import { Medida } from '../sampling/entities/medidas.entity';
+import { CreateMuestreoDto } from '../sampling/dto/create-muestreo.dto';
 import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
 
 @Injectable()
-export class MuestreosService {
+export class IngestionService {
     constructor(
         @InjectRepository(Muestreo)
         private muestreoRepository: Repository<Muestreo>,
@@ -164,12 +164,12 @@ export class MuestreosService {
         return await this.muestreoRepository.find({
             where: { id_estacion: idEstacion },
             relations: [
-                'clasificacionIrca', // Carga el nombre del riesgo
-                'medidas',           // Carga el array de medidas
-                'medidas.parametro'  // Carga el nombre del parámetro (pH, Turbiedad, etc.)
+                'clasificacionIrca',
+                'medidas',           
+                'medidas.parametro' 
             ],
             order: { fecha_muestreo: 'DESC' },
-            take: 20, // Limitamos a los últimos 20 para no saturar el reporte
+            take: 20,
         });
     }
 }

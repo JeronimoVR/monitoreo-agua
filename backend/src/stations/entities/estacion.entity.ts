@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, DeleteDateColumn } from 'typeorm';
-import { Muestreo } from '../../muestreos/entities/muestreos.entity';
+import { Muestreo } from '../../sampling/entities/muestreos.entity';
 
 @Entity('estaciones')
 export class Estacion {

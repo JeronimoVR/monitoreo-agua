@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MuestreosService } from './muestreos.service';
+import { MuestreosService } from './ingestion.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Muestreo } from './entities/muestreos.entity';
-import { Medida } from './entities/medidas.entity';
+import { Muestreo } from '../sampling/entities/muestreos.entity';
+import { Medida } from '../sampling/entities/medidas.entity';
 import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
