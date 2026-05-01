@@ -3,13 +3,17 @@ import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { SelfOrAdminGuard } from 'src/auth/guards/selfAdmin.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { UserRole } from './entities/usuario.entity';
 
 /**
  * Controlador que maneja las rutas HTTP para la gestión de usuarios.
  */
 @Controller('usuarios')
 export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) {}
+  constructor(private readonly usuariosService: UsuariosService) { }
 
   /**
    * Crea un nuevo usuario en el sistema.
@@ -27,7 +31,8 @@ export class UsuariosController {
    * @returns El usuario encontrado.
    */
   @Get(':id')
-  obtenerUno(@Param('id', ParseIntPipe) id: number) {
+  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
+  findOneById(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.buscarPorId(id);
   }
 
@@ -38,9 +43,9 @@ export class UsuariosController {
    * @returns El usuario actualizado.
    */
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
   actualizar(
-    @Param('id', ParseIntPipe) id: number, 
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUsuarioDto: UpdateUsuarioDto
   ) {
     return this.usuariosService.actualizar(id, updateUsuarioDto);
@@ -51,8 +56,15 @@ export class UsuariosController {
    * @param id Identificador del usuario a eliminar.
    * @returns El resultado de la operación.
    */
+  @Patch(':id/eliminar')
+  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
+  softDelete(@Param('id', ParseIntPipe) id: number) {
+    return this.usuariosService.softDelete(id);
+  }
+
   @Delete(':id')
-    @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.eliminar(id);
   }
@@ -65,7 +77,7 @@ export class UsuariosController {
    * @param recibeAlerta Indica si el usuario desea recibir alertas.
    * @returns La configuración de alerta actualizada.
    */
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
   @Put('config-alertas/:estacionId')
   actualizarAlertas(
     @Request() req,
@@ -75,8 +87,15 @@ export class UsuariosController {
     return this.usuariosService.actualizarConfigAlerta(req.user.id, estacionId, recibeAlerta);
   }
 
+  /**
+   * Obtiene la configuración de alertas de un usuario para una estación específica.
+   * El ID del usuario se obtiene del token JWT.
+   * @param req Petición HTTP que contiene el usuario autenticado.
+   * @param estacionId Identificador de la estación.
+   * @returns La configuración de alerta actualizada.
+   */
   @Get('config-alertas/:estacionId')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfOrAdminGuard)
   async getConfig(@Param('estacionId') estacionId: string) {
     return this.usuariosService.getAlertConfig(estacionId);
   }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { UsuariosModule } from '../usuarios/usuarios.module';
+import { UsuariosModule } from '../users/usuarios.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -24,7 +24,7 @@ import { MailModule } from '../notificaciones/mail/mail.module';
     TypeOrmModule.forFeature([TokenRecuperacion]),
     MailModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule,MailModule,UsuariosModule],
+      imports: [ConfigModule, MailModule, UsuariosModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET, // Usa variables de entorno (.env)
@@ -35,4 +35,4 @@ import { MailModule } from '../notificaciones/mail/mail.module';
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }

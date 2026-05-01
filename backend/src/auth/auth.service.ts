@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
-import { UsuariosService } from '../usuarios/usuarios.service';
+import { UsuariosService } from '../users/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';

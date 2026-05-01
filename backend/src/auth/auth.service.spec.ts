@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { UsuariosService } from '../usuarios/usuarios.service';
+import { UsuariosService } from '../users/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
@@ -29,7 +29,7 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     // SILENCIAR CONSOLE.ERROR: Evita que los tests de fallos esperados ensucien la terminal
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => { });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

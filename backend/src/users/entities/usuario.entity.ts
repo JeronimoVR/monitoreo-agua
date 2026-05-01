@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ConfigAlerta } from "./config-alerta.entity";
 
 export enum UserRole {
@@ -25,4 +25,7 @@ export class Usuario {
 
   @OneToMany(() => ConfigAlerta, (config) => config.usuario)
   configuraciones: ConfigAlerta[];
+
+  @DeleteDateColumn({ name: 'deleted_at', select: false })
+  deletedAt: Date;
 }

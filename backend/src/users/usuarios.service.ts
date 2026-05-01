@@ -20,12 +20,6 @@ export class UsuariosService {
     private readonly configRepository: Repository<ConfigAlerta>,
   ) { }
 
-  validateEmail(email: string): boolean {
-    const emailRegex = /^(([^<>()[\]\\.,;:\s@”]+(\.[^<>()[\]\\.,;:\s@”]+)*)|(“.+”))@((\[[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}\.[0–9]{1,3}])|(([a-zA-Z\-0–9]+\.)+[a-zA-Z]{2,}))$/;
-    return emailRegex.test(email);
-  }
-
-
   /**
    * Crea un nuevo usuario validando que el correo no exista previamente
    * y cifrando su contraseña.
@@ -36,10 +30,6 @@ export class UsuariosService {
   async crear(dto: CreateUsuarioDto) {
     const existe = await this.usuariosRepository.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
-    
-    if (dto.correo && !this.validateEmail(dto.correo)) {
-      throw new BadRequestException('El formato del correo es inválido');
-    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(dto.password, salt);
@@ -50,7 +40,8 @@ export class UsuariosService {
 
       const nuevaConfig = this.configRepository.create({
         usuario: usuarioGuardado,
-        recibeAlerta: true,
+        recibeAlerta: false,
+        estacion: { id: 1 }
       });
       await this.configRepository.save(nuevaConfig);
 
@@ -118,13 +109,22 @@ export class UsuariosService {
    * @param id El ID del usuario a eliminar.
    * @returns El usuario eliminado o el resultado de la operación.
    */
-  async eliminar(id: number) {
+  async softDelete(id: number) {
     const usuario = await this.buscarPorId(id);
     try {
-      return await this.usuariosRepository.softRemove(usuario); // Borrado lógico
+      return await this.usuariosRepository.softRemove(usuario);
     } catch (error) {
       throw new InternalServerErrorException(`Error al eliminar el usuario con ID ${id}`);
     }
+  }
+
+  /**
+   * Realiza un borrado físico de un usuario (hard delete).
+   * @param id El ID del usuario a eliminar.
+   * @returns El resultado de la operación.
+   */
+  async eliminar(id: number) {
+    return await this.usuariosRepository.delete(id); 
   }
 
   /**

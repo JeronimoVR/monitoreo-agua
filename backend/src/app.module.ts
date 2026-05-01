@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsuariosModule } from './usuarios/usuarios.module';
+import { UsuariosModule } from './users/usuarios.module';
 import { MuestreosModule } from './muestreos/muestreos.module';
 import { IrcaMotorReglasModule } from './ircaMotorReglas/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
@@ -14,11 +14,11 @@ import { Estacion } from './estaciones/entities/estacion.entity';
 import { AuthModule } from './auth/auth.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { EstacionesModule } from './estaciones/estaciones.module';
-import { Usuario } from './usuarios/entities/usuario.entity';
+import { Usuario } from './users/entities/usuario.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion,Usuario]),
+    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion, Usuario]),
 
     UsuariosModule,
     MuestreosModule,
@@ -48,4 +48,4 @@ import { Usuario } from './usuarios/entities/usuario.entity';
   ],
   providers: [SeedService],
 })
-export class AppModule {}
+export class AppModule { }
