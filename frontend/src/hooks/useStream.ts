@@ -1,21 +1,29 @@
-// src/hooks/useRealTime.ts
 import { useEffect, useState } from 'react';
 import { streamClient, NotificationData } from '@service/stream-client';
 
-export const useRealTime = (isActive: boolean) => {
-  const [lastEvent, setLastEvent] = useState<NotificationData | null>(null);
-  const [history, setHistory] = useState<NotificationData[]>([]);
+export const useStream = (enabled: boolean = true) => {
+    const [lastNotification,setLastNotification] = useState<NotificationData | null>(null);
+    const [history, setHistory] = useState<NotificationData[]>([]);
 
-  useEffect(() => {
-    if (!isActive) return;
+    useEffect(() => {
+        if (!enabled) return;
 
-    const disconnect = streamClient.connect((data) => {
-      setLastEvent(data);
-      setHistory((prev) => [data, ...prev].slice(0, 20)); // Guardamos los últimos 20
-    });
+        const stopStream = streamClient.connect(
+            (data) => {
+                setLastNotification(data);
+                setHistory((prev) => [data, ...prev].slice(0, 30));
+            },
+            (error) => {
+                console.error("Fallo en flujo de notificaciones:", error);
+            }
+        );
 
-    return () => disconnect(); // Cleanup al desmontar
-  }, [isActive]);
+        return () => {
+            stopStream();
+        };
+    }, [enabled]);
 
-  return { lastEvent, history };
+    const clearHistory = () => setHistory([]);
+
+    return { lastNotification, history, clearHistory };
 };

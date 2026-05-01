@@ -14,8 +14,8 @@ export const Header = () => {
     <header className="h-16 border-b bg-white flex items-center justify-between px-6 sticky top-0 z-10">
       <div className="flex items-center gap-4">
         <h2 className="font-semibold text-gray-700">Estación:</h2>
-        <select 
-          value={estacionSeleccionada?.id || ''} 
+        <select
+          value={estacionSeleccionada?.id || ''}
           onChange={(e) => seleccionarEstacion(e.target.value)}
           className="border rounded-md px-2 py-1 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500"
         >
@@ -34,7 +34,7 @@ export const Header = () => {
             </span>
           )}
         </div>
-        
+
         <button onClick={logout} className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors">
           <LogOut className="w-5 h-5" />
           <span className="text-sm font-medium">Salir</span>

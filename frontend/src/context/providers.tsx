@@ -1,18 +1,14 @@
-// src/context/Providers.tsx
 'use client';
-
+import React from 'react';
 import { AuthProvider } from './authContext';
-import { EstacionesProvider } from './estacionesContext';
-import { NotificationProvider } from './notificationContext';
+import { MuestreoProvider } from './muestreoContext';
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthProvider>
-      <EstacionesProvider>
-        <NotificationProvider>
-          {children}
-        </NotificationProvider>
-      </EstacionesProvider>
+      <MuestreoProvider>
+        {children}
+      </MuestreoProvider>
     </AuthProvider>
   );
-}
+};

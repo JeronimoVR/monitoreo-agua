@@ -2,7 +2,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@/src/lib/validations';
-import { useAuth } from '@/src/context/authContext';
+import { useAuth } from '@context/authContext';
 import { LogIn, Loader2 } from 'lucide-react';
 
 export const LoginForm = () => {
@@ -25,28 +25,28 @@ export const LoginForm = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-        <input 
-          {...register('email')}
+        <input
+          {...register('correo')}
           type="email"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+          className={`w-full pl-12 pr-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-black placeholder:text-gray-500 font-medium transition-all ${errors.correo ? 'border-red-500' : 'border-gray-300'}`}
           placeholder="usuario@correo.com"
         />
-        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message as string}</p>}
+        {errors.correo && <p className="text-red-500 text-xs mt-1">{errors.correo.message as string}</p>}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input 
+        <input
           {...register('password')}
           type="password"
-          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+          className={`w-full pl-12 pr-6 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-black placeholder:text-gray-500 font-medium transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
           placeholder="••••••"
         />
         {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>}
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={loading}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
       >

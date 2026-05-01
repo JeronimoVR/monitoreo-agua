@@ -1,87 +1,118 @@
-// src/context/NotificationContext.tsx
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { streamClient, NotificationData } from '@service/stream-client';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { streamClient } from '@service/stream-client';
+import { apiClient } from '@service/api-client';
+
+export interface MonitoringData {
+  id: string;
+  fecha: Date;
+  parametro: string;
+  valor: number;
+  irca: number;
+  clasificacion: string;
+  unidad?: string;
+}
 
 interface NotificationContextType {
-  notifications: NotificationData[];
-  unreadCount: number;
-  showToast: boolean;
-  lastData: NotificationData | null;
-  clearNotifications: () => void;
+  notifications: MonitoringData[];
+  loading: boolean;
+  refresh: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  
-  // Estados para la alerta (Toast)
-  const [showToast, setShowToast] = useState(false);
-  const [lastData, setLastData] = useState<NotificationData | null>(null);
+  const [notifications, setNotifications] = useState<MonitoringData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 💡 Función única de transformación para asegurar consistencia
+  const transformData = useCallback((item: any): MonitoringData => {
+    return {
+      id: item.id || `${Date.now()}-${Math.random()}`,
+      fecha: new Date((item.fecha_muestreo || item.fecha).replace('Z', '')), 
+      parametro: (item.parametro?.nombre || item.parametro || 'S/N').toUpperCase(),
+      valor: Number(item.valor || 0),
+      irca: Number(item.irca_calculado || item.irca || 0),
+      clasificacion: item.clasificacionIrca?.clasificacion || item.clasificacion || 'NORMAL',
+      unidad: item.parametro?.unidad || item.unidad || ''
+    };
+  }, []);
+
+  // Función para obtener datos históricos y aplanarlos
+  const fetchLatestData = useCallback(async (showLoading = false) => {
+    try {
+      if (showLoading) setLoading(true);
+      const history = await apiClient.muestreos.getHistorial('1');
+      
+      const flatHistory = history.flatMap((m: any) => 
+        m.medidas.map((med: any) => transformData({ 
+          ...med, 
+          fecha_muestreo: m.fecha_muestreo, 
+          irca_calculado: m.irca_calculado, 
+          clasificacionIrca: m.clasificacionIrca 
+        }))
+      );
+      
+      // Ordenar por fecha descendente para consistencia
+      const sortedHistory = flatHistory.sort((a: MonitoringData, b: MonitoringData) => 
+        new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+      );
+
+      setNotifications(sortedHistory);
+    } catch (e) {
+      console.error("Error obteniendo datos:", e);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }, [transformData]);
 
   useEffect(() => {
-    // Eliminamos la restricción de isAuthenticated para que la Home pública reciba datos
-    const disconnect = streamClient.connect(
-      (newData) => {
-        setNotifications((prev) => [newData, ...prev].slice(0, 50));
-        setUnreadCount((prev) => prev + 1);
+    // Carga inicial
+    fetchLatestData(true);
+
+    // 1. Polling de respaldo cada 30 segundos
+    const pollInterval = setInterval(() => {
+      console.log("Polling: Sincronizando datos de respaldo...");
+      fetchLatestData(false);
+    }, 30000);
+
+    // 2. Conexión en tiempo real SSE
+    const disconnect = streamClient.connect((newData) => {
+      console.log("SSE: Nuevo dato recibido", newData);
+      setNotifications((prev) => {
+        const transformed = transformData(newData);
+        // Eviter duplicados (mismo parámetro en el mismo segundo aproximadamente)
+        const isDuplicate = prev.some((n: MonitoringData) => 
+          n.parametro === transformed.parametro && 
+          Math.abs(new Date(n.fecha).getTime() - new Date(transformed.fecha).getTime()) < 1000
+        );
         
-        // Lógica de la Alerta Pequeña
-        setLastData(newData);
-        setShowToast(true);
+        if (isDuplicate) return prev;
+        
+        return [transformed, ...prev].slice(0, 100);
+      });
+    }, (err) => console.error("SSE Error:", err));
 
-        // Ocultar automáticamente después de 3 segundos
-        const timer = setTimeout(() => {
-          setShowToast(false);
-        }, 3000);
+    return () => {
+      clearInterval(pollInterval);
+      disconnect();
+    };
+  }, [fetchLatestData, transformData]);
 
-        if (newData.tipo === 'ALERTA') {
-           console.warn('¡Crítico!', newData);
-        }
-
-        return () => clearTimeout(timer);
-      },
-      (error) => console.error('Error en Stream SSE:', error)
-    );
-
-    return () => disconnect();
-  }, []); // Se conecta al montar la app, independientemente del login
-
-  const clearNotifications = () => {
-    setNotifications([]);
-    setUnreadCount(0);
-  };
+  const refresh = () => fetchLatestData(true);
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, showToast, lastData, clearNotifications }}>
+    <NotificationContext.Provider value={{ notifications, loading, refresh }}>
       {children}
-      
-      {/* COMPONENTE VISUAL DE LA ALERTA (TOAST) */}
-      {showToast && lastData && (
-        <div className="fixed top-4 right-4 z-[100] animate-in slide-in-from-right fade-in duration-300">
-          <div className="bg-slate-900/90 backdrop-blur-sm text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3">
-            <div className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </div>
-            <div className="flex flex-col">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Nueva lectura</p>
-              <p className="text-xs font-medium">
-                {lastData.parametro}: <span className="text-blue-400">{lastData.valor}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </NotificationContext.Provider>
   );
 };
 
 export const useNotificationsContext = () => {
   const context = useContext(NotificationContext);
-  if (!context) throw new Error('useNotificationsContext debe usarse dentro de NotificationProvider');
+  if (!context) {
+    throw new Error('useNotificationsContext must be used within a NotificationProvider');
+  }
   return context;
 };

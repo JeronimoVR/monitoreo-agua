@@ -1,31 +1,33 @@
-// src/hooks/useAuth.ts
 import { useState, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 
 export const useAuth = () => {
-  const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-  const login = useCallback(async (credentials: any) => {
-    setLoading(true);
-    try {
-      const response = await apiClient.auth.login(credentials);
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-        // Aquí podrías guardar el usuario en un contexto global
-        return { success: true };
-      }
-      return { success: false, error: 'Credenciales inválidas' };
-    } catch (error) {
-      return { success: false, error: 'Error de conexión' };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const login = useCallback(async (credentials: any) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await apiClient.auth.login(credentials);
+            if (response.token) {
+                localStorage.setItem('token', response.token);
+                return { success: true };
+            }
+            throw new Error('No se recibió el token de acceso');
+        } catch (err: any) {
+            const msg = err.response?.data?.message || 'Error de conexión con el servidor';
+            setError(msg);
+            return { success: false, error: msg };
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  };
+    const logout = useCallback(() => {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    }, []);
 
-  return { login, logout, loading };
+    return { login, logout, loading, error };
 };

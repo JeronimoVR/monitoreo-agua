@@ -43,7 +43,7 @@ export class AuthService {
     const isMatch = await bcrypt.compare(pass, user.passwordHash);
 
     if (!isMatch) {
-      throw new UnauthorizedException('La contraseña es incorrecta');
+      throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
     }
     const { passwordHash, ...result } = user;
     return result;

@@ -2,6 +2,9 @@ import { Controller, Post, Body, UnauthorizedException, UseGuards } from '@nestj
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { SolicitarRecuperacionDto } from './dto/solicitar-recuperacion.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 /**
  * Controlador de Autenticación.
@@ -37,8 +40,8 @@ export class AuthController {
   })
   @ApiResponse({ status: 201, description: 'Login exitoso', schema: { example: { access_token: 'eyJhbGciOiJIUzI...', user: { id: 1, nombre: 'Admin', rol: 'ADMIN' } } } })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
-  async login(@Body() body: any) {
-    const user = await this.authService.validateUser(body.correo, body.password);
+  async login(@Body() loginDto: LoginDto) {
+    const user = await this.authService.validateUser(loginDto.correo, loginDto.password);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
@@ -52,7 +55,7 @@ export class AuthController {
    * @param correo El correo electrónico del usuario.
    * @returns El token de recuperación.
    */
-  @Post('recuperar-password')
+  @Post('forget-password')
   @ApiOperation({ summary: 'Solicitar recuperación de contraseña', description: 'Genera un token de un solo uso que se enviará por correo electrónico para restablecer la contraseña.' })
   @ApiBody({
     schema: {
@@ -64,8 +67,8 @@ export class AuthController {
     }
   })
   @ApiResponse({ status: 201, description: 'Proceso iniciado correctamente (se haya o no encontrado el correo por seguridad).' })
-  async recuperarPassword(@Body('correo') correo: string) {
-    return this.authService.generarTokenRecuperacion(correo);
+  async recuperarPassword(@Body() solicitarRecuperacionDto: SolicitarRecuperacionDto) {
+    return this.authService.generarTokenRecuperacion(solicitarRecuperacionDto.correo);
   }
 
   /**
@@ -74,7 +77,7 @@ export class AuthController {
    * @param body Objeto JSON que debe incluir `token` y `nuevaPassword`.
    * @returns Mensaje de confirmación en caso de éxito.
    */
-  @Post('restablecer-password')
+  @Post('reset-password')
   @ApiOperation({ summary: 'Restablecer contraseña', description: 'Permite actualizar la contraseña de un usuario proporcionando un token válido generado previamente.' })
   @ApiBody({
     schema: {
@@ -88,7 +91,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 201, description: 'Contraseña actualizada con éxito', schema: { example: { message: 'Contraseña actualizada con éxito' } } })
   @ApiResponse({ status: 401, description: 'El token es inválido o ha expirado' })
-  async restablecerPassword(@Body() body: any) {
-    return this.authService.restablecerPassword(body.token, body.nuevaPassword);
+  async restablecerPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.restablecerPassword(resetPasswordDto.token, resetPasswordDto.nuevaPassword);
   }
 }

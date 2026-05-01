@@ -1,28 +1,32 @@
-// src/hooks/useMuestreos.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 
-export const useMuestreos = (estacionId?: string) => {
-  const [datos, setDatos] = useState([]);
-  const [parametro, setParametro] = useState('pH'); // Parámetro por defecto
-  const [loading, setLoading] = useState(false);
+export const useMuestreo = (estacionId: string | null) => {
+    const [datos, setDatos] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  const cargarDatos = async () => {
-    if (!estacionId) return;
-    setLoading(true);
-    const res = await apiClient.muestreos.getAll({ estacionId, parametro });
-    setDatos(res);
-    setLoading(false);
-  };
+    const cargarHistorial = useCallback(async () => {
+        if (!estacionId) return;
+        setLoading(true);
+        try {
+            const res = await apiClient.muestreos.getHistorial(estacionId);
+            setDatos(res);
+        } catch (error) {
+            console.error("Error al obtener historial:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [estacionId]);
 
-  useEffect(() => {
-    cargarDatos();
-  }, [estacionId, parametro]);
+    useEffect(() => {
+        cargarHistorial();
+    }, [cargarHistorial]);
 
-  const exportarCSV = () => {
-    const url = apiClient.muestreos.export({ estacionId, parametro });
-    window.open(url, '_blank');
-  };
+    const descargarReporte = (params?: any) => {
+        if (!estacionId) return;
+        const url = apiClient.muestreos.export({ ...params, estacionId });
+        window.open(url, '_blank');
+    };
 
-  return { datos, parametro, setParametro, loading, cargarDatos, exportarCSV };
+    return { datos, loading, refresh: cargarHistorial, descargarReporte };
 };

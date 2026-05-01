@@ -19,11 +19,11 @@
       }
     ],
     "paths": {
-      "@service/*": ["./src/services/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@context/*": ["./src/context/*"],
       "@components/*": ["./src/components/*"],
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@service/*": ["./src/services/*"],
     }
   },
   "include": [
