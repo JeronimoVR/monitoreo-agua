@@ -1,8 +1,8 @@
 // src/muestreos/entities/muestreo.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Estacion } from '../../estaciones/entities/estacion.entity';
+import { Estacion } from '../../stations/entities/estacion.entity';
 import { Medida } from './medidas.entity';
-import { ClasificacionIrca } from '../../ircaMotorReglas/entities/clasificacionesIRCA.entity';
+import { ClasificacionIrca } from '../../ircaRulesEngine/entities/clasificacionesIRCA.entity';
 
 @Entity('muestreos')
 export class Muestreo {

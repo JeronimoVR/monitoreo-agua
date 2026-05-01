@@ -1,9 +1,9 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Parametro } from './ircaMotorReglas/entities/parametros.entity';
-import { ClasificacionIrca } from './ircaMotorReglas/entities/clasificacionesIRCA.entity';
-import { Estacion } from './estaciones/entities/estacion.entity';
+import { Parametro } from './ircaRulesEngine/entities/parametros.entity';
+import { ClasificacionIrca } from './ircaRulesEngine/entities/clasificacionesIRCA.entity';
+import { Estacion } from './stations/entities/estacion.entity';
 import { Usuario } from './users/entities/usuario.entity';
 
 @Injectable()

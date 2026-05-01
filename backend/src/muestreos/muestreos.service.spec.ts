@@ -3,7 +3,7 @@ import { MuestreosService } from './muestreos.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
-import { IrcaMotorReglasService } from '../ircaMotorReglas/ircaClasificacion.service';
+import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 describe('MuestreosService (QA - CU001 & CU003)', () => {
@@ -96,7 +96,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
 
     it('consultarPorEstacion: debería buscar con las relaciones de medidas y clasificación', async () => {
       mockMuestreoRepo.find.mockResolvedValue([]);
-      
+
       await service.consultarPorEstacion(1);
 
       expect(mockMuestreoRepo.find).toHaveBeenCalledWith(
@@ -108,5 +108,5 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
     });
   });
 
-  
+
 });

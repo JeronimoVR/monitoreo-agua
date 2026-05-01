@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Muestreo } from './muestreos.entity';
-import { Parametro } from '../../ircaMotorReglas/entities/parametros.entity';
+import { Parametro } from '../../ircaRulesEngine/entities/parametros.entity';
 
 @Entity('medidas')
 export class Medida {

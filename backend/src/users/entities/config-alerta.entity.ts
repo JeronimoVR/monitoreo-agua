@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Usuario } from './usuario.entity';
-import { Estacion } from '../../estaciones/entities/estacion.entity';
+import { Estacion } from '../../stations/entities/estacion.entity';
 
 @Entity('configuraciones_alertas')
 export class ConfigAlerta {

@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { CreateMuestreoDto } from './dto/create-muestreo.dto';
-import { IrcaMotorReglasService } from '../ircaMotorReglas/ircaClasificacion.service';
+import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
 
 @Injectable()
 export class MuestreosService {
@@ -82,7 +82,7 @@ export class MuestreosService {
      */
     async eliminar(id: number) {
         const muestreo = await this.findOne(id);
-        
+
         try {
             return await this.muestreoRepository.remove(muestreo);
         } catch (error) {
@@ -116,60 +116,60 @@ export class MuestreosService {
      * @returns Una lista de muestreos que coinciden con los filtros, ordenados descendentemente por fecha.
      */
     async getFilteredMuestreos(filters: any) {
-    const { estacionId, parametro, fechaInicio, fechaFin } = filters;
-    
-    const query = this.muestreoRepository.createQueryBuilder('m')
-      .where('m.estacionId = :estacionId', { estacionId });
+        const { estacionId, parametro, fechaInicio, fechaFin } = filters;
 
-    if (parametro) {
-      query.andWhere('m.parametro = :parametro', { parametro });
+        const query = this.muestreoRepository.createQueryBuilder('m')
+            .where('m.estacionId = :estacionId', { estacionId });
+
+        if (parametro) {
+            query.andWhere('m.parametro = :parametro', { parametro });
+        }
+
+        if (fechaInicio && fechaFin) {
+            query.andWhere('m.fecha BETWEEN :inicio AND :fin', {
+                inicio: new Date(fechaInicio),
+                fin: new Date(fechaFin)
+            });
+        }
+
+        return await query.orderBy('m.fecha', 'DESC').getMany();
     }
 
-    if (fechaInicio && fechaFin) {
-      query.andWhere('m.fecha BETWEEN :inicio AND :fin', { 
-        inicio: new Date(fechaInicio), 
-        fin: new Date(fechaFin) 
-      });
+    /**
+     * Genera un buffer de texto en formato CSV a partir de los datos filtrados.
+     * Ideal para la exportación de reportes tabulares para el usuario final.
+     * 
+     * @param filters Criterios de filtrado para los datos a exportar.
+     * @returns Un string formateado como CSV listo para ser descargado o enviado en la respuesta HTTP.
+     */
+    async generateCsvBuffer(filters: any): Promise<string> {
+        const data = await this.getFilteredMuestreos(filters);
+        const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
+        const rows = data.map(m =>
+            `${m.fecha_muestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
+        ).join('\n');
+
+        return header + rows;
     }
 
-    return await query.orderBy('m.fecha', 'DESC').getMany();
-  }
-
-  /**
-   * Genera un buffer de texto en formato CSV a partir de los datos filtrados.
-   * Ideal para la exportación de reportes tabulares para el usuario final.
-   * 
-   * @param filters Criterios de filtrado para los datos a exportar.
-   * @returns Un string formateado como CSV listo para ser descargado o enviado en la respuesta HTTP.
-   */
-  async generateCsvBuffer(filters: any): Promise<string> {
-    const data = await this.getFilteredMuestreos(filters);
-    const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
-    const rows = data.map(m => 
-      `${m.fecha_muestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
-    ).join('\n');
-    
-    return header + rows;
-  }
-
-  /**
-   * Obtiene el historial reciente de muestreos de una estación específica.
-   * Limita la consulta a los últimos 20 registros para optimizar el rendimiento y evitar
-   * sobrecarga en el frontend al cargar gráficas o tablas en tiempo real.
-   * 
-   * @param idEstacion Identificador de la estación a consultar.
-   * @returns Los últimos 20 muestreos con sus relaciones (clasificación y medidas).
-   */
-  async findAllHistory(idEstacion: number) {
-  return await this.muestreoRepository.find({
-    where: { id_estacion: idEstacion },
-    relations: [
-      'clasificacionIrca', // Carga el nombre del riesgo
-      'medidas',           // Carga el array de medidas
-      'medidas.parametro'  // Carga el nombre del parámetro (pH, Turbiedad, etc.)
-    ],
-    order: { fecha_muestreo: 'DESC' },
-    take: 20, // Limitamos a los últimos 20 para no saturar el reporte
-  });
-}
+    /**
+     * Obtiene el historial reciente de muestreos de una estación específica.
+     * Limita la consulta a los últimos 20 registros para optimizar el rendimiento y evitar
+     * sobrecarga en el frontend al cargar gráficas o tablas en tiempo real.
+     * 
+     * @param idEstacion Identificador de la estación a consultar.
+     * @returns Los últimos 20 muestreos con sus relaciones (clasificación y medidas).
+     */
+    async findAllHistory(idEstacion: number) {
+        return await this.muestreoRepository.find({
+            where: { id_estacion: idEstacion },
+            relations: [
+                'clasificacionIrca', // Carga el nombre del riesgo
+                'medidas',           // Carga el array de medidas
+                'medidas.parametro'  // Carga el nombre del parámetro (pH, Turbiedad, etc.)
+            ],
+            order: { fecha_muestreo: 'DESC' },
+            take: 20, // Limitamos a los últimos 20 para no saturar el reporte
+        });
+    }
 }

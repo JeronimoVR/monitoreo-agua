@@ -6,14 +6,14 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuariosModule } from './users/usuarios.module';
 import { MuestreosModule } from './muestreos/muestreos.module';
-import { IrcaMotorReglasModule } from './ircaMotorReglas/ircaMotorReglas.module';
+import { IrcaMotorReglasModule } from './ircaRulesEngine/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
-import { Parametro } from './ircaMotorReglas/entities/parametros.entity';
-import { ClasificacionIrca } from './ircaMotorReglas/entities/clasificacionesIRCA.entity';
-import { Estacion } from './estaciones/entities/estacion.entity';
+import { Parametro } from './ircaRulesEngine/entities/parametros.entity';
+import { ClasificacionIrca } from './ircaRulesEngine/entities/clasificacionesIRCA.entity';
+import { Estacion } from './stations/entities/estacion.entity';
 import { AuthModule } from './auth/auth.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
-import { EstacionesModule } from './estaciones/estaciones.module';
+import { EstacionesModule } from './stations/estaciones.module';
 import { Usuario } from './users/entities/usuario.entity';
 
 @Module({

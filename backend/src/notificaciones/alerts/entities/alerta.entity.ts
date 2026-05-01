@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
-import { Estacion } from '../../../estaciones/entities/estacion.entity';
+import { Estacion } from '../../../stations/entities/estacion.entity';
 
 @Entity('alertas')
 export class Alerta {
@@ -20,4 +20,4 @@ export class Alerta {
 
   @ManyToOne(() => Estacion)
   estacion: Estacion;
-}
+}

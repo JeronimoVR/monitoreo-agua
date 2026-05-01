@@ -4,8 +4,8 @@ import { MuestreosService } from './muestreos.service';
 import { MuestreosController } from './muestreos.controller';
 import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
-import { IrcaMotorReglasModule } from '../ircaMotorReglas/ircaMotorReglas.module';
-import { Estacion } from '../estaciones/entities/estacion.entity';
+import { IrcaMotorReglasModule } from '../ircaRulesEngine/ircaMotorReglas.module';
+import { Estacion } from '../stations/entities/estacion.entity';
 import { MqttController } from './mqtt.controller';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
@@ -14,7 +14,7 @@ import { NotificacionesModule } from '../notificaciones/notificaciones.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Muestreo, Medida,Estacion
+    TypeOrmModule.forFeature([Muestreo, Medida, Estacion
     ]),
     IrcaMotorReglasModule,
     NotificacionesModule
