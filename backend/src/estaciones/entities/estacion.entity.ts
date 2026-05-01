@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, DeleteDateColumn } from 'typeorm';
 import { Muestreo } from '../../muestreos/entities/muestreos.entity';
 
 @Entity('estaciones')
@@ -17,4 +17,7 @@ export class Estacion {
 
   @OneToMany(() => Muestreo, (muestreo) => muestreo.estacion)
   muestreos: Muestreo[];
+
+  @DeleteDateColumn({ name: 'deleted_at', select: false })
+  deletedAt: Date;
 }
