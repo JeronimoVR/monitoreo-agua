@@ -8,7 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
-import { MailModule } from '../notificaciones/mail/mail.module';
+import { MailModule } from '../common/mail/mail.module';
 
 /**
  * Módulo de Autenticación.

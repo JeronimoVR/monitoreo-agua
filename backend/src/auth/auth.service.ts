@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
-import { MailService } from '../notificaciones/mail/mail.service';
+import { MailService } from '../common/mail/mail.service';
 
 /**
  * Servicio de Autenticación.

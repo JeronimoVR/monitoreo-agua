@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Alerta } from './alerts/entities/alerta.entity';
-import { SseService } from './sse/sse.service';
-import { MailService } from './mail/mail.service';
+import { SseService } from '../common/sse/sse.service';
+import { MailService } from '../common/mail/mail.service';
 
 @Injectable()
 export class NotificacionesService {
@@ -12,11 +12,11 @@ export class NotificacionesService {
     private alertaRepo: Repository<Alerta>,
     private sseService: SseService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async procesarDatoSensor(estacionId: number, valor: number, tipoSensor: string) {
     const limite = 9.0;
-    
+
     if (valor > limite) {
 
       const ultimaAlerta = await this.alertaRepo.findOne({
@@ -27,10 +27,10 @@ export class NotificacionesService {
       const hace30Minutos = new Date(Date.now() - 30 * 60000);
 
       if (!ultimaAlerta || ultimaAlerta.fechaCreacion < hace30Minutos) {
-        await this.alertaRepo.save({ 
-          mensaje: `Valor crítico: ${valor} (${tipoSensor})`, 
+        await this.alertaRepo.save({
+          mensaje: `Valor crítico: ${valor} (${tipoSensor})`,
           tipo: 'CRITICA',
-          estacion: { id: estacionId } 
+          estacion: { id: estacionId }
         });
         await this.mailService.enviarCorreo('admin@tesis.com', 'ALERTA CRÍTICA', 'alerta', { valor });
       }

@@ -7,7 +7,7 @@ import { Medida } from '../sampling/entities/medidas.entity';
 import { IrcaMotorReglasModule } from '../ircaRulesEngine/ircaMotorReglas.module';
 import { Estacion } from '../stations/entities/estacion.entity';
 import { IngestionController } from './ingestion.controller';
-import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { NotificacionesModule } from '../notifications/notificaciones.module';
 
 @Module({
   imports: [

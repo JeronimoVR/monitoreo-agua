@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificacionesService } from './notificaciones.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Alerta } from './alerts/entities/alerta.entity';
-import { SseService } from './sse/sse.service';
-import { MailService } from './mail/mail.service';
+import { SseService } from '../common/sse/sse.service';
+import { MailService } from '../common/mail/mail.service';
 import { Repository } from 'typeorm';
 
 describe('NotificacionesService (QA - Alertas y Real-time)', () => {
@@ -41,15 +41,15 @@ describe('NotificacionesService (QA - Alertas y Real-time)', () => {
     alertaRepo = module.get<Repository<Alerta>>(getRepositoryToken(Alerta));
     sseService = module.get<SseService>(SseService);
     mailService = module.get<MailService>(MailService);
-    
+
     jest.clearAllMocks();
   });
 
   describe('procesarDatoSensor (Lógica de Alerta Crítica)', () => {
-    
+
     it('debería enviar evento SSE si el valor supera el límite (9.0)', async () => {
       await service.procesarDatoSensor(1, 10.5, 'pH');
-      
+
       expect(mockSseService.enviarEvento).toHaveBeenCalledWith(
         expect.objectContaining({ valor: 10.5 }),
         'alerta-visual'

@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { MessagePattern, Payload, Ctx, MqttContext } from '@nestjs/microservices';
 import { MuestreosService } from '../sampling/muestreos.service'; // Importamos el servicio del otro módulo
 import { CreateMuestreoDto } from '../sampling/dto/create-muestreo.dto';
-import { SseService } from '../notificaciones/sse/sse.service';
+import { SseService } from '../common/sse/sse.service';
 
 @ApiTags('Ingestión MQTT (IoT)')
 @Controller()
@@ -23,7 +23,7 @@ export class IngestionController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async handleSensorData(@Payload() data: CreateMuestreoDto, @Ctx() context: MqttContext) {
     console.info('--- RECEPCIÓN DE DATOS IoT ---');
-    
+
     try {
       // 1. Normalización (Asegura consistencia entre hardware y backend)
       const nuevoMuestreo: CreateMuestreoDto = {
@@ -40,7 +40,7 @@ export class IngestionController {
 
       // 3. Notificación en Tiempo Real vía SSE
       this.sseService.enviarEvento(result, 'nuevo-muestreo');
-      
+
       return result;
     } catch (error) {
       console.error('Error en Ingestión MQTT:', error.message);

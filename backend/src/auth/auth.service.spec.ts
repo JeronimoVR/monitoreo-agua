@@ -4,7 +4,7 @@ import { UsuariosService } from '../users/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TokenRecuperacion } from './entities/token-recuperacion.entity';
-import { MailService } from '../notificaciones/mail/mail.service';
+import { MailService } from '../common/mail/mail.service';
 import { UnauthorizedException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 

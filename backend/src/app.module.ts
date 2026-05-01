@@ -12,7 +12,7 @@ import { Parametro } from './ircaRulesEngine/entities/parametros.entity';
 import { ClasificacionIrca } from './ircaRulesEngine/entities/clasificacionesIRCA.entity';
 import { Estacion } from './stations/entities/estacion.entity';
 import { AuthModule } from './auth/auth.module';
-import { NotificacionesModule } from './notificaciones/notificaciones.module';
+import { NotificacionesModule } from './notifications/notificaciones.module';
 import { EstacionesModule } from './stations/estaciones.module';
 import { Usuario } from './users/entities/usuario.entity';
 

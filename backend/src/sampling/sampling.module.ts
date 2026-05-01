@@ -5,7 +5,7 @@ import { Muestreo } from './entities/muestreos.entity';
 import { Medida } from './entities/medidas.entity';
 import { IrcaMotorReglasModule } from '../ircaRulesEngine/ircaMotorReglas.module';
 import { Estacion } from '../stations/entities/estacion.entity';
-import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { NotificacionesModule } from '../notifications/notificaciones.module';
 import { MuestreosService } from './muestreos.service';
 
 @Module({
