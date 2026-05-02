@@ -12,7 +12,7 @@ export class SelfOrAdminGuard implements CanActivate {
       return true;
     }
 
-    if (user.id === paramsId) {
+    if (Number(user.id) === paramsId) {
       return true;
     }
 

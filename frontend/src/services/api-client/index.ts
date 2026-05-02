@@ -1,27 +1,38 @@
 import api, { BASE_URL } from './axios-instance';
+import { LoginDto } from '@/src/shared/auth/dto/login.dto';
+import { SolicitarRecuperacionDto } from '@/src/shared/auth/dto/solicitar-recuperacion.dto';
+import { ResetPasswordDto } from '@/src/shared/auth/dto/reset-password.dto';
+import { CreateUsuarioDto } from '@/src/shared/users/dto/create-usuario.dto';
+import { UpdateUsuarioDto } from '@/src/shared/users/dto/update-usuario.dto';
+import { Usuario } from '@/src/shared/users/dto/usuario.dto';
+import { Estacion } from '@/src/shared/stations/dto/estacion.dto';
+import { Muestreo, MuestreosFilters } from '@/src/shared/sampling/dto/muestreo.dto';
 
 export const apiClient = {
     auth: {
-        login: (data: any) => api.post('/auth/login', data).then(res => res.data),
-        recuperarPassword: (email: string) => api.post('/auth/recuperar-password', { email }).then(res => res.data),
-        restablecerPassword: (data: any) => api.post('/auth/restablecer-password', data).then(res => res.data),
+        login: (data: LoginDto) => api.post('/auth/login', data).then(res => res.data),
+        recuperarPassword: (data: SolicitarRecuperacionDto) => api.post('/auth/forget-password', data).then(res => res.data),
+        restablecerPassword: (data: ResetPasswordDto) => api.post('/auth/reset-password', data).then(res => res.data),
     },
     usuarios: {
-        registro: (data: any) => api.post('/usuarios/registro', data).then(res => res.data),
-        getById: (id: string) => api.get(`/usuarios/${id}`).then(res => res.data),
-        update: (id: string, data: any) => api.patch(`/usuarios/${id}`, data).then(res => res.data),
-        getAlertConfig: (estacionId: string) => api.get(`/usuarios/config-alertas/${estacionId}`).then(res => res.data),
-        configAlertas: (estacionId: string, config: any) => api.put(`/usuarios/config-alertas/${estacionId}`, config).then(res => res.data),
+        registro: (data: CreateUsuarioDto) => api.post('/usuarios/registro', data).then(res => res.data),
+        getById: (id: string | number) => api.get<Usuario>(`/usuarios/${id}`).then(res => res.data),
+        update: (id: string | number, data: UpdateUsuarioDto) => api.patch<Usuario>(`/usuarios/${id}`, data).then(res => res.data),
+        getAlertConfig: (estacionId: string | number) => api.get(`/usuarios/config-alertas/${estacionId}`).then(res => res.data),
+        configAlertas: (estacionId: string | number, recibeAlerta: boolean) => api.put(`/usuarios/config-alertas/${estacionId}`, { recibeAlerta }).then(res => res.data),
+        softDelete: (id: string | number) => api.patch(`/usuarios/${id}/eliminar`).then(res => res.data),
     },
     muestreos: {
-        getHistorial: (idEstacion: string) => api.get(`/muestreos/historial/${idEstacion}`).then(res => res.data),
-        export: (params?: any) => {
-            const query = new URLSearchParams(params).toString();
+        getFiltered: (params: MuestreosFilters) => api.get<Muestreo[]>('/muestreos/filtro/busqueda', { params }).then(res => res.data),
+        getHistorial: (idEstacion: string | number) => api.get<Muestreo[]>(`/muestreos/historial/${idEstacion}`).then(res => res.data),
+        getById: (id: string | number) => api.get<Muestreo>(`/muestreos/${id}`).then(res => res.data),
+        export: (params?: MuestreosFilters) => {
+            const query = new URLSearchParams(params as any).toString();
             return `${BASE_URL}/muestreos/export?${query}`;
         }
     },
     estaciones: {
-        getAll: () => api.get('/estaciones').then(res => res.data),
-        getById: (id: string) => api.get(`/estaciones/${id}`).then(res => res.data),
+        getAll: () => api.get<Estacion[]>('/estaciones').then(res => res.data),
+        getById: (id: string | number) => api.get<Estacion>(`/estaciones/${id}`).then(res => res.data)
     },
 };

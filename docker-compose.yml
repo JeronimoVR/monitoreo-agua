@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- INFRAESTRUCTURA DE DATOS ---
   db:
@@ -26,6 +24,9 @@ services:
         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       ports:
         - "5050:80"
+      volumes:
+        - pgadmin_data:/var/lib/pgadmin
+        - ./pgadmin/servers.json:/pgadmin4/servers.json
       networks:
         - agua_network
       depends_on:
@@ -43,6 +44,7 @@ services:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+    command: ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]
     networks:
       - agua_network
 
@@ -58,6 +60,8 @@ services:
       DATABASE_PORT: ${DB_PORT}
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
+      MQTT_USER: ${MQTT_USER}
+      MQTT_PASSWORD: ${MQTT_PASSWORD}
       NEST_API_URL: http://192.168.110.87:${PORT_BACKEND}
     depends_on:
       - db
@@ -86,3 +90,6 @@ services:
 networks:
   agua_network:
     driver: bridge
+
+volumes:
+  pgadmin_data:

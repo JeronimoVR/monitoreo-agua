@@ -10,7 +10,7 @@ export class Muestreo {
   id: number;
 
   @Column({ name: 'id_estacion', type: 'bigint' })
-  id_estacion: number;
+  estacionId: number;
 
   @ManyToOne(() => Estacion)
   @JoinColumn({ name: 'id_estacion' })
@@ -24,7 +24,7 @@ export class Muestreo {
   clasificacionIrca: ClasificacionIrca;
 
   @CreateDateColumn({ name: 'fecha_muestreo' })
-  fecha_muestreo: Date;
+  fechaMuestreo: Date;
 
   @Column({ type: 'float8' })
   irca_calculado: number;

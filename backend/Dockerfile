@@ -9,6 +9,8 @@ COPY . .
 
 RUN npm run build
 
+COPY src/common/mail/templates ./dist/common/mail/templates
+
 EXPOSE 3001
 
 CMD ["npm", "run", "start:dev"]

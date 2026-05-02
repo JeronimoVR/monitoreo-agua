@@ -1,6 +1,6 @@
 import { NotificationData } from './types';
 
-const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL || 'http://192.168.110.87:3001/api/sse/stream';
+const STREAM_URL = process.env.NEST_PUBLIC_STREAM_URL;
 
 export const streamClient = {
     connect: (
@@ -12,25 +12,33 @@ export const streamClient = {
 
         const startConnection = () => {
             if (eventSource) eventSource.close();
-            
-            eventSource = new EventSource(STREAM_URL);
 
-            eventSource.onmessage = (event) => {
+            eventSource = new EventSource(STREAM_URL!);
+
+            eventSource.addEventListener('nuevo-muestreo', (event) => {
                 try {
                     const parsedData = JSON.parse(event.data);
                     onMessage(parsedData);
                 } catch (err) {
                     console.error("Error parseando datos de SSE:", err);
                 }
-            };
+            });
+
+            eventSource.addEventListener('status-update', (event) => {
+                try {
+                    const parsedData = JSON.parse(event.data);
+                    onMessage(parsedData);
+                } catch (err) {
+                    console.error("Error parseando datos de SSE:", err);
+                }
+            });
 
             eventSource.onerror = (err) => {
                 console.error("SSE Connection Error:", err);
                 if (onError) onError(err);
-                
+
                 if (eventSource) eventSource.close();
-                
-                // Intento de reconexión
+
                 reconnectTimeout = setTimeout(startConnection, 3000);
             };
         };

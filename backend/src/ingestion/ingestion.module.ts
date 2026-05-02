@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { IngestionService } from './ingestion.service';
-import { MuestreosController } from '../sampling/muestreos.controller';
+import { MuestreosModule } from '../sampling/sampling.module';
 import { Muestreo } from '../sampling/entities/muestreos.entity';
 import { Medida } from '../sampling/entities/medidas.entity';
 import { IrcaMotorReglasModule } from '../ircaRulesEngine/ircaMotorReglas.module';
@@ -11,12 +11,12 @@ import { NotificacionesModule } from '../notifications/notificaciones.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Muestreo, Medida, Estacion
-    ]),
+    TypeOrmModule.forFeature([Muestreo, Medida, Estacion]),
     IrcaMotorReglasModule,
-    NotificacionesModule
+    NotificacionesModule,
+    MuestreosModule
   ],
-  controllers: [MuestreosController, IngestionController],
+  controllers: [IngestionController],
   providers: [IngestionService],
   exports: [IngestionService],
 })

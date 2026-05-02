@@ -5,7 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsuariosModule } from './users/usuarios.module';
-import { MuestreosModule } from './ingestion/ingestion.module';
+import { IngestionModule } from './ingestion/ingestion.module';
 import { IrcaMotorReglasModule } from './ircaRulesEngine/ircaMotorReglas.module';
 import { SeedService } from './seed.service';
 import { Parametro } from './ircaRulesEngine/entities/parametros.entity';
@@ -15,17 +15,21 @@ import { AuthModule } from './auth/auth.module';
 import { NotificacionesModule } from './notifications/notificaciones.module';
 import { EstacionesModule } from './stations/estaciones.module';
 import { Usuario } from './users/entities/usuario.entity';
+import { MuestreosModule } from './sampling/sampling.module';
+import { MailModule } from './common/mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion, Usuario]),
 
     UsuariosModule,
+    IngestionModule,
     MuestreosModule,
     IrcaMotorReglasModule,
     AuthModule,
     NotificacionesModule,
     EstacionesModule,
+    MailModule,
 
     ClientsModule.register([
       {

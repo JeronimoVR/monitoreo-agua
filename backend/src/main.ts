@@ -17,9 +17,11 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
-      url: `mqtt://${process.env.MQTT_HOST || 'mosquitto'}:${process.env.MQTT_PORT || 1883}`,
+      url: `mqtt://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`,
       clientId: 'backend_water_project_docker',
-      subscribeOptions: { qos: 1 },
+      username: process.env.MQTT_USER,
+      password: process.env.MQTT_PASSWORD,
+      subscribeOptions: { qos: 2 },
     },
   });
 

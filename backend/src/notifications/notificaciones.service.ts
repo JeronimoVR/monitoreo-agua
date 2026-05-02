@@ -46,7 +46,7 @@ export class NotificacionesService {
     const alertaGuardada = await this.alertaRepo.save(nuevaAlerta);
 
     if (tipo === 'CRITICA') {
-      await this.mailService.enviarCorreo('admin@tesis.com', 'ALERTA CRÍTICA', 'alerta', { mensaje });
+      await this.mailService.enviarCorreo(process.env.EMAIL_USER || 'admin@tesis.com', 'ALERTA CRÍTICA', 'alerta', { mensaje });
     }
 
     return alertaGuardada;

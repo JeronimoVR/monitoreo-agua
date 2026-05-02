@@ -24,7 +24,10 @@
       "@components/*": ["./src/components/*"],
       "@/*": ["./*"],
       "@service/*": ["./src/services/*"],
-    }
+      "@shared/*": ["./src/shared/*"]
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
     "next-env.d.ts",

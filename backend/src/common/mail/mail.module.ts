@@ -23,7 +23,7 @@ import { join } from 'path';
           from: `"Sistema de Monitoreo IoT" <${config.get<string>('EMAIL_USER')}>`,
         },
         template: {
-          dir: join(process.cwd(), 'dist/notificaciones/mail/templates'),
+          dir: join(process.cwd(), 'dist/common/mail/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,

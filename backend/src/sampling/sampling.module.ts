@@ -8,11 +8,14 @@ import { Estacion } from '../stations/entities/estacion.entity';
 import { NotificacionesModule } from '../notifications/notificaciones.module';
 import { MuestreosService } from './muestreos.service';
 
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Muestreo, Medida, Estacion]),
     IrcaMotorReglasModule,
-    NotificacionesModule
+    NotificacionesModule,
+    AuthModule
   ],
   controllers: [MuestreosController],
   providers: [MuestreosService],

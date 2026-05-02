@@ -23,9 +23,9 @@ export class Usuario {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   rol: UserRole;
 
-  @OneToMany(() => ConfigAlerta, (config) => config.usuario)
+  @OneToMany(() => ConfigAlerta, (config) => config.usuario, { cascade: true })
   configuraciones: ConfigAlerta[];
 
   @DeleteDateColumn({ name: 'deleted_at', select: false })
-  deletedAt: Date;
+  deletedAt: Date; 
 }

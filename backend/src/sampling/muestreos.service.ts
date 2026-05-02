@@ -30,7 +30,7 @@ export class MuestreosService {
 
             const nuevoMuestreo = this.muestreoRepository.create({
                 estacion: { id: createMuestreoDto.id_estacion },
-                fecha_muestreo: createMuestreoDto.fecha_muestreo,
+                fechaMuestreo: createMuestreoDto.fecha_muestreo,
                 irca_calculado: resultadoIrca.puntaje,
                 clasificacionIrca: resultadoIrca.clasificacion || undefined,
                 medidas: createMuestreoDto.medidas.map(m => ({
@@ -99,7 +99,7 @@ export class MuestreosService {
     async consultarPorEstacion(id_estacion: number) {
         try {
             return await this.muestreoRepository.find({
-                where: { id_estacion },
+                where: { estacionId: id_estacion },
                 relations: ['medidas', 'clasificacionIrca'],
             });
         } catch (error) {
@@ -146,7 +146,7 @@ export class MuestreosService {
         const data = await this.getFilteredMuestreos(filters);
         const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
         const rows = data.map(m =>
-            `${m.fecha_muestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
+            `${m.fechaMuestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
         ).join('\n');
 
         return header + rows;
@@ -162,13 +162,13 @@ export class MuestreosService {
      */
     async findAllHistory(idEstacion: number) {
         return await this.muestreoRepository.find({
-            where: { id_estacion: idEstacion },
+            where: { estacionId: idEstacion },
             relations: [
                 'clasificacionIrca',
                 'medidas',
                 'medidas.parametro'
             ],
-            order: { fecha_muestreo: 'DESC' },
+            order: { fechaMuestreo: 'DESC' },
             take: 20,
         });
     }
