@@ -1,32 +1,68 @@
 'use client';
-import React, { createContext, useContext } from 'react';
-import { useEstaciones } from '@hooks/useEstaciones';
-import { useStream } from '@hooks/useStream';
+import React, { createContext, useContext, useState } from 'react';
+import { useEstacionesContext } from '@context/estacionesContext';
+import { apiClient } from '@service/api-client';
 
 interface MuestreoContextType {
-  estaciones: any[];
-  estacionSeleccionada: string | null;
-  setEstacionSeleccionada: (id: string) => void;
-  realTimeData: any[]; // Historial de la ráfaga actual
-  lastEvent: any | null;
+  generarReporte: (rango: { inicio: Date; fin: Date }) => Promise<void>;
+  descargarCSV: () => void;
+  isExporting: boolean;
 }
 
 const MuestreoContext = createContext<MuestreoContextType | undefined>(undefined);
 
 export const MuestreoProvider = ({ children }: { children: React.ReactNode }) => {
-  const { estaciones, estacionSeleccionada, setEstacionSeleccionada } = useEstaciones();
-  
-  // El stream solo se activa si hay una estación seleccionada
-  const { history, lastNotification } = useStream(!!estacionSeleccionada);
+  const { estacionSeleccionada } = useEstacionesContext();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const generarReporte = async (rango: { inicio: Date; fin: Date }) => {
+    if (!estacionSeleccionada) return;
+    setIsExporting(true);
+    try {
+      // La función export devuelve la URL de descarga
+      const url = apiClient.muestreos.export({
+        estacionId: String(estacionSeleccionada.id),
+        fechaInicio: rango.inicio.toISOString(),
+        fechaFin: rango.fin.toISOString()
+      });
+
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error("Error al exportar:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+const descargarCSV = async () => {
+  if (!estacionSeleccionada) return;
+
+  try {
+    setIsExporting(true);
+
+    const url = apiClient.muestreos.export({
+      estacionId: String(estacionSeleccionada.id),
+      fechaInicio: new Date('2026-01-01').toISOString(), // puedes parametrizar esto
+      fechaFin: new Date().toISOString()
+    });
+
+    // Crear un link temporal para forzar descarga
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `reporte_${estacionSeleccionada.nombre}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  } catch (error) {
+    console.error("Error al descargar CSV:", error);
+  } finally {
+    setIsExporting(false);
+  }
+};
 
   return (
-    <MuestreoContext.Provider value={{ 
-      estaciones, 
-      estacionSeleccionada, 
-      setEstacionSeleccionada, 
-      realTimeData: history,
-      lastEvent: lastNotification
-    }}>
+    <MuestreoContext.Provider value={{ generarReporte, descargarCSV, isExporting }}>
       {children}
     </MuestreoContext.Provider>
   );

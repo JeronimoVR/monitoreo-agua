@@ -1,39 +1,38 @@
 'use client';
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
-
-interface Estacion {
-  id: string;
-  nombre: string;
-  ubicacion: string;
-  estado: string;
-}
+import { Estacion } from '@shared/stations/dto/estacion.dto';
+import { useAuthContext } from '../authContext';
 
 interface EstacionesContextType {
   estaciones: Estacion[];
   estacionSeleccionada: Estacion | null;
   loading: boolean;
-  seleccionarEstacion: (id: string) => void;
+  seleccionarEstacion: (id: string | number) => void;
   refrescarEstaciones: () => Promise<void>;
 }
 
 const EstacionesContext = createContext<EstacionesContextType | undefined>(undefined);
 
 export const EstacionesProvider = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuthContext();
   const [estaciones, setEstaciones] = useState<Estacion[]>([]);
   const [estacionSeleccionada, setEstacionSeleccionada] = useState<Estacion | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 2. Función para cargar estaciones desde la API
   const refrescarEstaciones = useCallback(async () => {
+    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const data = await apiClient.estaciones.getAll();
       setEstaciones(data);
       
-      // Si hay estaciones y no hay ninguna seleccionada, seleccionamos la primera por defecto
-      if (data.length > 0 && !estacionSeleccionada) {
+      const savedId = localStorage.getItem('last_estacion_id');
+      const found = data.find((e: Estacion) => String(e.id) === savedId);
+      
+      if (found) {
+        setEstacionSeleccionada(found);
+      } else if (data.length > 0) {
         setEstacionSeleccionada(data[0]);
       }
     } catch (error) {
@@ -41,40 +40,35 @@ export const EstacionesProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setLoading(false);
     }
-  }, [estacionSeleccionada]);
+  }, [isAuthenticated]);
 
-  // 3. Función para cambiar la estación globalmente
-  const seleccionarEstacion = (id: string) => {
-    const encontrada = estaciones.find(e => e.id === id);
+  const seleccionarEstacion = (id: string | number) => {
+    const encontrada = estaciones.find(e => String(e.id) === String(id));
     if (encontrada) {
       setEstacionSeleccionada(encontrada);
+      localStorage.setItem('last_estacion_id', String(id));
     }
   };
 
   useEffect(() => {
     refrescarEstaciones();
-  }, []); // Solo al montar la aplicación
+  }, [refrescarEstaciones]);
 
   return (
-    <EstacionesContext.Provider 
-      value={{ 
-        estaciones, 
-        estacionSeleccionada, 
-        loading, 
-        seleccionarEstacion, 
-        refrescarEstaciones 
-      }}
-    >
+    <EstacionesContext.Provider value={{
+      estaciones,
+      estacionSeleccionada,
+      loading,
+      seleccionarEstacion,
+      refrescarEstaciones
+    }}>
       {children}
     </EstacionesContext.Provider>
   );
 };
 
-// 4. Hook personalizado para consumir este contexto fácilmente
 export const useEstacionesContext = () => {
   const context = useContext(EstacionesContext);
-  if (!context) {
-    throw new Error('useEstacionesContext debe usarse dentro de un EstacionesProvider');
-  }
+  if (!context) throw new Error('useEstacionesContext debe usarse dentro de EstacionesProvider');
   return context;
 };

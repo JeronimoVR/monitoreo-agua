@@ -1,9 +1,14 @@
 'use client';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@hooks/useAuth';
+import { apiClient } from '@service/api-client';
+import { Usuario } from '@shared/users/dto/usuario.dto';
+
+// We can use the imported Usuario directly or extend it if needed
+export type User = Usuario;
 
 interface AuthContextType {
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
   login: (credentials: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -13,34 +18,58 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { login: authLogin, logout, loading: authLoading } = useAuth();
-  const [user, setUser] = useState<any | null>(null);
+  const { login: authLogin, logout: authLogout, loading: authLoading } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
 
-  useEffect(() => {
-    // Lógica para recuperar sesión al cargar la app
+  // Validación real del token contra el backend
+  const verifySession = useCallback(async () => {
     const token = localStorage.getItem('token');
-    if (token) {
-      // Aquí podrías llamar a apiClient.usuarios.getById('me') 
-      // Por ahora simulamos el usuario
-      setUser({ authenticated: true }); 
+    const storedId = localStorage.getItem('userId');
+
+    if (!token || !storedId) {
+      setInitializing(false);
+      return;
     }
-    setInitializing(false);
+
+    try {
+      const profile = await apiClient.usuarios.getById(Number(storedId));
+      setUser(profile);
+    } catch (error) {
+      console.error("Sesión inválida o expirada");
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      setUser(null);
+    } finally {
+      setInitializing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    verifySession();
+  }, [verifySession]);
 
   const login = async (credentials: any) => {
     const result = await authLogin(credentials);
-    if (result.success) setUser({ authenticated: true });
+    if (result.success) {
+      // Tras login exitoso, obtenemos los datos reales del usuario
+      await verifySession();
+    }
     return result;
   };
 
+  const logout = () => {
+    authLogout();
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated: !!user, 
-      login, 
-      logout, 
-      loading: authLoading || initializing 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      login,
+      logout,
+      loading: authLoading || initializing
     }}>
       {children}
     </AuthContext.Provider>

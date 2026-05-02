@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@service/api-client';
+import { Estacion } from '../shared/stations/dto/estacion.dto';
 
 export const useEstaciones = () => {
-    const [estaciones, setEstaciones] = useState<any[]>([]);
+    const [estaciones, setEstaciones] = useState<Estacion[]>([]);
     const [estacionSeleccionada, setEstacionSeleccionada] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -12,7 +13,7 @@ export const useEstaciones = () => {
                 const data = await apiClient.estaciones.getAll();
                 setEstaciones(data);
                 if (data.length > 0 && !estacionSeleccionada) {
-                    setEstacionSeleccionada(data[0].id);
+                    setEstacionSeleccionada(String(data[0].id));
                 }
             } catch (error) {
                 console.error("Error cargando estaciones:", error);

@@ -1,15 +1,48 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { Button } from '@components/common/Button';
+import Link from 'next/link';
+import { RiskIndicator } from '@components/ui/RiskIndicator';
+import { Button } from '@components/ui/Button';
+import { StatusAnalysis } from '@components/common/StatusAnalysis';
+import { PromoBox } from '@components/common/PromoBox';
 
-export default function HomePage() {
-  const router = useRouter();
-
+export default function WelcomePage() {
   return (
-    <main>
-      <h1>AquaLab - Inicio</h1>
-      <Button label="Ir al Login" onClick={() => router.push('/login')} />
-      <Button label="Ir al Registro" onClick={() => router.push('/register')} />
+    <main className="welcome-wrapper">
+      {/* Header simple con Logo */}
+      <header>
+        <span>💧 AquaLab</span>
+      </header>
+
+      {/* Contenedor Principal: En Desktop será un Flex/Grid */}
+      <div className="layout-container">
+        
+        {/* Título Principal */}
+        <section className="welcome-header">
+          <h1>Bienvenido a AquaLab</h1>
+          <p>Monitoreo inteligente de calidad de agua.</p>
+        </section>
+
+        {/* Sección de Datos (Círculo de Riesgo) */}
+        <section className="main-visual">
+          <RiskIndicator nivel="BAJO" color="#10b981" />
+        </section>
+
+        {/* Sección de Información y Acciones */}
+        <section className="actions-content">
+          <StatusAnalysis />
+          <PromoBox />
+
+          <div className="button-group">
+            <Link href="/registro">
+              <Button variant="solid">👤 Registrarse</Button>
+            </Link>
+            <Link href="/login">
+              <Button variant="outline">↪️ Iniciar Sesión</Button>
+            </Link>
+          </div>
+        </section>
+
+      </div>
     </main>
   );
 }
