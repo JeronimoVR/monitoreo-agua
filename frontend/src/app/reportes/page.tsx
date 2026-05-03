@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNotificationsContext } from '@context/notificacionContext';
 import { useMuestreoContext } from '@context/muestreoContext';
 import { useEstacionesContext } from '@context/estacionesContext';
@@ -10,8 +10,13 @@ export default function ReportsPage() {
   const { notifications } = useNotificationsContext();
   const { estacionSeleccionada } = useEstacionesContext();
   const { generarReporte, isExporting } = useMuestreoContext();
+  const [mounted, setMounted] = useState(false);
   
   const [dateRange, setDateRange] = useState({ start: '2026-04-01', end: '2026-04-30' });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <main className="reports-container">
@@ -19,7 +24,9 @@ export default function ReportsPage() {
       <header className="reports-header">
         <div className="title-area">
           <h2>Historial de Reportes</h2>
-          <p className="timestamp">Última actualización: {new Date().toLocaleString()}</p>
+          <p className="timestamp">
+            Última actualización: {mounted ? new Date().toLocaleString() : '--/--/----, --:--:--'}
+          </p>
         </div>
         <div className="filter-actions">
           <input type="date" value={dateRange.start} onChange={(e) => setDateRange({...dateRange, start: e.target.value})} />

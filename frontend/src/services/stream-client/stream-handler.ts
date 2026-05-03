@@ -1,6 +1,6 @@
 import { NotificationData } from './types';
 
-const STREAM_URL = process.env.NEST_PUBLIC_STREAM_URL;
+const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL;
 
 export const streamClient = {
     connect: (
@@ -24,7 +24,7 @@ export const streamClient = {
                 }
             });
 
-            eventSource.addEventListener('status-update', (event) => {
+            eventSource.addEventListener('status-sensores', (event) => {
                 try {
                     const parsedData = JSON.parse(event.data);
                     onMessage(parsedData);

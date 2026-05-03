@@ -35,7 +35,11 @@ export class UsuariosService {
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     try {
-      const nuevo = this.usuariosRepository.create({ ...dto, passwordHash });
+      const nuevo = this.usuariosRepository.create({ 
+        nombre: dto.nombre,
+        correo: dto.correo,
+        passwordHash 
+      });
       const usuarioGuardado = await this.usuariosRepository.save(nuevo);
 
       const nuevaConfig = this.configRepository.create({
@@ -73,12 +77,10 @@ export class UsuariosService {
    */
   // Este lo usará tu AuthModule para el login
   async buscarPorCorreoConPassword(correo: string) {
-    const usuario = await this.usuariosRepository.createQueryBuilder('user')
-      .addSelect('user.passwordHash')
-      .where('user.correo = :correo', { correo })
-      .getOne();
-
-    return usuario || null;
+    return await this.usuariosRepository.findOne({
+      where: { correo },
+      select: ['id', 'nombre', 'correo', 'passwordHash', 'rol']
+    });
   }
 
   /**

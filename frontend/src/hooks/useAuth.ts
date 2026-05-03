@@ -12,8 +12,8 @@ export const useAuth = () => {
         setError(null);
         try {
             const response = await apiClient.auth.login(credentials);
-            if (response.token) {
-                localStorage.setItem('token', response.token);
+            if (response.access_token) {
+                localStorage.setItem('token', response.access_token);
                 if (response.user?.id) {
                     localStorage.setItem('userId', String(response.user.id));
                 }

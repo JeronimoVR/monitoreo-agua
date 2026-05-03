@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 export const RegisterForm = ({ onSubmit, loading, error }: any) => {
   const [formData, setFormData] = useState({
     nombre: '',
-    email: '',
+    correo: '',
     password: '',
     confirmPassword: ''
   });
@@ -37,7 +37,7 @@ export const RegisterForm = ({ onSubmit, loading, error }: any) => {
         type="email"
         placeholder="ejemplo@ejemplo.com"
         iconLeft="✉️"
-        onChange={(e) => setFormData({...formData, email: e.target.value})}
+        onChange={(e) => setFormData({...formData, correo: e.target.value})}
         required
       />
 

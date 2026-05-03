@@ -5,16 +5,16 @@ import { Button } from '../ui/Button';
 
 export const LoginForm = ({ onSubmit, loading, error }: any) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ correo: '', password: '' });
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSubmit(credentials); }}>
       <Input 
         label="CORREO ELECTRÓNICO"
         type="email"
-        placeholder="usuario@empresa.com"
+        placeholder="usuario@ejemplo.com"
         iconLeft="✉️"
-        onChange={(e) => setCredentials({...credentials, email: e.target.value})}
+        onChange={(e) => setCredentials({...credentials, correo: e.target.value})}
         required
       />
       
@@ -33,7 +33,7 @@ export const LoginForm = ({ onSubmit, loading, error }: any) => {
       />
 
       <div style={{ textAlign: 'right', margin: '10px 0' }}>
-        <a href="/recuperar" style={{ fontSize: '0.8rem' }}>¿Olvidaste tu contraseña?</a>
+        <a href="/recuperar-password" style={{ fontSize: '0.8rem' }}>¿Olvidaste tu contraseña?</a>
       </div>
 
       <Button type="submit" loading={loading}>

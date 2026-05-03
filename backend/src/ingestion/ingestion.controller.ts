@@ -55,7 +55,7 @@ export class IngestionController {
   @MessagePattern('sensores/status')
   async handleStatusUpdate(@Payload() data: any) {
     try {
-      this.sseService.enviarEvento(data, 'status-update');
+      this.sseService.enviarEvento(data, 'status-sensores');
     } catch (error) {
       console.error('Error en Status MQTT:', error.message);
     }
