@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { Mail } from 'lucide-react';
 
 interface RecoverPasswordFormProps {
   onSubmit: (email: string) => Promise<void>;
@@ -17,22 +18,22 @@ export const RecoverPasswordForm = ({ onSubmit, loading }: RecoverPasswordFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <Input 
         label="Correo Electrónico"
         type="email"
-        placeholder="ejemplo@correo.com"
-        iconLeft="✉️"
+        placeholder="ejemplo@uniajc.edu.co"
+        iconLeft={<Mail size={18} />}
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: any) => setEmail(e.target.value)}
         required
       />
 
-      <div style={{ marginTop: '25px' }}>
-        <Button type="submit" loading={loading}>
-          Enviar Enlace de Recuperación ↗
+      <div>
+        <Button type="submit" loading={loading} className="w-full h-14 text-lg">
+          Enviar Enlace ↗
         </Button>
       </div>
     </form>
   );
-};
+};
