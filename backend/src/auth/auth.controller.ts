@@ -61,7 +61,7 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        correo: { type: 'string', example: 'admin@tesis.com', description: 'Correo electrónico asociado a la cuenta a recuperar.' }
+        correo: { type: 'string', example: 'ejemplo@correo.com', description: 'Correo electrónico asociado a la cuenta a recuperar.' }
       },
       required: ['correo']
     }

@@ -4,117 +4,108 @@ import { useNotificationsContext } from '@context/notificacionContext';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { RiskIndicator } from '@components/ui/RiskIndicator';
 import { MetricCard } from '@components/graficos/MetricCard';
+import { Parametro } from '@shared/sampling/dto/parametro.dto';
 
 export default function DashboardPage() {
-  const { notifications, isSensorConnected } = useNotificationsContext();
-  const { estacionSeleccionada } = useEstacionesContext();
+  const { notifications } = useNotificationsContext();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const getLatestMeasure = (param: string) => {
+  const getLatestMeasure = (paramName: string) => {
     for (const n of notifications) {
-      const medida = n.medidas?.find(m => m.parametro === param.toUpperCase());
-      if (medida) return { ...medida, irca_calculado: n.irca_calculado };
+      // @ts-ignore - En tiempo de ejecución el backend envía el objeto completo 'parametro'
+      const medida = n.medidas?.find(m => m.parametro?.nombre?.toUpperCase() === paramName.toUpperCase());
+      if (medida) return { 
+        valor: medida.valor, 
+        unit: medida.parametro?.unidadMedida || '',
+        min: medida.parametro?.valorMinimo ?? 0,
+        max: medida.parametro?.valorMaximo ?? 0,
+        desc: medida.parametro?.descripcion || ''
+      };
     }
     return null;
   };
 
-  const ph = getLatestMeasure('PH');
-  const temp = getLatestMeasure('TEMPERATURA');
-  const turb = getLatestMeasure('TURBIDEZ');
-  const cond = getLatestMeasure('CONDUCTIVIDAD');
-  const od = getLatestMeasure('OXIGENO_DISUELTO');
 
-  const lastSamplingDate = notifications.length > 0 
-    ? new Date(notifications[0].fechaMuestreo).toLocaleString()
+  const getStatus = (val: number | string, min: number, max: number) => {
+    if (val === '---' || val === undefined) return 'normal';
+    const numVal = Number(val);
+    if (numVal < min || numVal > max) return 'critical';
+    return 'normal';
+  };
+
+  const latest = notifications[0];
+  const lastSamplingDate = latest 
+    ? new Date(latest.fechaMuestreo).toLocaleString()
     : '--/--/----, --:--:--';
 
-  const isConnected = mounted ? isSensorConnected : false;
+  // Parámetros dinámicos desde la base de datos
+  const params = ['pH', 'Turbidez', 'Conductividad', 'Temperatura', 'Oxígeno Disuelto'].map(name => ({
+    name,
+    data: getLatestMeasure(name)
+  }));
+
+  const riskColor = latest?.irca_calculado > 35 ? "#ef4444" : latest?.irca_calculado > 5 ? "#f59e0b" : latest?.irca_calculado > 0 ? "#10b981" : "#94a3b8";
 
   return (
-    <main className="min-h-screen bg-slate-50 p-[4vw] flex flex-col gap-[3vh]">
+    <main className="p-[4vw] flex flex-col gap-[3vh]">
       
-      {/* Header del Dashboard: Estado de Conectividad (CU009) */}
-      <header className="flex flex-col gap-[1vh] sm:flex-row sm:justify-between sm:items-center">
-        <div className="flex items-center gap-[2vw]">
-          <span className={`px-[3vw] py-[0.5vh] rounded-full text-[0.75rem] font-bold uppercase tracking-wider flex items-center gap-2 ${
-            isConnected ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-          }`}>
-            <span className={`w-2 h-2 rounded-full animate-pulse ${isConnected ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            {isConnected ? 'Sensores Conectados' : 'Sensores Desconectados'}
-          </span>
-        </div>
-        <span className="text-slate-400 text-[0.8rem] font-medium">
-          Último Muestreo: {mounted ? lastSamplingDate : '--/--/----, --:--:--'}
+      {/* Sub-header con información de tiempo */}
+      <div className="flex justify-between items-center px-2">
+        <h2 className="text-slate-400 text-[0.75rem] font-black uppercase tracking-widest">
+          Estación: SITIO DE PRUEBA
+        </h2>
+        <span className="text-slate-400 text-[0.75rem] font-medium">
+          Muestreo: {mounted ? lastSamplingDate : '--/--/----, --:--:--'}
         </span>
-      </header>
+      </div>
 
-      {/* Grid Principal Adaptable */}
+      {/* Grid Principal */}
       <div className="flex flex-col lg:grid lg:grid-cols-12 gap-[4vw] lg:gap-[2vw]">
         
-        {/* Lado Izquierdo: Estado General (Enfoque Visual) */}
-        <section className="lg:col-span-4 bg-white rounded-[6vw] sm:rounded-[2rem] p-[6vw] sm:p-8 shadow-xl shadow-blue-900/5">
-          <h3 className="text-slate-800 font-black text-[1.1rem] mb-[2vh] uppercase tracking-tight">Estado general</h3>
-          <div className="flex flex-col items-center">
+        {/* Lado Izquierdo: Análisis Dinámico */}
+        <section className="lg:col-span-4 bg-white rounded-[6vw] sm:rounded-[2rem] p-[6vw] sm:p-8 shadow-xl shadow-blue-900/5 flex flex-col border border-slate-100">
+          <h3 className="text-slate-800 font-black text-[1.1rem] mb-[2vh] uppercase tracking-tight">Análisis de Riesgo</h3>
+          <div className="flex flex-col items-center flex-1 justify-center">
             <RiskIndicator 
-              nivel={notifications[0]?.irca_calculado > 0 ? "OPERATIVO" : "SIN DATOS"} 
-              color={notifications[0]?.irca_calculado > 5 ? "#f59e0b" : notifications[0]?.irca_calculado > 0 ? "#10b981" : "#94a3b8"} 
+              nivel={latest?.clasificacionIrca?.clasificacion || (latest ? "SIN RIESGO" : "SIN DATOS")} 
+              color={riskColor} 
             />
-            <p className="text-center text-slate-500 text-[0.9rem] leading-relaxed mt-[2vh]">
-              {notifications.length > 0 
-                ? "Resumen basado en el último muestreo recibido de la estación."
-                : "No se han recibido datos de muestreo para esta estación recientemente."}
-            </p>
+            <div className="mt-[2vh] text-center">
+              <p className="text-slate-800 font-bold text-[1rem] mb-2 uppercase tracking-wide">
+                {latest?.clasificacionIrca?.clasificacion || "Esperando datos..."}
+              </p>
+              <p className="text-slate-500 text-[0.85rem] leading-relaxed">
+                {latest?.clasificacionIrca?.descripcion || "Conecta los sensores para iniciar el análisis automático de la calidad del agua en tiempo real."}
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Lado Derecho: Grilla de Métricas (2 columnas en móvil, 3 en desktop) */}
+        {/* Lado Derecho: Métricas Dinámicas */}
         <section className="lg:col-span-8">
-          <h3 className="text-slate-800 font-black text-[1.1rem] mb-[2vh] uppercase tracking-tight">Métricas actuales</h3>
+          <h3 className="text-slate-800 font-black text-[1.1rem] mb-[2vh] uppercase tracking-tight">Métricas en Tiempo Real</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-[3vw] lg:gap-[1.5vw]">
-            <MetricCard 
-              label="pH" 
-              value={ph?.valor ?? '---'} 
-              unit="" 
-              description="Acidez o alcalinidad" 
-              range="6.5 - 9.5" 
-              icon="🧪" 
-            />
-            <MetricCard 
-              label="Temp" 
-              value={temp?.valor ?? '---'} 
-              unit="°C" 
-              description="Temperatura muestra" 
-              range="10 - 25°C" 
-              icon="🌡️" 
-            />
-            <MetricCard 
-              label="Turbidez" 
-              value={turb?.valor ?? '---'} 
-              unit="NTU" 
-              description="Claridad del agua" 
-              range="< 5.0" 
-              icon="🌫️" 
-            />
-            <MetricCard 
-              label="Cond." 
-              value={cond?.valor ?? '---'} 
-              unit="µS/cm" 
-              description="Sales disueltas" 
-              range="300 - 800" 
-              icon="⚡" 
-            />
-            <MetricCard 
-              label="Oxígeno" 
-              value={od?.valor ?? '---'} 
-              unit="mg/L" 
-              description="O2 disponible" 
-              range="> 4.0" 
-              icon="🫧" 
-            />
+            {params.map((p, idx) => {
+              const val = p.data?.valor ?? '---';
+              const range = p.data ? `${p.data.min} - ${p.data.max}` : '---';
+              const icons = ['🧪', '🌫️', '⚡', '🌡️', '🫧'];
+              return (
+                <MetricCard 
+                  key={idx}
+                  label={p.name} 
+                  value={val} 
+                  unit={p.data?.unit || ''} 
+                  description={p.data?.desc || 'Esperando parámetro...'} 
+                  range={range} 
+                  icon={icons[idx] || '📊'} 
+                  status={getStatus(val, p.data?.min || 0, p.data?.max || 0)}
+                />
+              );
+            })}
           </div>
         </section>
       </div>

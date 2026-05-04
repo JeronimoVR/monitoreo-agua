@@ -1,19 +1,41 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useAuthContext } from '@context/authContext';
 
-export const LoginForm = ({ onSubmit, loading, error }: any) => {
+export const LoginForm = ({ onSubmit, loading, error: apiError, onValidationError }: any) => {
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({ correo: '', password: '' });
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  // Notificar al padre si hay algún error activo (API o Local)
+  const activeError = apiError || localError;
+  useEffect(() => {
+    if (onValidationError) {
+      onValidationError(!!activeError);
+    }
+  }, [activeError, onValidationError]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError(null);
+
+    if (!credentials.correo || !credentials.password) {
+      setLocalError("Por favor, ingresa tu correo y contraseña.");
+      return;
+    }
+
+    onSubmit(credentials);
+  };
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSubmit(credentials); }} className="flex flex-col gap-4">
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 font-medium mb-2 flex items-center gap-2">
-          <span className="shrink-0">⚠️</span>
-          <span>{error}</span>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {activeError && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 font-medium mb-2 flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
+          <AlertCircle size={18} className="shrink-0" />
+          <span>{activeError}</span>
         </div>
       )}
 
@@ -21,9 +43,12 @@ export const LoginForm = ({ onSubmit, loading, error }: any) => {
         <Input 
           label="Correo Electrónico"
           type="email"
-          placeholder="ejemplo@uniajc.edu.co"
+          placeholder="ejemplo@correo.com"
           iconLeft={<Mail size={18} />}
-          onChange={(e: any) => setCredentials({...credentials, correo: e.target.value})}
+          onChange={(e: any) => {
+            setLocalError(null);
+            setCredentials({...credentials, correo: e.target.value});
+          }}
           required
         />
         
@@ -41,7 +66,10 @@ export const LoginForm = ({ onSubmit, loading, error }: any) => {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
-          onChange={(e: any) => setCredentials({...credentials, password: e.target.value})}
+          onChange={(e: any) => {
+            setLocalError(null);
+            setCredentials({...credentials, password: e.target.value});
+          }}
           required
         />
       </div>
@@ -59,4 +87,5 @@ export const LoginForm = ({ onSubmit, loading, error }: any) => {
       </div>
     </form>
   );
-};
+};
+

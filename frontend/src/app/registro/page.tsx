@@ -8,15 +8,20 @@ import { RegisterForm } from '@components/forms/RegisterForm';
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isErrorActive, setIsErrorActive] = useState(false);
   const router = useRouter();
 
   const handleRegister = async (data: any) => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       await apiClient.usuarios.registro(data);
-      alert('¡Cuenta creada! Ahora puedes acceder al sistema.');
-      router.push('/login');
+      setSuccess('¡Cuenta creada con éxito! Redirigiendo al inicio de sesión...');
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al crear la cuenta');
     } finally {
@@ -25,7 +30,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthLayout title="">
+    <AuthLayout title="" hideBackButton={isErrorActive || !!error || !!success}>
       {/* Encabezado con espaciado en vh */}
       <div className="text-center mb-[4vh] flex flex-col items-center">
         <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
@@ -47,7 +52,10 @@ export default function RegisterPage() {
         onSubmit={handleRegister}
         loading={loading}
         error={error}
+        success={success}
+        onValidationError={setIsErrorActive}
       />
+
 
       {/* Footer con margen superior relativo */}
       <footer className="text-center mt-[3vh]">
@@ -63,4 +71,4 @@ export default function RegisterPage() {
       </footer>
     </AuthLayout>
   );
-}
+}

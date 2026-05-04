@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
-
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export const useAuth = () => {
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
+
     const [error, setError] = useState<string | null>(null);
 
     const login = useCallback(async (credentials: any) => {

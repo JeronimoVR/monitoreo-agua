@@ -48,7 +48,7 @@ export class SeedService implements OnApplicationBootstrap {
           valorMinimo: 6.5,
           valorMaximo: 9.0,
           puntajeRiesgo: 1.5,
-          descripcion: 'Nivel de acidez o alcalinidad.'
+          descripcion: 'Indica qué tan ácida o alcalina es el agua. Valores extremos pueden afectar la salud y la vida acuática.'
         },
         {
           nombre: 'Turbidez',
@@ -56,7 +56,7 @@ export class SeedService implements OnApplicationBootstrap {
           valorMinimo: 0.0,
           valorMaximo: 2.0,
           puntajeRiesgo: 15.0,
-          descripcion: 'Claridad del agua.'
+          descripcion: 'Indica qué tan clara o turbia está el agua debido a partículas suspendidas. Alta turbidez puede reducir la calidad del agua.'
         },
         {
           nombre: 'Conductividad',
@@ -64,7 +64,7 @@ export class SeedService implements OnApplicationBootstrap {
           valorMinimo: 0.0,
           valorMaximo: 1000.0,
           puntajeRiesgo: 0.0,
-          descripcion: 'Sales disueltas.'
+          descripcion: 'Refleja la cantidad de sales y minerales disueltos en el agua. Valores altos pueden indicar contaminación.'
         },
         {
           nombre: 'Temperatura',
@@ -72,7 +72,7 @@ export class SeedService implements OnApplicationBootstrap {
           valorMinimo: 15.0,
           valorMaximo: 30.0,
           puntajeRiesgo: 0.0,
-          descripcion: 'Temperatura ambiente.'
+          descripcion: 'Mide qué tan caliente o fría está el agua, lo cual influye en la vida de los organismos y en otros procesos químicos.'
         },
         {
           nombre: 'Oxígeno Disuelto',
@@ -80,7 +80,7 @@ export class SeedService implements OnApplicationBootstrap {
           valorMinimo: 4.0,
           valorMaximo: 10.0,
           puntajeRiesgo: 0.0,
-          descripcion: 'Oxígeno gaseoso disuelto en el agua.'
+          descripcion: 'Cantidad de oxígeno disponible en el agua para los seres vivos. Niveles bajos pueden afectar la vida acuática.'
         }
       ]);
       console.log('✅ Parámetros oficiales sembrados');
@@ -89,11 +89,11 @@ export class SeedService implements OnApplicationBootstrap {
     const ircaCount = await this.clasificacionesIrcaRepository.count();
     if (ircaCount === 0) {
       await this.clasificacionesIrcaRepository.save([
-        { clasificacion: 'SIN RIESGO', valor_min: 0, valor_max: 5, descripcion: 'Agua apta para consumo.' },
-        { clasificacion: 'RIESGO BAJO', valor_min: 5.1, valor_max: 14, descripcion: 'Requiere vigilancia.' },
-        { clasificacion: 'RIESGO MEDIO', valor_min: 14.1, valor_max: 35, descripcion: 'Riesgo significativo.' },
-        { clasificacion: 'RIESGO ALTO', valor_min: 35.1, valor_max: 80, descripcion: 'Agua no apta.' },
-        { clasificacion: 'INVIABLE', valor_min: 80.1, valor_max: 100, descripcion: 'Riesgo total.' }
+        { clasificacion: 'SIN RIESGO', valor_min: 0, valor_max: 5, descripcion: 'El agua es de buena calidad y apta para el consumo humano sin restricciones. No representa riesgos para la salud.' },
+        { clasificacion: 'RIESGO BAJO', valor_min: 5.1, valor_max: 14, descripcion: 'El agua presenta pequeñas alteraciones, pero puede consumirse con bajo riesgo. Se recomienda vigilancia y control preventivo.' },
+        { clasificacion: 'RIESGO MEDIO', valor_min: 14.1, valor_max: 35, descripcion: 'El agua tiene condiciones que podrían afectar la salud a mediano plazo. No se recomienda su consumo sin tratamiento previo.' },
+        { clasificacion: 'RIESGO ALTO', valor_min: 35.1, valor_max: 80, descripcion: 'El agua presenta contaminación significativa. No es apta para el consumo humano y requiere tratamiento urgente.' },
+        { clasificacion: 'INVIABLE', valor_min: 80.1, valor_max: 100, descripcion: 'El agua está altamente contaminada. Su consumo representa un riesgo grave para la salud y está totalmente prohibido sin tratamiento especializado.' }
       ]);
       console.log('✅ Clasificaciones IRCA sembradas');
     }

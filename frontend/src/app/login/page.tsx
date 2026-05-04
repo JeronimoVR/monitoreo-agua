@@ -6,22 +6,36 @@ import { AuthLayout } from '@components/layout/AuthLayout';
 import { LoginForm } from '@components/forms/LoginForm';
 
 export default function LoginPage() {
-  const { login, loading } = useAuthContext();
-  const [error, setError] = useState<string | null>(null);
+  const { login, loading, error } = useAuthContext();
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [isErrorActive, setIsErrorActive] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (credentials: any) => {
-    setError(null);
-    const result = await login(credentials);
-    if (result.success) {
-      router.push('/dashboard');
-    } else {
-      setError(result.error || 'Error al iniciar sesión');
+    setLocalError(null);
+    setIsErrorActive(false);
+    try {
+      const result = await login(credentials);
+      if (result.success) {
+        router.push('/dashboard');
+      } else {
+        console.error("Error de login:", result.error);
+        // Mensaje genérico para cualquier error de credenciales (CU002)
+        const genericMsg = 'El correo o la contraseña son incorrectos. Por favor, verifica tus datos e intenta de nuevo.';
+        setLocalError(genericMsg);
+        setIsErrorActive(true);
+      }
+    } catch (err) {
+      console.error("Fallo crítico en handleLogin:", err);
+      setLocalError('Ocurrió un error inesperado. Por favor, intenta de nuevo.');
+      setIsErrorActive(true);
     }
   };
 
+
+
   return (
-    <AuthLayout title="">
+    <AuthLayout title="" hideBackButton={isErrorActive || !!error}>
       {/* Encabezado con espaciado consistente */}
       <div className="text-center mb-[4vh] flex flex-col items-center">
         <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
@@ -41,6 +55,7 @@ export default function LoginPage() {
         onSubmit={handleLogin} 
         loading={loading} 
         error={error} 
+        onValidationError={setIsErrorActive}
       />
 
       <footer className="text-center mt-[4vh] pt-4 border-t border-slate-100">
@@ -55,6 +70,5 @@ export default function LoginPage() {
         </p>
       </footer>
     </AuthLayout>
-
   );
 }

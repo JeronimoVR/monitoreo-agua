@@ -1,8 +1,11 @@
+import { Parametro } from './parametro.dto';
+
 export interface Medida {
   id: number;
-  parametro: string;
+  parametroId: number;
+  muestreoId: number;
   valor: number;
-  unidad: string;
+  parametro?: Parametro; // Objeto completo del parámetro
 }
 
 export interface Muestreo {
@@ -10,8 +13,15 @@ export interface Muestreo {
   estacionId: number;
   fechaMuestreo: string;
   irca_calculado: number;
+  clasificacionIrca?: {
+    clasificacion: string;
+    descripcion: string;
+    valor_min: number;
+    valor_max: number;
+  };
   medidas?: Medida[];
 }
+
 
 export interface MuestreosFilters {
   estacionId?: string;

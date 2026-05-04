@@ -13,12 +13,13 @@ interface AuthContextType {
   login: (credentials: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   loading: boolean;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { login: authLogin, logout: authLogout, loading: authLoading } = useAuth();
+  const { login: authLogin, logout: authLogout, loading: authLoading, error: authError } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
 
@@ -69,7 +70,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticated: !!user,
       login,
       logout,
-      loading: authLoading || initializing
+      loading: authLoading || initializing,
+      error: authError
     }}>
       {children}
     </AuthContext.Provider>

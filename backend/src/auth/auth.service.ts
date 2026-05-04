@@ -124,20 +124,32 @@ export class AuthService {
    * @returns Objeto `{ message: string }` indicando la correcta renovación de credencial.
    */
   async restablecerPassword(token: string, nuevaPassword: string) {
+    // Buscar el token con su relación de usuario
     const registro = await this.tokenRepo.findOne({
-      where: { token, usado: false },
+      where: { token },
       relations: ['usuario'],
     });
 
-    if (!registro || registro.fechaExpiracion < new Date()) {
-      throw new UnauthorizedException('El token es inválido o ha expirado');
+    if (!registro) {
+      throw new UnauthorizedException('El token es inválido o no existe');
     }
 
+    if (registro.usado) {
+      throw new UnauthorizedException('Este token ya ha sido utilizado. Por favor, solicita uno nuevo.');
+    }
+
+    if (registro.fechaExpiracion < new Date()) {
+      throw new UnauthorizedException('El token ha expirado. Por favor, solicita uno nuevo.');
+    }
+
+    // Actualizar la contraseña del usuario
     await this.usuariosService.actualizarPassword(registro.usuario.id, nuevaPassword);
 
+    // Marcar el token como usado (Quemar el token)
     registro.usado = true;
     await this.tokenRepo.save(registro);
 
     return { message: 'Contraseña actualizada con éxito' };
   }
+
 }
