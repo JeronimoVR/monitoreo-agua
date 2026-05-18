@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { apiClient } from '@service/api-client';
 import { AuthLayout } from '@components/layout/AuthLayout';
 import { RegisterForm } from '@components/forms/RegisterForm';
@@ -61,12 +62,12 @@ export default function RegisterPage() {
       <footer className="text-center mt-[3vh]">
         <p className="text-[0.9rem] text-slate-600">
           ¿Ya tienes una cuenta?{' '}
-          <a
+          <Link
             href="/login"
             className="text-blue-600 font-bold hover:underline transition-all"
           >
             Inicia sesión aquí
-          </a>
+          </Link>
         </p>
       </footer>
     </AuthLayout>

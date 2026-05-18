@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthContext } from '@context/authContext';
 import { AuthLayout } from '@components/layout/AuthLayout';
 import { LoginForm } from '@components/forms/LoginForm';
@@ -61,12 +62,12 @@ export default function LoginPage() {
       <footer className="text-center mt-[4vh] pt-4 border-t border-slate-100">
         <p className="text-[0.9rem] text-slate-600">
           ¿No tienes una cuenta?{' '}
-          <a
+          <Link
             href="/registro"
             className="text-blue-600 font-bold hover:underline transition-all"
           >
             Regístrate aquí
-          </a>
+          </Link>
         </p>
       </footer>
     </AuthLayout>

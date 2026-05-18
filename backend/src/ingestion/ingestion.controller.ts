@@ -20,20 +20,23 @@ export class IngestionController {
    */
   @ApiOperation({ summary: 'Recepción de datos IoT', description: 'Tópico MQTT: sensores/datos' })
   @MessagePattern('sensores/datos')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async handleSensorData(@Payload() data: CreateMuestreoDto, @Ctx() context: MqttContext) {
+  async handleSensorData(@Payload() data: any, @Ctx() context: MqttContext) {
     console.info('--- RECEPCIÓN DE DATOS IoT ---');
+    console.log('Payload recibido:', JSON.stringify(data));
 
     try {
       // 1. Normalización (Asegura consistencia entre hardware y backend)
+      // El ESP32 puede enviar idEstacion o id_estacion, fecha o fecha_muestreo, etc.
       const nuevoMuestreo: CreateMuestreoDto = {
-        id_estacion: data.id_estacion || (data as any).idEstacion,
-        fecha_muestreo: data.fecha_muestreo || (data as any).fecha || new Date(),
-        medidas: (data.medidas || []).map(m => ({
-          id_parametro: m.id_parametro || (m as any).idParametro,
-          valor: m.valor
+        id_estacion: Number(data.id_estacion || data.idEstacion || data.stationId),
+        fecha_muestreo: data.fecha_muestreo || data.fecha || new Date(),
+        medidas: (data.medidas || data.measures || []).map(m => ({
+          id_parametro: Number(m.id_parametro || m.idParametro || m.parameterId),
+          valor: Number(m.valor || m.value)
         }))
       };
+
+      console.log('Datos normalizados para guardar:', JSON.stringify(nuevoMuestreo));
 
       // 2. Comunicación con Sampling: Análisis e Inserción
       const result = await this.muestreosService.crear(nuevoMuestreo);
@@ -44,6 +47,7 @@ export class IngestionController {
       return result;
     } catch (error) {
       console.error('Error en Ingestión MQTT:', error.message);
+      console.error('Stack trace:', error.stack);
     }
   }
 

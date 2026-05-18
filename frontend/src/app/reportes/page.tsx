@@ -1,85 +1,87 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useNotificationsContext } from '@context/notificacionContext';
-import { useMuestreoContext } from '@context/muestreoContext';
-import { useEstacionesContext } from '@context/estacionesContext';
-import { ParameterSparklineCard } from '@components/graficos/ParameterSparklineCard';
-import { Button } from '@components/ui/Button';
+import { useState } from 'react';
+import { Calendar, Download, BarChart3, Zap, FileSpreadsheet } from 'lucide-react';
+import { Button } from "@components/ui/Button";
+import { Input } from "@components/ui/Input";
+import { useMuestreoContext } from "@context/muestreoContext";
 
 export default function ReportsPage() {
-  const { notifications } = useNotificationsContext();
-  const { estacionSeleccionada } = useEstacionesContext();
   const { generarReporte, isExporting } = useMuestreoContext();
-  const [mounted, setMounted] = useState(false);
-  
-  const [dateRange, setDateRange] = useState({ start: '2026-04-01', end: '2026-04-30' });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [dateRange, setDateRange] = useState({
+    start: new Date().toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
 
   return (
-    <main className="reports-container">
-      {/* Sección Superior: Título y Filtros */}
-      <header className="reports-header">
-        <div className="title-area">
-          <h2>Historial de Reportes</h2>
-          <p className="timestamp">
-            Última actualización: {mounted ? new Date().toLocaleString() : '--/--/----, --:--:--'}
+    <div className="p-[5vw] flex flex-col gap-[4vh]">
+      {/* Header de la página */}
+      <section>
+        <h2 className="text-slate-800 font-black text-[1.5rem] tracking-tight uppercase">
+          Reportes Históricos
+        </h2>
+        <p className="text-slate-500 font-medium text-[0.9rem] mt-[0.5vh]">
+          Exporta los datos capturados por los sensores en formato CSV para análisis externo.
+        </p>
+      </section>
+
+      {/* Card de Configuración de Reporte */}
+      <div className="bg-white p-[6vw] rounded-[8vw] shadow-xl shadow-blue-900/5 border border-slate-100 flex flex-col gap-[4vh]">
+        <div className="flex items-center gap-[3vw]">
+          <div className="w-[12vw] h-[12vw] bg-blue-50 rounded-[4vw] flex items-center justify-center text-blue-600">
+            <BarChart3 size={28} />
+          </div>
+          <div>
+            <h3 className="text-slate-800 font-bold text-[1.1rem]">Rango de Fecha</h3>
+            <p className="text-slate-400 text-[0.8rem]">Selecciona el periodo de tiempo</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-[3vh]">
+          <Input 
+            label="Desde"
+            type="date"
+            value={dateRange.start}
+            onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+            iconLeft={<Calendar size={20} />}
+          />
+          <Input 
+            label="Hasta"
+            type="date"
+            value={dateRange.end}
+            onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+            iconLeft={<Calendar size={20} />}
+          />
+        </div>
+
+        <div className="bg-slate-50 p-[4vw] rounded-[4vw] border border-dashed border-slate-200">
+          <p className="text-slate-500 text-[0.8rem] leading-relaxed">
+            <span className="font-bold text-blue-600">Nota:</span> El reporte incluirá pH, turbidez, temperatura, conductividad y oxígeno disuelto, junto con el cálculo del IRCA para cada muestra.
           </p>
         </div>
-        <div className="filter-actions">
-          <input type="date" value={dateRange.start} onChange={(e) => setDateRange({...dateRange, start: e.target.value})} />
-          <input type="date" value={dateRange.end} onChange={(e) => setDateRange({...dateRange, end: e.target.value})} />
-          <Button onClick={() => generarReporte({ inicio: new Date(dateRange.start), fin: new Date(dateRange.end) })} loading={isExporting}>
-            📥 Exportar CSV
-          </Button>
-        </div>
-      </header>
 
-      {/* Tarjetas de Resumen Superior */}
-      <section className="summary-row">
-        <div className="summary-card">
-          <span>NIVEL DE RIESGO</span>
-          <strong className="status-low">● BAJO</strong>
-        </div>
-        <div className="summary-card">
-          <span>PUNTAJE IRCA</span>
-          <strong>4.2%</strong>
-          <small className="status-low">Riesgo Bajo</small>
-        </div>
-      </section>
+        <Button 
+          className="w-full !py-[2.2vh] shadow-blue-600/30"
+          onClick={() => generarReporte({ inicio: new Date(dateRange.start), fin: new Date(dateRange.end) })} 
+          loading={isExporting}
+        >
+          <Download size={20} className="mr-2" />
+          Generar Reporte CSV
+        </Button>
+      </div>
 
-      {/* Gráfico de Tendencia General IRCA */}
-      <section className="main-chart-section">
-        <h3>Tendencia General del Índice de Riesgo</h3>
-        <p>Evaluación del estado general del agua en el periodo seleccionado.</p>
-        <div className="large-chart-placeholder" style={{ height: '300px', backgroundColor: '#f8fafc' }}>
-          {/* Aquí irá el gráfico de área principal */}
+      {/* Tips o Información Adicional */}
+      <div className="grid grid-cols-2 gap-[4vw]">
+        <div className="bg-emerald-50 p-[4vw] rounded-[6vw] border border-emerald-100">
+          <FileSpreadsheet className="text-emerald-600 mb-[1vh]" size={24} />
+          <h4 className="text-emerald-900 font-bold text-[0.85rem] uppercase">Formato</h4>
+          <p className="text-emerald-700/70 text-[0.75rem]">Compatible con Excel y Sheets</p>
         </div>
-      </section>
-
-      {/* Desglose por Parámetro */}
-      <section className="parameters-breakdown">
-        <h3>Desglose por Parámetro</h3>
-        <div className="sparklines-grid">
-          <ParameterSparklineCard 
-            label="pH" icon="🧪" status="Normal" average="7.2" unit="" reference="Rango Normal: 6.5 - 9.0" 
-          />
-          <ParameterSparklineCard 
-            label="Temperatura" icon="🌡️" status="Prevención" average="24.5" unit="°C" reference="Rango Normal: 10.0 - 30.0" 
-          />
-          <ParameterSparklineCard 
-            label="Turbidez" icon="🌫️" status="Alerta" average="2.4" unit="NTU" reference="Máx Recomendado: 2.0 NTU" 
-          />
-          <ParameterSparklineCard 
-            label="Conductividad" icon="⚡" status="Normal" average="450" unit="µS/cm" reference="Máx Recomendado: 1000 µS/cm" 
-          />
-          <ParameterSparklineCard 
-            label="Oxígeno Disuelto" icon="🫧" status="Normal" average="7.8" unit="mg/L" reference="Mín Recomendado: 4.0 mg/L" 
-          />
+        <div className="bg-blue-50 p-[4vw] rounded-[6vw] border border-blue-100">
+          <Zap className="text-blue-600 mb-[1vh]" size={24} />
+          <h4 className="text-blue-900 font-bold text-[0.85rem] uppercase">Velocidad</h4>
+          <p className="text-blue-700/70 text-[0.75rem]">Generación en tiempo real</p>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

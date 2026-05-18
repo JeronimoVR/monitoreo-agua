@@ -7,7 +7,7 @@ interface MetricCardProps {
   unit: string;
   description: string;
   range: string;
-  icon: string;
+  icon: React.ReactNode;
   status?: 'normal' | 'warning' | 'critical';
 }
 
@@ -26,7 +26,7 @@ export const MetricCard = ({ label, value, unit, description, range, icon, statu
       {/* Header de la Card */}
       <div className="flex justify-between items-start mb-[1vh]">
         <div className="flex flex-col">
-          <span className="text-[6vw] sm:text-[24px] mb-[0.5vh]">{icon}</span>
+          <span className="text-blue-600 mb-[0.5vh]">{icon}</span>
           <h4 className="text-[3.5vw] sm:text-[0.9rem] font-black text-slate-800 uppercase tracking-tight leading-none">
             {label}
           </h4>

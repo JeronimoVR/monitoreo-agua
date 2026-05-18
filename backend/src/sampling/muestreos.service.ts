@@ -43,7 +43,10 @@ export class MuestreosService {
 
             return muestreoGuardado;
         } catch (error) {
-            throw new InternalServerErrorException('Error inesperado al crear el muestreo y sus medidas.');
+            console.error('CRITICAL ERROR in MuestreosService.crear:', error.message);
+            console.error('Data that caused error:', JSON.stringify(createMuestreoDto));
+            console.error('Stack:', error.stack);
+            throw new InternalServerErrorException('Error inesperado al crear el muestreo y sus medidas: ' + error.message);
         }
     }
 

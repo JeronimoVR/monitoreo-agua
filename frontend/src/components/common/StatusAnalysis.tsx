@@ -24,19 +24,24 @@ export const StatusAnalysis = () => {
         <div className={`p-2 rounded-lg ${isSensorConnected ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
           {isSensorConnected ? <Activity size={20} /> : <ShieldAlert size={20} />}
         </div>
-        <h3 className="font-bold text-slate-800 text-lg">Estado del Sistema</h3>
+        {/* <h3 className="font-bold text-slate-800 text-lg">Análisis del Nivel de Riesgo</h3> */}
       </div>
 
       <div className="space-y-3">
         {hasData ? (
-          <div className="flex items-start gap-3">
-            <div className={`mt-1 ${isHealthy ? 'text-emerald-500' : 'text-amber-500'}`}>
-              <ShieldCheck size={18} />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className={`p-1 rounded-full ${latest.irca_calculado > 35 ? 'bg-red-100 text-red-600' : latest.irca_calculado > 5 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                <ShieldCheck size={16} />
+              </div>
+              <span className={`font-black text-sm uppercase tracking-wider ${latest.irca_calculado > 35 ? 'text-red-600' : latest.irca_calculado > 5 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                RIESGO {latest.clasificacionIrca?.clasificacion || (latest.irca_calculado > 35 ? "ALTO" : latest.irca_calculado > 5 ? "MEDIO" : "BAJO")}
+              </span>
             </div>
-            <p className="text-slate-600 leading-relaxed font-medium">
-              {isHealthy 
+            <p className="text-slate-600 leading-relaxed text-[0.95rem]">
+              {latest.clasificacionIrca?.descripcion || (isHealthy 
                 ? "Calidad del agua óptima. Todos los parámetros se encuentran dentro de los rangos operativos normales."
-                : `Se detectaron desviaciones (IRCA: ${latest.irca_calculado.toFixed(1)}). Se recomienda revisar los filtros de la estación.`}
+                : `Se detectaron desviaciones (IRCA: ${latest.irca_calculado.toFixed(1)}). Se recomienda revisar los filtros de la estación.`)}
             </p>
           </div>
         ) : (
@@ -46,8 +51,8 @@ export const StatusAnalysis = () => {
             </div>
             <p className="text-slate-500 italic">
               {isSensorConnected 
-                ? "Esperando datos de la estación..." 
-                : "Sistema fuera de línea. No se puede obtener información en este momento."}
+                ? "Esperando datos de la estación para determinar el nivel de riesgo..." 
+                : "Sistema fuera de línea. No se puede realizar el análisis de riesgo en este momento."}
             </p>
           </div>
         )}
@@ -63,4 +68,4 @@ export const StatusAnalysis = () => {
       )}
     </section>
   );
-};
+};
