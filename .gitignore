@@ -116,4 +116,3 @@ sonar-project.properties
 #mosquito
 /mosquitto/data
 /mosquitto/log
-/mosquitto/config
