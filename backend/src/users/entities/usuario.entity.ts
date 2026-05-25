@@ -33,4 +33,7 @@ export class Usuario {
 
   @DeleteDateColumn({ name: 'deleted_at', select: false })
   deletedAt: Date; 
+
+  @Column({ name: 'fecha_registro', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  fechaRegistro: Date;
 }

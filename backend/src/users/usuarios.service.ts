@@ -28,6 +28,10 @@ export class UsuariosService {
    * @throws ConflictException Si el correo ya está registrado.
    */
   async crear(dto: CreateUsuarioDto) {
+    if (dto.password !== dto.passwordConfirm) {
+      throw new BadRequestException('Las contraseñas no coinciden');
+    }
+
     const existe = await this.usuariosRepository.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
 
