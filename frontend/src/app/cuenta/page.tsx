@@ -1,83 +1,66 @@
 'use client';
+
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@context/authContext';
+import { useNotificationsContext } from '@context/notificacionContext';
 import { ProfileCard } from '@components/account/ProfileCard';
 import { SettingToggle } from '@components/account/SettingToggle';
 import { Button } from '@components/ui/Button';
-import { LogOut, Lock, Bell, Settings, Shield } from 'lucide-react';
+import { Lock, LogOut } from 'lucide-react';
 
 export default function AccountSettingsPage() {
   const { logout } = useAuthContext();
-  const router = useRouter();
+  const { isSensorConnected } = useNotificationsContext();
   const [riskNotifs, setRiskNotifs] = useState(true);
 
   return (
-    <div className="p-[5vw] flex flex-col gap-[4vh]">
-      {/* Header de la página */}
-      <section>
-        <h2 className="text-slate-800 font-black text-[1.5rem] tracking-tight uppercase">
-          Mi Perfil
-        </h2>
-        <p className="text-slate-500 font-medium text-[0.9rem] mt-[0.5vh]">
-          Gestiona tu información personal y preferencias de seguridad.
-        </p>
-      </section>
+    <main className="flex-1 flex flex-col px-6 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md mx-auto space-y-6">
+      
+      {/* Indicador de Estado Superior Derecho */}
+      <div className="w-full flex justify-end">
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
+          isSensorConnected ? 'bg-[#E6F7ED] text-[#10B981]' : 'bg-amber-50 text-amber-600'
+        }`}>
+          <span className={`w-2 h-2 rounded-full ${isSensorConnected ? 'bg-[#10B981]' : 'bg-amber-500 animate-pulse'}`} />
+          {isSensorConnected ? 'Sensores Conectados' : 'Reconectando...'}
+        </div>
+      </div>
 
-      {/* Encabezado de Perfil */}
-      <section>
+      {/* Tarjeta de Perfil de Usuario */}
+      <section className="w-full">
         <ProfileCard />
       </section>
 
-      <div className="flex flex-col gap-[4vh]">
-        {/* Sección de Preferencias */}
-        <section className="flex flex-col gap-[2vh]">
-          <div className="flex items-center gap-2 ml-[1vw]">
-            <Settings size={18} className="text-blue-600" />
-            <h3 className="text-slate-400 font-black text-[0.75rem] uppercase tracking-widest">
-              Preferencias
-            </h3>
-          </div>
-          <div className="flex flex-col gap-[2vh]">
-            <SettingToggle 
-              title="Notificaciones de Riesgo"
-              description="Alertas inmediatas de calidad de agua"
-              icon="🔔"
-              isEnabled={riskNotifs}
-              onToggle={() => setRiskNotifs(!riskNotifs)}
-            />
-          </div>
-        </section>
+      {/* Listado de Opciones y Configuración del Sistema */}
+      <div className="w-full flex flex-col gap-4">
+        
+        {/* Toggle Atómico de Notificaciones */}
+        <SettingToggle 
+          title="Notificaciones de Riesgo"
+          description="Alertas cuando el nivel de riesgo del agua sea alto"
+          isEnabled={riskNotifs}
+          onToggle={() => setRiskNotifs(!riskNotifs)}
+        />
 
-        {/* Sección de Seguridad */}
-        <section className="flex flex-col gap-[2vh]">
-          <div className="flex items-center gap-2 ml-[1vw]">
-            <Shield size={18} className="text-blue-600" />
-            <h3 className="text-slate-400 font-black text-[0.75rem] uppercase tracking-widest">
-              Seguridad y Sesión
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 gap-[2vh]">
-            <Button 
-              variant="outline" 
-              className="!justify-start gap-[4vw] bg-white border-slate-100 shadow-sm hover:border-blue-100"
-              onClick={() => router.push('/restablecer-password')}
-            >
-              <Lock size={20} className="text-blue-600" />
-              Cambiar Contraseña
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              className="!justify-start gap-[4vw] bg-white border-red-50 text-red-500 hover:bg-red-50 hover:border-red-100 shadow-sm"
-              onClick={logout}
-            >
-              <LogOut size={20} />
-              Cerrar Sesión
-            </Button>
-          </div>
-        </section>
+        {/* Botón Cambiar Contraseña */}
+        <Button 
+          variant="outline"
+          className="border-[#0056C6] text-[#0056C6] bg-white active:bg-blue-50/20"
+        >
+          <Lock size={18} className="stroke-[2.5]" />
+          Cambiar Contraseña
+        </Button>
+        
+        {/* Botón Cerrar Sesión con Variación Destructiva de la Guía de Estilos */}
+        <button 
+          onClick={logout}
+          className="w-full py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] text-[16px] tracking-wide border-2 border-[#EF4444] text-[#EF4444] bg-white active:bg-red-50/30"
+        >
+          <LogOut size={18} className="stroke-[2.5]" />
+          Cerrar Sesión
+        </button>
+
       </div>
-    </div>
+    </main>
   );
 }

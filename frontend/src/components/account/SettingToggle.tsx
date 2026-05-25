@@ -1,40 +1,49 @@
 'use client';
+
 import React from 'react';
+import { Bell } from 'lucide-react';
 
 interface SettingToggleProps {
   title: string;
   description: string;
-  icon: string;
   isEnabled: boolean;
   onToggle: () => void;
 }
 
-export const SettingToggle = ({ title, description, icon, isEnabled, onToggle }: SettingToggleProps) => {
+export const SettingToggle = ({ title, description, isEnabled, onToggle }: SettingToggleProps) => {
   return (
-    <div className="bg-white p-[5vw] sm:p-6 rounded-[5vw] sm:rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-[4vw] hover:border-blue-100 transition-all group">
-      <div className="flex items-center gap-[4vw] sm:gap-4 flex-1">
-        <div className={`w-[12vw] h-[12vw] max-w-[48px] max-h-[48px] rounded-[3.5vw] sm:rounded-xl flex items-center justify-center text-[1.5rem] transition-colors ${isEnabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-400'}`}>
-          {icon}
+    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_10px_30px_rgba(0,0,0,0.015)] flex items-center justify-between gap-4 w-full">
+      
+      {/* Contenido Izquierdo: Ícono Dinámico y Textos */}
+      <div className="flex items-center gap-4 flex-1">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#FFF7ED] text-[#F97316] shrink-0">
+          <Bell size={22} className="stroke-[2.2]" />
         </div>
-        <div className="flex flex-col gap-[0.2vh] flex-1">
-          <h4 className="text-slate-800 font-bold text-[1rem] leading-tight group-hover:text-blue-600 transition-colors">
+        <div className="flex flex-col space-y-0.5 flex-1">
+          <h4 className="text-[#111827] font-extrabold text-[17px] leading-tight">
             {title}
           </h4>
-          <p className="text-slate-400 text-[0.8rem] leading-tight font-medium">
+          <p className="text-[#6B7280] text-[13.5px] leading-snug font-medium">
             {description}
           </p>
         </div>
       </div>
       
-      {/* Custom Styled Toggle */}
+      {/* Interruptor Deslizable Estilizado (Switch Móvil Nativo) */}
       <button 
         onClick={onToggle}
-        className={`relative inline-flex h-[3.5vh] w-[12vw] max-w-[50px] items-center rounded-full transition-colors duration-200 outline-none focus:ring-2 focus:ring-blue-100 ${isEnabled ? 'bg-blue-600' : 'bg-slate-200'}`}
+        type="button"
+        className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 outline-none focus:ring-2 focus:ring-blue-100 ${
+          isEnabled ? 'bg-[#0056C6]' : 'bg-[#E5E7EB]'
+        }`}
       >
         <span
-          className={`inline-block h-[2.5vh] w-[2.5vh] transform rounded-full bg-white transition-transform duration-200 ${isEnabled ? 'translate-x-[6vw] sm:translate-x-6' : 'translate-x-[1vw] sm:translate-x-1'}`}
+          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-200 shadow-sm ${
+            isEnabled ? 'translate-x-6' : 'translate-x-1'
+          }`}
         />
       </button>
+
     </div>
   );
-};
+};
