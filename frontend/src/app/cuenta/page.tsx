@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@context/authContext';
 import { useNotificationsContext } from '@context/notificacionContext';
 import { ProfileCard } from '@components/account/ProfileCard';
@@ -9,12 +10,22 @@ import { Button } from '@components/ui/Button';
 import { Lock, LogOut } from 'lucide-react';
 
 export default function AccountSettingsPage() {
-  const { logout } = useAuthContext();
+  const { logout, isAuthenticated, loading } = useAuthContext();
   const { isSensorConnected } = useNotificationsContext();
   const [riskNotifs, setRiskNotifs] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, loading, router]);
+
+  if (loading) return null; // Prevenir un destello (flicker) de contenido antes de redirigir
+  if (!isAuthenticated) return null;
 
   return (
-    <main className="flex-1 flex flex-col px-6 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md mx-auto space-y-6">
+    <main className="flex-1 flex flex-col px-6 md:px-12 lg:px-20 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md md:max-w-3xl lg:max-w-4xl mx-auto space-y-6 md:space-y-8">
       
       {/* Indicador de Estado Superior Derecho */}
       <div className="w-full flex justify-end">

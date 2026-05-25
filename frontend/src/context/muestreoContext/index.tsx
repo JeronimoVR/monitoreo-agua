@@ -40,10 +40,14 @@ const descargarCSV = async () => {
   try {
     setIsExporting(true);
 
+    const now = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(now.getMonth() - 1);
+
     const url = apiClient.muestreos.export({
       estacionId: String(estacionSeleccionada.id),
-      fechaInicio: new Date('2026-01-01').toISOString(), // puedes parametrizar esto
-      fechaFin: new Date().toISOString()
+      fechaInicio: oneMonthAgo.toISOString(),
+      fechaFin: now.toISOString()
     });
 
     // Crear un link temporal para forzar descarga

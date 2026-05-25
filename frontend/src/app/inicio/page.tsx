@@ -61,7 +61,7 @@ export default function DashboardPage() {
   const lastSamplingDate = latest ? formatSamplingDate(latest.fechaMuestreo) : '31 de marzo de 2026 - 10:45 AM';
 
   return (
-    <main className="flex-1 flex flex-col items-center px-6 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md mx-auto">
+    <main className="flex-1 flex flex-col items-center px-6 md:px-12 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md md:max-w-4xl lg:max-w-5xl mx-auto md:justify-center">
       
       {/* Indicador de Estado Superior Derecho */}
       <div className="w-full flex justify-end mb-4">

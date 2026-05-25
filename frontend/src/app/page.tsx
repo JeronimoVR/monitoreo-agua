@@ -18,7 +18,7 @@ export default function WelcomePage() {
       </header>
 
       {/* Contenedor de Contenido */}
-      <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full pt-6 pb-8">
+      <div className="flex-1 flex flex-col justify-between max-w-md md:max-w-4xl lg:max-w-6xl mx-auto w-full pt-6 pb-8">
         
         {/* Título Principal */}
         <section className="text-center space-y-2">
@@ -59,7 +59,7 @@ export default function WelcomePage() {
 
         {/* Acciones e Interacciones Móviles */}
         <section className="flex flex-col gap-3.5 w-full">
-          <Link href="/dashboard" className="w-full" prefetch>
+          <Link href="/inicio" className="w-full" prefetch>
             <Button variant="solid">
               <User size={20} className="stroke-[2.5]" />
               Entrar como Invitado

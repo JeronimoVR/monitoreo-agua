@@ -70,11 +70,58 @@ export default function ReportsPage() {
     return p.data.valor >= p.data.min && p.data.valor <= p.data.max;
   });
 
-  // Historial del IRCA global para el primer gráfico
-  const ircaHistory = notifications.map(n => n.irca_calculado).reverse().slice(-10);
+  // Historial del IRCA global para el primer gráfico (últimas 10 muestras en orden cronológico)
+  const last10Notifications = [...notifications].reverse().slice(-10);
+  const ircaHistory = last10Notifications.map(n => n.irca_calculado);
+
+  // Calcula fechas dinámicas
+  let startDateStr = '---';
+  let endDateStr = '---';
+  if (notifications.length > 0) {
+    const dates = notifications.map(n => new Date(n.fechaMuestreo).getTime()).sort();
+    const start = new Date(dates[0]);
+    const end = new Date(dates[dates.length - 1]);
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: '2-digit', year: 'numeric' };
+    startDateStr = start.toLocaleDateString('es-CO', options);
+    endDateStr = end.toLocaleDateString('es-CO', options);
+  }
+
+  let sparkStart = '---';
+  let sparkMid = '---';
+  let sparkEnd = '---';
+  if (last10Notifications.length > 0) {
+    const formatSparkDate = (iso: string) => new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+    sparkStart = formatSparkDate(last10Notifications[0].fechaMuestreo);
+    sparkEnd = formatSparkDate(last10Notifications[last10Notifications.length - 1].fechaMuestreo);
+    if (last10Notifications.length > 2) {
+      sparkMid = formatSparkDate(last10Notifications[Math.floor(last10Notifications.length / 2)].fechaMuestreo);
+    }
+  }
+
+  let nivelRiesgo = "SIN DATOS";
+  let riesgoColorText = "text-[#9CA3AF]";
+  let riesgoIcon = "";
+  if (isSensorConnected || notifications.length > 0) {
+    if (irca === 0 && notifications.length === 0) {
+      nivelRiesgo = "ESPERANDO";
+      riesgoColorText = "text-[#3B82F6]";
+    } else if (irca <= 5) {
+      nivelRiesgo = "BAJO";
+      riesgoColorText = "text-[#10B981]";
+      riesgoIcon = "✓";
+    } else if (irca <= 14) {
+      nivelRiesgo = "MEDIO";
+      riesgoColorText = "text-[#F59E0B]";
+      riesgoIcon = "⚠";
+    } else {
+      nivelRiesgo = "ALTO";
+      riesgoColorText = "text-[#EF4444]";
+      riesgoIcon = "✖";
+    }
+  }
 
   return (
-    <main className="flex-1 flex flex-col px-6 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md mx-auto space-y-6">
+    <main className="flex-1 flex flex-col px-6 md:px-12 lg:px-20 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md md:max-w-4xl lg:max-w-6xl mx-auto space-y-6 md:space-y-8">
       
       {/* Top Bar con Estado de Conexión */}
       <div className="w-full flex justify-end">
@@ -91,7 +138,7 @@ export default function ReportsPage() {
         <div className="flex items-center gap-2">
           <Calendar size={16} className="text-[#6B7280]" />
           <span>PERÍODO DE ANÁLISIS:</span>
-          <span className="text-[#0E3B8C]">Mar 01 - Mar 31, 2026</span>
+          <span className="text-[#0E3B8C] uppercase">{mounted ? `${startDateStr} - ${endDateStr}` : 'Cargando...'}</span>
         </div>
       </section>
 
@@ -106,17 +153,17 @@ export default function ReportsPage() {
       </button>
 
       {/* Resumen Ejecutivo Superior (Widgets) */}
-      <section className="grid grid-cols-2 gap-4">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)]">
           <span className="text-xs font-bold text-[#9CA3AF] uppercase block mb-1">Nivel de Riesgo</span>
-          <span className="text-[#10B981] font-extrabold text-lg flex items-center justify-center gap-1">
-            ✓ BAJO
+          <span className={`${riesgoColorText} font-extrabold text-lg flex items-center justify-center gap-1`}>
+            {mounted ? `${riesgoIcon} ${nivelRiesgo}` : '---'}
           </span>
         </div>
         <div className="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)]">
           <span className="text-xs font-bold text-[#9CA3AF] uppercase block mb-1">Puntaje IRCA</span>
-          <span className="text-[#111827] font-extrabold text-xl block">{irca.toFixed(1)}%</span>
-          <span className="text-[#10B981] text-[11px] font-bold">Riesgo Bajo</span>
+          <span className="text-[#111827] font-extrabold text-xl block">{mounted ? `${irca.toFixed(1)}%` : '---'}</span>
+          <span className={`${riesgoColorText} text-[11px] font-bold`}>{mounted ? `Riesgo ${nivelRiesgo}` : '---'}</span>
         </div>
       </section>
 
@@ -133,10 +180,10 @@ export default function ReportsPage() {
         <div className="h-20 w-full bg-slate-50/50 rounded-xl overflow-hidden flex items-end">
           <SimpleSparkline data={ircaHistory} color="#0056C6" />
         </div>
-        <div className="flex justify-between text-[10px] text-[#9CA3AF] font-bold mt-2 px-1">
-          <span>01 Oct</span>
-          <span>15 Oct</span>
-          <span>31 Oct</span>
+        <div className="flex justify-between text-[10px] text-[#9CA3AF] font-bold mt-2 px-1 uppercase">
+          <span>{mounted ? sparkStart : '---'}</span>
+          <span>{mounted && sparkMid !== '---' ? sparkMid : ''}</span>
+          <span>{mounted ? sparkEnd : '---'}</span>
         </div>
       </section>
 
@@ -147,7 +194,7 @@ export default function ReportsPage() {
             <AlertTriangle size={18} className="fill-[#EF4444] text-white" />
             <h3>Alertas Actuales</h3>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {alertParams.map((p, idx) => (
               <ParameterCard 
                 key={idx}
@@ -169,7 +216,7 @@ export default function ReportsPage() {
       {/* SECCIÓN GENERAL: ANÁLISIS DE PARÁMETROS (Resto de métricas en rango normal) */}
       <section className="space-y-3 pt-2">
         <h3 className="text-[#111827] font-extrabold text-lg px-1">Análisis de Parámetros</h3>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {normalParams.map((p, idx) => (
             <ParameterCard 
               key={idx}

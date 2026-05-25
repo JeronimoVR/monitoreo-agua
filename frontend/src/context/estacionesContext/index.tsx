@@ -21,7 +21,6 @@ export const EstacionesProvider = ({ children }: { children: React.ReactNode }) 
   const [loading, setLoading] = useState(true);
 
   const refrescarEstaciones = useCallback(async () => {
-    if (!isAuthenticated) return;
     setLoading(true);
     try {
       const data = await apiClient.estaciones.getAll();
@@ -40,7 +39,7 @@ export const EstacionesProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, []);
 
   const seleccionarEstacion = (id: string | number) => {
     const encontrada = estaciones.find(e => String(e.id) === String(id));

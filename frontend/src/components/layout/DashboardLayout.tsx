@@ -9,9 +9,9 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'Inicio', path: '/dashboard', icon: Home },
-    { label: 'Reportes', path: '/dashboard/reportes', icon: BarChart2 },
-    { label: 'Cuenta', path: '/dashboard/cuenta', icon: User },
+    { label: 'Inicio', path: '/inicio', icon: Home },
+    { label: 'Reportes', path: '/reportes', icon: BarChart2 },
+    { label: 'Cuenta', path: '/cuenta', icon: User },
   ];
 
   return (
