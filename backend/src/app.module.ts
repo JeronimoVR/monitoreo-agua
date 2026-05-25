@@ -17,10 +17,13 @@ import { EstacionesModule } from './stations/estaciones.module';
 import { Usuario } from './users/entities/usuario.entity';
 import { MuestreosModule } from './sampling/sampling.module';
 import { MailModule } from './common/mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { EmailLog } from './common/mail/entities/email-log.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion, Usuario]),
+    TypeOrmModule.forFeature([Parametro, ClasificacionIrca, Estacion, Usuario, EmailLog]),
+    ScheduleModule.forRoot(),
 
     UsuariosModule,
     IngestionModule,

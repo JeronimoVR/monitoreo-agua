@@ -45,9 +45,16 @@ export class IngestionController {
       this.sseService.enviarEvento(result, 'nuevo-muestreo');
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en Ingestión MQTT:', error.message);
       console.error('Stack trace:', error.stack);
+      
+      // Enviar evento de error vía SSE para el administrador/dashboard
+      this.sseService.enviarEvento({
+        error: true,
+        mensaje: 'Fallo al guardar en Base de Datos desde MQTT',
+        detalle: error.message
+      }, 'error-db-ingestion');
     }
   }
 
