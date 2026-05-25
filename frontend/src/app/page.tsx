@@ -35,7 +35,7 @@ export default function WelcomePage() {
           <div className="w-full aspect-[4/3] relative rounded-2xl overflow-hidden shadow-sm border border-slate-100">
             {/* Reemplazar "/arroyo.png" con la ruta real de tu imagen local en /public */}
             <Image 
-              src="/arroyo.png" 
+              src="https://profesoresuniajcedu-my.sharepoint.com/:i:/g/personal/jvelezr_estudiante_uniajc_edu_co/IQC-he4jsQh_Qacv6NBTM4vCAabvRO5X09OicYvSE-impIQ?e=dgIEJq" 
               alt="Punto de Monitoreo Arroyo Sede Sur"
               fill
               priority
