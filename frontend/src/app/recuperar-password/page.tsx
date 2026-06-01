@@ -8,20 +8,25 @@ export default function RecuperarPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-  const handleRecover = async (email: string) => {
+  const handleRecover = async (data: { correo: string }) => {
     setLoading(true);
     setMessage(null);
+
     try {
-      await apiClient.auth.recuperarPassword({ correo: email });
-      setMessage({ 
-        type: 'success', 
-        text: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' 
+      await apiClient.auth.recuperarPassword({
+        correo: data.correo,
+      });
+
+      setMessage({
+        type: 'success',
+        text: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.',
       });
     } catch (error) {
       console.error(error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Ocurrió un error al procesar la solicitud. Por favor, intenta de nuevo.' 
+
+      setMessage({
+        type: 'error',
+        text: 'Ocurrió un error al procesar la solicitud. Por favor, intenta de nuevo.',
       });
     } finally {
       setLoading(false);
@@ -46,23 +51,22 @@ export default function RecuperarPasswordPage() {
       </div>
 
       {message && (
-        <div className={`p-4 rounded-xl text-sm font-medium mb-6 text-center border ${
-          message.type === 'success' 
-            ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+        <div className={`p-4 rounded-xl text-sm font-medium mb-6 text-center border ${message.type === 'success'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
             : 'bg-red-50 text-red-700 border-red-100'
-        }`}>
+          }`}>
           {message.text}
         </div>
       )}
 
-      <RecoverPasswordForm 
-        onSubmit={handleRecover} 
-        loading={loading} 
+      <RecoverPasswordForm
+        onSubmit={handleRecover}
+        loading={loading}
       />
 
       <footer className="text-center mt-8">
-        <a 
-          href="/login" 
+        <a
+          href="/login"
           className="text-sm font-bold text-blue-600 hover:underline flex items-center justify-center gap-2"
         >
           ← Volver al inicio de sesión

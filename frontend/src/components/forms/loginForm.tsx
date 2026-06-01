@@ -3,9 +3,16 @@ import { useState, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { useAuthContext } from '@context/authContext';
+import { LoginDto } from '@shared/auth/dto/login.dto';
 
-export const LoginForm = ({ onSubmit, loading, error: apiError, onValidationError }: any) => {
+interface LoginFormProps {
+  onSubmit: (credentials: LoginDto) => void | Promise<void>;
+  loading: boolean;
+  error?: string | null;
+  onValidationError?: (hasError: boolean) => void;
+}
+
+export const LoginForm = ({ onSubmit, loading, error: apiError, onValidationError }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [credentials, setCredentials] = useState({ correo: '', password: '' });
   const [localError, setLocalError] = useState<string | null>(null);
@@ -45,7 +52,7 @@ export const LoginForm = ({ onSubmit, loading, error: apiError, onValidationErro
           type="email"
           placeholder="ejemplo@correo.com"
           iconLeft={<Mail size={18} />}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setCredentials({...credentials, correo: e.target.value});
           }}
@@ -66,7 +73,7 @@ export const LoginForm = ({ onSubmit, loading, error: apiError, onValidationErro
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           }
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setCredentials({...credentials, password: e.target.value});
           }}

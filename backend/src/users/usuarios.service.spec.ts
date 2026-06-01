@@ -47,7 +47,8 @@ describe('UsuariosService (QA - CU004)', () => {
       const dto = {
         nombre: 'Jeronimo',
         correo: 'jvelezr@estudiante.uniajc.edu.co',
-        password: 'Admin123'
+        password: 'Admin123',
+        passwordConfirm: 'Admin123',
       };
 
       mockUsuarioRepo.findOne.mockResolvedValue(null); // Simula que el correo está libre
@@ -69,7 +70,8 @@ describe('UsuariosService (QA - CU004)', () => {
       const dto = {
         nombre: 'Jeronimo',
         correo: 'existente@uniajc.edu.co',
-        password: 'Admin123'
+        password: 'Admin123',
+        passwordConfirm: 'Admin123',
       };
 
       // Simula que findOne encuentra un usuario con ese correo
@@ -86,7 +88,8 @@ describe('UsuariosService (QA - CU004)', () => {
       const dto = {
         nombre: 'Jeronimo',
         correo: 'nuevo@uniajc.edu.co',
-        password: 'Admin123'
+        password: 'Admin123',
+        passwordConfirm: 'Admin123',
       };
 
       mockUsuarioRepo.findOne.mockResolvedValue(null);

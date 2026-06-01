@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { apiClient } from '@service/api-client';
 import { AuthLayout } from '@components/layout/AuthLayout';
 import { ResetPasswordForm } from '@components/forms/ResetPasswordForm';
+import { AxiosError } from 'axios';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -14,7 +15,7 @@ export default function ResetPasswordPage() {
 
   const handleReset = async (newPassword: string) => {
     if (!token) {
-      alert("Token de recuperación no encontrado o inválido.");
+      alert("Token de recuperación no encontrado o invalido.");
       return;
     }
 
@@ -23,8 +24,9 @@ export default function ResetPasswordPage() {
       await apiClient.auth.restablecerPassword({ token, nuevaPassword: newPassword });
       alert("Contraseña actualizada con éxito.");
       router.push('/login');
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al actualizar la contraseña.");
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message?: string }>;
+      alert(axiosError.response?.data?.message || "Error al actualizar la contraseña.");
     } finally {
       setLoading(false);
     }

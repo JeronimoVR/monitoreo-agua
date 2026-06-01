@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 import { Estacion } from '@shared/stations/dto/estacion.dto';
-import { useAuthContext } from '../authContext';
 
 interface EstacionesContextType {
   estaciones: Estacion[];
@@ -15,7 +14,6 @@ interface EstacionesContextType {
 const EstacionesContext = createContext<EstacionesContextType | undefined>(undefined);
 
 export const EstacionesProvider = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuthContext();
   const [estaciones, setEstaciones] = useState<Estacion[]>([]);
   const [estacionSeleccionada, setEstacionSeleccionada] = useState<Estacion | null>(null);
   const [loading, setLoading] = useState(true);

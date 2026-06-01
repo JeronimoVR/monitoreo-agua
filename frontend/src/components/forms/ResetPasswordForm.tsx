@@ -4,7 +4,14 @@ import { Input } from '@components/ui/Input';
 import { Button } from '@components/ui/Button';
 import { Lock, ShieldCheck, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export const ResetPasswordForm = ({ onSubmit, loading, error: apiError, onValidationError }: any) => {
+interface ResetPasswordFormProps {
+  onSubmit: (newPassword: string) => void | Promise<void>;
+  loading: boolean;
+  error?: string | null;
+  onValidationError?: (hasError: boolean) => void;
+}
+
+export const ResetPasswordForm = ({ onSubmit, loading, error: apiError, onValidationError }: ResetPasswordFormProps) => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [passwords, setPasswords] = useState({ new: '', confirm: '' });
@@ -106,4 +113,4 @@ export const ResetPasswordForm = ({ onSubmit, loading, error: apiError, onValida
       </div>
     </form>
   );
-};
+};

@@ -1,31 +1,27 @@
-import { Parametro } from './parametro.dto';
+import type { Parametro } from "./parametro.dto";
 
 export interface Medida {
   id: number;
-  parametroId: number;
-  muestreoId: number;
   valor: number;
-  parametro?: Parametro; // Objeto completo del parámetro
+  parametro: Parametro;
 }
 
 export interface Muestreo {
   id: number;
   estacionId: number;
   fechaMuestreo: string;
-  irca_calculado: number;
+  irca_calculado: number; // Generalmente viene así del cálculo de base de datos
+  medidas: Medida[];
   clasificacionIrca?: {
-    clasificacion: string;
-    descripcion: string;
-    valor_min: number;
-    valor_max: number;
+    clasificacion?: string;
+    descripcion?: string;
   };
-  medidas?: Medida[];
 }
 
-
 export interface MuestreosFilters {
-  estacionId?: string;
-  parametro?: string;
+  estacionId?: number;
   fechaInicio?: string;
   fechaFin?: string;
+  ircaMin?: number;
+  ircaMax?: number;
 }

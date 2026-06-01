@@ -1,4 +1,4 @@
-import { IsNumber, IsArray, ValidateNested, IsNotEmpty, IsDate } from 'class-validator';
+import { IsNumber, IsArray, ValidateNested, IsNotEmpty, IsISO8601 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -20,10 +20,10 @@ export class CreateMuestreoDto {
   @IsNotEmpty()
   id_estacion: number;
 
-  @ApiProperty({ description: 'Fecha y hora exacta de la toma de muestra', example: '2026-04-28T14:30:00.000Z' })
-  @IsDate()
+  @ApiProperty({ description: 'Fecha y hora exacta de la toma de muestra (ISO 8601)', example: '2026-04-28T14:30:00.000Z' })
+  @IsISO8601()
   @IsNotEmpty()
-  fecha_muestreo: Date;
+  fecha_muestreo: string;
 
   @ApiProperty({ description: 'Lista de mediciones capturadas en este muestreo', type: [MedidaDto] })
   @IsArray()

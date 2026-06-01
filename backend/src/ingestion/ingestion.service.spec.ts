@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MuestreosService } from './ingestion.service';
+import { MuestreosService } from '../sampling/muestreos.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Muestreo } from '../sampling/entities/muestreos.entity';
 import { Medida } from '../sampling/entities/medidas.entity';
 import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { NotificacionesService } from '../notifications/notificaciones.service';
 
 describe('MuestreosService (QA - CU001 & CU003)', () => {
   let service: MuestreosService;
@@ -28,6 +29,10 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
     calcularIrca: jest.fn(),
   };
 
+  const mockNotificacionesService = {
+    evaluarYGenerarAlertas: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +40,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
         { provide: getRepositoryToken(Muestreo), useValue: mockMuestreoRepo },
         { provide: getRepositoryToken(Medida), useValue: mockMedidaRepo },
         { provide: IrcaMotorReglasService, useValue: mockIrcaService },
+        { provide: NotificacionesService, useValue: mockNotificacionesService },
       ],
     }).compile();
 
@@ -46,6 +52,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
   describe('crear (CU001 - Capturar y Transmitir)', () => {
     const dto = {
       id_estacion: 1,
+      fecha_muestreo: new Date().toISOString(),
       medidas: [
         { id_parametro: 1, valor: 7.2 },
         { id_parametro: 2, valor: 1.5 }
@@ -56,6 +63,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
       // 1. Definir qué devuelve el motor de reglas
       const mockResultadoIrca = { puntaje: 5.0, clasificacion: { id: 1, nombre: 'SIN RIESGO' } };
       mockIrcaService.calcularIrca.mockResolvedValue(mockResultadoIrca);
+      mockMuestreoRepo.findOne.mockResolvedValue({ id: 100, irca_calculado: 5.0, estacionId: 1, medidas: [] });
 
       const result = await service.crear(dto as any);
 
@@ -66,8 +74,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
       expect(result.irca_calculado).toBe(5.0);
       expect(result.id).toBe(100);
 
-      // QA: Verificar que las medidas se intentaron guardar
-      expect(mockMedidaRepo.save).toHaveBeenCalled();
+      expect(mockNotificacionesService.evaluarYGenerarAlertas).toHaveBeenCalled();
     });
 
     it('debería lanzar InternalServerErrorException si el motor de reglas falla', async () => {
@@ -101,7 +108,7 @@ describe('MuestreosService (QA - CU001 & CU003)', () => {
 
       expect(mockMuestreoRepo.find).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id_estacion: 1 },
+          where: { estacionId: 1 },
           relations: ['medidas', 'clasificacionIrca']
         })
       );

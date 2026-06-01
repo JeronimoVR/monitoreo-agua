@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useNotificationsContext } from '@context/notificacionContext';
 import { ShieldCheck, ShieldAlert, Activity } from 'lucide-react';
 
@@ -24,7 +24,7 @@ export const StatusAnalysis = () => {
         <div className={`p-2 rounded-lg ${isSensorConnected ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
           {isSensorConnected ? <Activity size={20} /> : <ShieldAlert size={20} />}
         </div>
-        {/* <h3 className="font-bold text-slate-800 text-lg">Análisis del Nivel de Riesgo</h3> */}
+        {/* <h3 className="font-bold text-slate-800 text-lg">AnÃ¡lisis del Nivel de Riesgo</h3> */}
       </div>
 
       <div className="space-y-3">
@@ -40,8 +40,8 @@ export const StatusAnalysis = () => {
             </div>
             <p className="text-slate-600 leading-relaxed text-[0.95rem]">
               {latest.clasificacionIrca?.descripcion || (isHealthy 
-                ? "Calidad del agua óptima. Todos los parámetros se encuentran dentro de los rangos operativos normales."
-                : `Se detectaron desviaciones (IRCA: ${latest.irca_calculado.toFixed(1)}). Se recomienda revisar los filtros de la estación.`)}
+                ? "Calidad del agua Ã³ptima. Todos los parÃ¡metros se encuentran dentro de los rangos operativos normales."
+                : `Se detectaron desviaciones (IRCA: ${latest.irca_calculado.toFixed(1)}). Se recomienda revisar los filtros de la estaciÃ³n.`)}
             </p>
           </div>
         ) : (
@@ -51,8 +51,8 @@ export const StatusAnalysis = () => {
             </div>
             <p className="text-slate-500 italic">
               {isSensorConnected 
-                ? "Esperando datos de la estación para determinar el nivel de riesgo..." 
-                : "Sistema fuera de línea. No se puede realizar el análisis de riesgo en este momento."}
+                ? "Esperando datos de la estaciÃ³n para determinar el nivel de riesgo..." 
+                : "Sistema fuera de lÃ­nea. No se puede realizar el anÃ¡lisis de riesgo en este momento."}
             </p>
           </div>
         )}
@@ -69,3 +69,4 @@ export const StatusAnalysis = () => {
     </section>
   );
 };
+

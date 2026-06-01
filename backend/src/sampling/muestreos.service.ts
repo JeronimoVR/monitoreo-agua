@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Muestreo } from '../sampling/entities/muestreos.entity';
 import { Medida } from '../sampling/entities/medidas.entity';
 import { CreateMuestreoDto } from '../sampling/dto/create-muestreo.dto';
 import { IrcaMotorReglasService } from '../ircaRulesEngine/ircaClasificacion.service';
+import { NotificacionesService } from '../notifications/notificaciones.service';
 
 @Injectable()
 export class MuestreosService {
@@ -14,6 +15,7 @@ export class MuestreosService {
         @InjectRepository(Medida)
         private medidaRepo: Repository<Medida>,
         private ircaClasificacionService: IrcaMotorReglasService,
+        private readonly notificacionesService: NotificacionesService,
     ) { }
 
     /**
@@ -30,7 +32,7 @@ export class MuestreosService {
 
             const nuevoMuestreo = this.muestreoRepository.create({
                 estacion: { id: createMuestreoDto.id_estacion },
-                fechaMuestreo: createMuestreoDto.fecha_muestreo,
+                fechaMuestreo: new Date(createMuestreoDto.fecha_muestreo),
                 irca_calculado: resultadoIrca.puntaje,
                 clasificacionIrca: resultadoIrca.clasificacion || undefined,
                 medidas: createMuestreoDto.medidas.map(m => ({
@@ -38,10 +40,26 @@ export class MuestreosService {
                     parametro: { id: m.id_parametro }
                 }))
             });
-
+            console.log('NUevo muestreo \n\n\n\n', nuevoMuestreo)
             const muestreoGuardado = await this.muestreoRepository.save(nuevoMuestreo);
 
-            return muestreoGuardado;
+            const muestreoCompleto = await this.muestreoRepository.findOne({
+                where: { id: muestreoGuardado.id },
+                relations: [
+                    'estacion',
+                    'clasificacionIrca',
+                    'medidas',
+                    'medidas.parametro',
+                ],
+            });
+
+            if (!muestreoCompleto) {
+                throw new InternalServerErrorException('No fue posible recuperar el muestreo guardado');
+            }
+
+            await this.notificacionesService.evaluarYGenerarAlertas(muestreoCompleto);
+
+            return muestreoCompleto;
         } catch (error) {
             console.error('CRITICAL ERROR in MuestreosService.crear:', error.message);
             console.error('Data that caused error:', JSON.stringify(createMuestreoDto));
@@ -119,23 +137,39 @@ export class MuestreosService {
      * @returns Una lista de muestreos que coinciden con los filtros, ordenados descendentemente por fecha.
      */
     async getFilteredMuestreos(filters: any) {
-        const { estacionId, parametro, fechaInicio, fechaFin } = filters;
+        const estacionId = Number.parseInt(String(filters?.estacionId ?? ''), 10);
+        if (!Number.isFinite(estacionId)) {
+            throw new BadRequestException('El filtro estacionId es obligatorio y debe ser numérico');
+        }
+
+        const parseDate = (value: any): Date | null => {
+            if (!value) return null;
+            const dt = new Date(String(value));
+            return Number.isNaN(dt.getTime()) ? null : dt;
+        };
+
+        const fechaInicio = parseDate(filters?.fechaInicio);
+        const fechaFin = parseDate(filters?.fechaFin);
 
         const query = this.muestreoRepository.createQueryBuilder('m')
+            .leftJoinAndSelect('m.estacion', 'estacion')
+            .leftJoinAndSelect('m.clasificacionIrca', 'clasificacionIrca')
+            .leftJoinAndSelect('m.medidas', 'medidas')
+            .leftJoinAndSelect('medidas.parametro', 'parametro')
             .where('m.estacionId = :estacionId', { estacionId });
 
-        if (parametro) {
-            query.andWhere('m.parametro = :parametro', { parametro });
-        }
-
         if (fechaInicio && fechaFin) {
-            query.andWhere('m.fecha BETWEEN :inicio AND :fin', {
-                inicio: new Date(fechaInicio),
-                fin: new Date(fechaFin)
+            query.andWhere('m.fechaMuestreo BETWEEN :inicio AND :fin', {
+                inicio: fechaInicio,
+                fin: fechaFin,
             });
+        } else if (fechaInicio) {
+            query.andWhere('m.fechaMuestreo >= :inicio', { inicio: fechaInicio });
+        } else if (fechaFin) {
+            query.andWhere('m.fechaMuestreo <= :fin', { fin: fechaFin });
         }
 
-        return await query.orderBy('m.fecha', 'DESC').getMany();
+        return await query.orderBy('m.fechaMuestreo', 'DESC').getMany();
     }
 
     /**
@@ -147,12 +181,46 @@ export class MuestreosService {
      */
     async generateCsvBuffer(filters: any): Promise<string> {
         const data = await this.getFilteredMuestreos(filters);
-        const header = 'Fecha,Estacion,Parametro,Valor,Unidad\n';
-        const rows = data.map(m =>
-            `${m.fechaMuestreo},${m.estacion.id},${m.medidas.map(medida => medida.parametro.nombre).join(', ')},${m.medidas.map(medida => medida.valor).join(', ')},${m.medidas.map(medida => medida.parametro.unidadMedida).join(', ')}`
-        ).join('\n');
 
-        return header + rows;
+        const csvEscape = (value: unknown) => {
+            const str = String(value ?? '');
+            return `\"${str.replaceAll('\"', '\"\"')}\"`;
+        };
+
+        const header = [
+            'Fecha',
+            'Estacion',
+            'pH',
+            'Turbidez',
+            'Conductividad',
+            'Temperatura',
+            'Oxígeno Disuelto',
+            'IRCA',
+        ].join(',') + '\n';
+
+        const getMedida = (muestreo: Muestreo, nombreParametro: string) => {
+            const target = nombreParametro.trim().toUpperCase();
+            const medida = (muestreo.medidas || []).find(m => (m.parametro?.nombre || '').trim().toUpperCase() === target);
+            return medida?.valor ?? '';
+        };
+
+        const rows = data.map(m => {
+            const fecha = m.fechaMuestreo ? new Date(m.fechaMuestreo).toISOString() : '';
+            const estacion = m.estacion?.nombre || m.estacionId || '';
+
+            return [
+                csvEscape(fecha),
+                csvEscape(estacion),
+                csvEscape(getMedida(m, 'pH')),
+                csvEscape(getMedida(m, 'Turbidez')),
+                csvEscape(getMedida(m, 'Conductividad')),
+                csvEscape(getMedida(m, 'Temperatura')),
+                csvEscape(getMedida(m, 'Oxígeno Disuelto')),
+                csvEscape(typeof m.irca_calculado === 'number' ? m.irca_calculado : ''),
+            ].join(',');
+        }).join('\n');
+
+        return header + rows + (rows ? '\n' : '');
     }
 
     /**

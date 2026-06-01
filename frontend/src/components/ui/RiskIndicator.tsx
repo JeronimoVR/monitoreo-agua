@@ -19,7 +19,7 @@ export const RiskIndicator = ({ nivel, color = '#10b981' }: RiskIndicatorProps) 
           Nivel de Riesgo
         </span>
         <strong 
-          className="text-4xl md:text-5xl font-extrabold tracking-tight transition-colors duration-300"
+          className="text-4xl md:text-5xl font-bold tracking-tight transition-colors duration-300"
           style={{ color: color }}
         >
           {nivel}

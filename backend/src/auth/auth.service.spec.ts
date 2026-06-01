@@ -112,16 +112,19 @@ describe('AuthService', () => {
 
       const result = await service.generarTokenRecuperacion(mockUser.correo);
 
-      expect(result.message).toContain('Se ha enviado un código');
+      expect(result.message).toContain('Si el correo');
       expect(tokenRepo.save).toHaveBeenCalled();
       expect(mailService.enviarCorreo).toHaveBeenCalled();
     });
 
-    it('debería lanzar NotFoundException si el correo no existe', async () => {
+    it('debería retornar mensaje genérico si el correo no existe', async () => {
       jest.spyOn(usuariosService, 'buscarPorCorreoParaAuth').mockResolvedValue(null);
 
-      await expect(service.generarTokenRecuperacion('noexiste@test.com'))
-        .rejects.toThrow(NotFoundException);
+      const result = await service.generarTokenRecuperacion('noexiste@test.com');
+
+      expect(result.message).toContain('Si el correo');
+      expect(tokenRepo.save).not.toHaveBeenCalled();
+      expect(mailService.enviarCorreo).not.toHaveBeenCalled();
     });
 
     it('debería lanzar InternalServerErrorException si el envío de correo falla', async () => {

@@ -12,8 +12,8 @@ export const useEstaciones = () => {
             try {
                 const data = await apiClient.estaciones.getAll();
                 setEstaciones(data);
-                if (data.length > 0 && !estacionSeleccionada) {
-                    setEstacionSeleccionada(String(data[0].id));
+                if (data.length > 0) {
+                    setEstacionSeleccionada((prev) => prev ?? String(data[0].id));
                 }
             } catch (error) {
                 console.error("Error cargando estaciones:", error);

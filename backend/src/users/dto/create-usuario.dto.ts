@@ -17,9 +17,4 @@ export class CreateUsuarioDto {
   @IsNotEmpty({ message: 'La contraseña no puede estar vacía' })
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   password: string;
-
-  @ApiProperty({ example: 'password123', description: 'Confirmación de la contraseña' })
-  @IsString()
-  @IsNotEmpty({ message: 'La confirmación de la contraseña no puede estar vacía' })
-  passwordConfirm: string;
 }

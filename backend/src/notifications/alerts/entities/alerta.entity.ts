@@ -24,6 +24,14 @@ export class Alerta {
   @CreateDateColumn({ name: 'fecha_creacion' })
   fechaCreacion: Date;
 
+  @ApiProperty({ required: false, description: 'Lista de correos destinatarios (separados por coma) para trazabilidad' })
+  @Column({ type: 'text', nullable: true })
+  destinatarios?: string;
+
+  @ApiProperty({ required: false, description: 'Detalle estructurado de la alerta (payload)' })
+  @Column({ type: 'jsonb', nullable: true })
+  detalle?: any;
+
   @ManyToOne(() => Estacion)
   estacion: Estacion;
 }

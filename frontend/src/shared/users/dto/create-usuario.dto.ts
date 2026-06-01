@@ -5,10 +5,10 @@ export class CreateUsuarioDto {
   @IsNotEmpty()
   nombre!: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'El correo electrónico no es válido' })
   correo!: string;
 
   @IsString()
-  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' }) // Sincronizado con Login
   password!: string;
 }

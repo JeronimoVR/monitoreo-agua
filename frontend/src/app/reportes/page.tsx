@@ -1,261 +1,407 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNotificationsContext } from '@context/notificacionContext';
 import { useMuestreoContext } from '@context/muestreoContext';
-import { 
-  Calendar, Download, AlertTriangle, Activity, 
-  Waves, Zap, Thermometer, Wind 
-} from 'lucide-react';
+import { useEstacionesContext } from '@context/estacionesContext';
+import { apiClient } from '@service/api-client';
+import { Muestreo } from '@/src/shared/sampling/dto/muestreo.dto';
+import { AlertTriangle, Activity, Waves, Zap, Thermometer, Wind, Search, Droplets, Clock, Home, BarChart2, Settings } from 'lucide-react';
 import { ParameterCard } from '@components/graficos/ParameterCard';
+import { SensorStatus } from '@components/graficos/SensorStatus';
+import { FilterSection } from '@components/graficos/FilterSection';
+import { IrcaChartCard } from '@components/graficos/IrcaChartCard';
+
+type ParamCardData = {
+  valor: number;
+  unit: string;
+  min: number;
+  max: number;
+  desc: string;
+  history: { valor: number; hora: string }[];
+};
 
 export default function ReportsPage() {
-  const { notifications, isSensorConnected } = useNotificationsContext();
+  const { isSensorConnected } = useNotificationsContext();
   const { descargarCSV, isExporting } = useMuestreoContext();
-  const [mounted, setMounted] = useState(false);
+  const { estacionSeleccionada } = useEstacionesContext();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const latest = notifications[0];
-  const irca = latest?.irca_calculado ?? 0;
-
-  // Lógica para extraer la métrica más reciente por parámetro
-  const getLatestMeasure = (paramName: string) => {
-    for (const n of notifications) {
-      // @ts-ignore - Estructura dinámica en tiempo de ejecución del backend
-      const medida = n.medidas?.find(m => m.parametro?.nombre?.toUpperCase() === paramName.toUpperCase());
-      if (medida) return { 
-        valor: medida.valor, 
-        unit: (medida.parametro?.unidadMedida || (medida as any).unidad || '').trim(),
-        min: medida.parametro?.valorMinimo ?? 0,
-        max: medida.parametro?.valorMaximo ?? 0,
-        desc: medida.parametro?.descripcion || '',
-        // Historial simulado/real para el gráfico lineal (Sparkline)
-        history: notifications
-          .map(sample => {
-            // @ts-ignore
-            const m = sample.medidas?.find(med => med.parametro?.nombre?.toUpperCase() === paramName.toUpperCase());
-            return m ? m.valor : null;
-          })
-          .filter(v => v !== null)
-          .reverse()
-          .slice(-10) // Últimas 10 muestras
-      };
-    }
-    return null;
+  // Función para obtener la fecha actual en formato YYYY-MM-DD
+  const getFechaActual = () => {
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
   };
 
-  // Mapeo estructurado de parámetros con sus respectivos íconos nativos
-  const allParams = [
-    { name: 'pH', icon: <Activity size={20} /> },
-    { name: 'Turbidez', icon: <Waves size={20} /> },
-    { name: 'Conductividad', icon: <Zap size={20} /> },
-    { name: 'Temperatura', icon: <Thermometer size={20} /> },
-    { name: 'Oxígeno Disuelto', icon: <Wind size={20} /> }
-  ].map(p => ({
-    ...p,
-    data: getLatestMeasure(p.name)
-  }));
+  // Estados de Filtros - Inicializar con el día actual
+  const [fechaInicio, setFechaInicio] = useState(getFechaActual());
+  const [fechaFin, setFechaFin] = useState(getFechaActual());
 
-  // Separar parámetros: Alertas (Fuera de rango) vs Normales
-  const alertParams = allParams.filter(p => {
-    if (!p.data) return false;
-    return p.data.valor < p.data.min || p.data.valor > p.data.max;
-  });
+  // Datos dinámicos del backend y cargando
+  const [muestras, setMuestras] = useState<Muestreo[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
-  const normalParams = allParams.filter(p => {
-    if (!p.data) return true; // Si no hay datos, se queda abajo en espera
-    return p.data.valor >= p.data.min && p.data.valor <= p.data.max;
-  });
+  // --- CONTROL HORARIO CENTRALIZADO (Fuerza la visualización estricta de America/Bogota) ---
+  const normalizarHoraLocal = useCallback((isoString: string) => {
+    if (!isoString) return { horaStr: '---', fullStr: '---' };
 
-  // Historial del IRCA global para el primer gráfico (últimas 10 muestras en orden cronológico)
-  const last10Notifications = [...notifications].reverse().slice(-10);
-  const ircaHistory = last10Notifications.map(n => n.irca_calculado);
+    const fecha = new Date(isoString);
 
-  // Calcula fechas dinámicas
-  let startDateStr = '---';
-  let endDateStr = '---';
-  if (notifications.length > 0) {
-    const dates = notifications.map(n => new Date(n.fechaMuestreo).getTime()).sort();
-    const start = new Date(dates[0]);
-    const end = new Date(dates[dates.length - 1]);
-    const options: Intl.DateTimeFormatOptions = { month: 'short', day: '2-digit', year: 'numeric' };
-    startDateStr = start.toLocaleDateString('es-CO', options);
-    endDateStr = end.toLocaleDateString('es-CO', options);
-  }
+    const horaStr = fecha.toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'UTC',
+    });
 
-  let sparkStart = '---';
-  let sparkMid = '---';
-  let sparkEnd = '---';
-  if (last10Notifications.length > 0) {
-    const formatSparkDate = (iso: string) => new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
-    sparkStart = formatSparkDate(last10Notifications[0].fechaMuestreo);
-    sparkEnd = formatSparkDate(last10Notifications[last10Notifications.length - 1].fechaMuestreo);
-    if (last10Notifications.length > 2) {
-      sparkMid = formatSparkDate(last10Notifications[Math.floor(last10Notifications.length / 2)].fechaMuestreo);
+    const fullStr = fecha.toLocaleString('es-CO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+      timeZone: 'UTC',
+    });
+
+    return { horaStr, fullStr };
+  }, []);
+
+  // Petición activa al API get 
+  const cargarDatosFiltrados = useCallback(async () => {
+    if (!estacionSeleccionada?.id) return;
+
+    setIsLoadingData(true);
+    try {
+      const data = await apiClient.muestreos.getFiltered({
+        estacionId: estacionSeleccionada.id,
+        fechaInicio: fechaInicio ? `${fechaInicio}T00:00:00-05:00` : undefined,
+        fechaFin: fechaFin ? `${fechaFin}T23:59:59-05:00` : undefined,
+      });
+
+      setMuestras(data || []);
+    } catch (error) {
+      console.error("Error al traer muestras filtradas:", error);
+      setMuestras([]);
+    } finally {
+      setIsLoadingData(false);
     }
-  }
+  }, [estacionSeleccionada?.id, fechaInicio, fechaFin]);
 
-  let nivelRiesgo = "SIN DATOS";
-  let riesgoColorText = "text-[#9CA3AF]";
-  let riesgoIcon = "";
-  if (isSensorConnected || notifications.length > 0) {
-    if (irca === 0 && notifications.length === 0) {
-      nivelRiesgo = "ESPERANDO";
-      riesgoColorText = "text-[#3B82F6]";
-    } else if (irca <= 5) {
-      nivelRiesgo = "BAJO";
-      riesgoColorText = "text-[#10B981]";
-      riesgoIcon = "✓";
-    } else if (irca <= 14) {
-      nivelRiesgo = "MEDIO";
-      riesgoColorText = "text-[#F59E0B]";
-      riesgoIcon = "⚠";
+  useEffect(() => {
+    cargarDatosFiltrados();
+  }, [cargarDatosFiltrados]);
+
+  // Garantizar orden descendente (más reciente primero) para las métricas superiores
+  const muestrasOrdenadas = useMemo(() => {
+    if (!muestras.length) return [];
+    return [...muestras].sort((a, b) =>
+      new Date(b.fechaMuestreo).getTime() - new Date(a.fechaMuestreo).getTime()
+    );
+  }, [muestras]);
+
+  const isFiltered = !!(fechaInicio || fechaFin);
+  const hasResults = muestrasOrdenadas.length > 0;
+
+  const latestSample = useMemo(() => {
+    if (!muestrasOrdenadas.length) return null;
+    return muestrasOrdenadas[0];
+  }, [muestrasOrdenadas]);
+
+  const ircaActual = Number(latestSample?.irca_calculado ?? 0);
+
+  const timestampFormateado = useMemo(() => {
+    if (!latestSample?.fechaMuestreo) return 'Sin muestras recientes';
+    return normalizarHoraLocal(latestSample.fechaMuestreo).fullStr;
+  }, [latestSample, normalizarHoraLocal]);
+
+  const getParamIcon = (name: string) => {
+    const key = name.toUpperCase();
+    if (key.includes('PH')) return <Activity size={20} />;
+    if (key.includes('TURB')) return <Waves size={20} />;
+    if (key.includes('CONDUCT')) return <Zap size={20} />;
+    if (key.includes('TEMP')) return <Thermometer size={20} />;
+    if (key.includes('OX') || key.includes('DISUEL')) return <Wind size={20} />;
+    if (key.includes('CAUDAL')) return <Droplets size={20} />;
+    return <Activity size={20} />;
+  };
+
+  // Procesar parámetros con historial sincronizado de forma estricta
+  const allParams = useMemo(() => {
+    if (!muestrasOrdenadas.length) return [];
+
+    const map = new Map<string, ParamCardData>();
+    const chronologic = [...muestrasOrdenadas].reverse();
+
+    muestrasOrdenadas.forEach((sample) => {
+      sample.medidas?.forEach((medida) => {
+        const paramName = (medida.parametro?.nombre || 'Parámetro').trim();
+        if (!map.has(paramName)) {
+          map.set(paramName, {
+            valor: medida.valor,
+            unit: (medida.parametro?.unidadMedida || '').trim(),
+            min: medida.parametro?.valorMinimo ?? 0,
+            max: medida.parametro?.valorMaximo ?? 0,
+            desc: medida.parametro?.descripcion || '',
+            history: []
+          });
+        }
+      });
+    });
+
+    map.forEach((entry, name) => {
+      entry.history = chronologic
+        .map((sample) => {
+          const m = sample.medidas?.find((med) => (med.parametro?.nombre || '').trim() === name);
+          if (m && typeof m.valor === 'number') {
+            const { horaStr } = normalizarHoraLocal(sample.fechaMuestreo);
+            return { valor: m.valor, hora: horaStr };
+          }
+          return null;
+        })
+        .filter((v): v is { valor: number; hora: string } => v !== null);
+
+      const latestMeas = muestrasOrdenadas[0]?.medidas?.find(
+        (med) => (med.parametro?.nombre || '').trim() === name
+      );
+      if (latestMeas) entry.valor = latestMeas.valor;
+    });
+
+    return [...map.entries()].map(([name, data]) => ({ name, icon: getParamIcon(name), data }));
+  }, [muestrasOrdenadas, normalizarHoraLocal]);
+
+  const alertParams = allParams.filter((p) => {
+    const minVal = p.data.min;
+    const maxVal = p.data.max;
+    if (minVal === 0 && maxVal === 0) return false;
+    return p.data.valor < minVal || p.data.valor > maxVal;
+  });
+
+  const normalParams = allParams.filter((p) => {
+    const minVal = p.data.min;
+    const maxVal = p.data.max;
+    if (minVal === 0 && maxVal === 0) return false;
+    return p.data.valor >= minVal && p.data.valor <= maxVal;
+  });
+
+  // Datos limpios y sincronizados para el gráfico de barras/líneas del IRCA
+  const ircaChartData = useMemo(() => {
+    if (!muestrasOrdenadas.length) return [];
+    return [...muestrasOrdenadas]
+      .reverse()
+      .slice(-7)
+      .map((n) => ({
+        valor: Number(n.irca_calculado ?? 0),
+        hora: normalizarHoraLocal(n.fechaMuestreo).horaStr
+      }));
+  }, [muestrasOrdenadas, normalizarHoraLocal]);
+
+  const clasificacionRiesgo = useMemo(() => {
+    if (!hasResults) {
+      return { nivel: 'SIN DATOS', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200' };
+    }
+
+    let nivel = ''; let color = ''; let bg = ''; let border = '';
+
+    if (ircaActual <= 5) {
+      nivel = 'SIN RIESGO'; color = 'text-emerald-600'; bg = 'bg-emerald-50/60'; border = 'border-emerald-200';
+    } else if (ircaActual <= 14) {
+      nivel = 'RIESGO BAJO'; color = 'text-green-600'; bg = 'bg-green-50/60'; border = 'border-green-200';
+    } else if (ircaActual <= 35) {
+      nivel = 'RIESGO MEDIO'; color = 'text-amber-500'; bg = 'bg-amber-50/60'; border = 'border-amber-200';
+    } else if (ircaActual <= 80) {
+      nivel = 'RIESGO ALTO'; color = 'text-orange-600'; bg = 'bg-orange-50/60'; border = 'border-orange-200';
     } else {
-      nivelRiesgo = "ALTO";
-      riesgoColorText = "text-[#EF4444]";
-      riesgoIcon = "✖";
+      nivel = 'INVIABLE SANITARIAMENTE'; color = 'text-red-600'; bg = 'bg-red-50/60'; border = 'border-red-200';
     }
-  }
+
+    return { nivel, color, bg, border };
+  }, [ircaActual, hasResults]);
 
   return (
-    <main className="flex-1 flex flex-col px-6 md:px-12 lg:px-20 pt-4 pb-24 bg-[#FAFAFE] w-full max-w-md md:max-w-4xl lg:max-w-6xl mx-auto space-y-6 md:space-y-8">
-      
-      {/* Top Bar con Estado de Conexión */}
-      <div className="w-full flex justify-end">
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
-          isSensorConnected ? 'bg-[#E6F7ED] text-[#10B981]' : 'bg-amber-50 text-amber-600'
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${isSensorConnected ? 'bg-[#10B981]' : 'bg-amber-500 animate-pulse'}`} />
-          {isSensorConnected ? 'Sensores Conectados' : 'Reconectando...'}
+    <main className="min-h-screen bg-[#FAFAFE] pb-24 md:pb-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-8 xl:px-10 pt-6 space-y-6">
+
+        {/* BARRA SUPERIOR */}
+        <div className="w-full flex flex-row justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2">
+            <svg width="22" height="28" viewBox="0 0 26 33" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-600">
+              <path d="M13.4469 28.05C13.7719 28.0225 14.0495 27.8919 14.2797 27.6581C14.5099 27.4244 14.625 27.1425 14.625 26.8125C14.625 26.4275 14.5031 26.1181 14.2594 25.8844C14.0156 25.6506 13.7042 25.5475 13.325 25.575C12.2146 25.6575 11.0365 25.3481 9.79063 24.6469C8.54479 23.9456 7.75937 22.6737 7.43437 20.8312C7.38021 20.5287 7.23802 20.2812 7.00781 20.0888C6.7776 19.8962 6.51354 19.8 6.21563 19.8C5.83646 19.8 5.525 19.9444 5.28125 20.2331C5.0375 20.5219 4.95625 20.8587 5.0375 21.2437C5.49792 23.7463 6.58125 25.5338 8.2875 26.6062C9.99375 27.6787 11.7135 28.16 13.4469 28.05ZM13 33C9.28958 33 6.19531 31.7075 3.71719 29.1225C1.23906 26.5375 0 23.32 0 19.47C0 16.72 1.07656 13.7294 3.22969 10.4981C5.38281 7.26688 8.63958 3.7675 13 0C17.3604 3.7675 20.6172 7.26688 22.7703 10.4981C24.9234 13.7294 26 16.72 26 19.47C26 23.32 24.7609 26.5375 22.2828 29.1225C19.8047 31.7075 16.7104 33 13 33Z" fill="currentColor" />
+            </svg>
+            <span className="text-[#0E3B8C] font-extrabold text-lg tracking-tight">AquaLab</span>
+          </div>
+          <SensorStatus isConnected={isSensorConnected} />
         </div>
+
+        {/* MÓVIL: ÚLTIMA MUESTRA */}
+        {hasResults && (
+          <div className="block lg:hidden bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-3">
+            <Clock className="text-blue-500 shrink-0" size={24} />
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase block tracking-wider">Última Muestra Recibida</span>
+              <span className="text-slate-800 font-semibold text-sm block" suppressHydrationWarning>
+                {timestampFormateado}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* FILTROS */}
+        <FilterSection
+          fechaInicio={fechaInicio}
+          setFechaInicio={setFechaInicio}
+          fechaFin={fechaFin}
+          setFechaFin={setFechaFin}
+          isFiltered={isFiltered}
+          hasResults={hasResults}
+          isExporting={isExporting}
+          descargarCSV={() => descargarCSV(fechaInicio, fechaFin)}
+        />
+
+        {/* COMPORTAMIENTO DE CARGA */}
+        {isLoadingData ? (
+          <section className="bg-white border border-slate-100 rounded-3xl p-12 flex flex-col items-center justify-center text-center space-y-3 shadow-sm">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-slate-500 text-sm font-semibold">Consultando registros en el servidor...</p>
+          </section>
+        ) : !hasResults ? (
+          <section className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-12 flex flex-col items-center justify-center text-center space-y-4 shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center border border-amber-100">
+              <Search size={28} className="text-amber-500" />
+            </div>
+            <div>
+              <h3 className="text-slate-800 font-extrabold text-xl">No hay registros para mostrar</h3>
+              <p className="text-slate-500 text-sm font-medium max-w-sm mx-auto mt-1">
+                {isFiltered ? 'No se encontraron muestras en el rango seleccionado para esta estación.' : 'La estación seleccionada no cuenta con registros históricos.'}
+              </p>
+            </div>
+          </section>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+              {/* COMPONENTE MÓVIL */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
+                <div className={`border ${clasificacionRiesgo.border} ${clasificacionRiesgo.bg} rounded-2xl p-5 shadow-sm flex flex-col justify-center`}>
+                  <span className="text-xs font-bold text-slate-500 uppercase block mb-1 tracking-wider">Clasificación del Riesgo</span>
+                  <span className={`${clasificacionRiesgo.color} font-black text-2xl block`}>
+                    {clasificacionRiesgo.nivel}
+                  </span>
+                </div>
+
+                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col justify-center">
+                  <span className="text-xs font-bold text-slate-500 uppercase block mb-1 tracking-wider">Puntaje IRCA Seleccionado</span>
+                  <span className="text-slate-900 font-black text-4xl">
+                    {`${ircaActual.toFixed(2)}%`}
+                  </span>
+                </div>
+              </div>
+
+              {/* GRÁFICO IRCA */}
+              <div className="lg:col-span-2">
+                <IrcaChartCard data={ircaChartData} />
+              </div>
+
+              {/* COMPONENTE WEB */}
+              <div className="hidden lg:flex lg:flex-col lg:justify-between gap-4">
+                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex items-center gap-3 flex-1">
+                  <Clock className="text-blue-500 shrink-0" size={24} />
+                  <div>
+                    <span className="text-xs font-bold text-slate-500 uppercase block tracking-wider">Última Muestra Recibida</span>
+                    <span className="text-slate-800 font-semibold text-sm block" suppressHydrationWarning>
+                      {timestampFormateado}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={`border ${clasificacionRiesgo.border} ${clasificacionRiesgo.bg} rounded-2xl p-5 shadow-sm flex-1 flex flex-col justify-center`}>
+                  <span className="text-xs font-bold text-slate-500 uppercase block mb-1 tracking-wider">Clasificación del Riesgo</span>
+                  <span className={`${clasificacionRiesgo.color} font-black text-2xl block`}>
+                    {clasificacionRiesgo.nivel}
+                  </span>
+                </div>
+
+                <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex-1 flex flex-col justify-center">
+                  <span className="text-xs font-bold text-slate-500 uppercase block mb-1 tracking-wider">Puntaje IRCA Seleccionado</span>
+                  <span className="text-slate-900 font-black text-4xl">
+                    {`${ircaActual.toFixed(2)}%`}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* PARÁMETROS CRÍTICOS */}
+            {alertParams.length > 0 && (
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-red-600 font-black text-sm uppercase tracking-wider px-1">
+                  <AlertTriangle size={16} className="fill-red-600 text-white animate-pulse" />
+                  <h3>Parámetros Críticos Fuera de Rango</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {alertParams.map((p) => (
+                    <ParameterCard
+                      key={p.name}
+                      name={p.name}
+                      icon={p.icon}
+                      value={p.data.valor}
+                      unit={p.data.unit}
+                      min={p.data.min}
+                      max={p.data.max}
+                      description={p.data.desc}
+                      isAlert={true}
+                      history={p.data.history.map((h) => h.valor)}
+                      labels={p.data.history.map((h) => h.hora)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* PARÁMETROS ESTABLES */}
+            {normalParams.length > 0 && (
+              <section className="space-y-3 pt-2">
+                <h3 className="text-slate-800 font-extrabold text-sm uppercase tracking-wider px-1">
+                  Lecturas de Parámetros Estables
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {normalParams.map((p) => (
+                    <ParameterCard
+                      key={p.name}
+                      name={p.name}
+                      icon={p.icon}
+                      value={p.data.valor}
+                      unit={p.data.unit}
+                      min={p.data.min}
+                      max={p.data.max}
+                      description={p.data.desc}
+                      isAlert={false}
+                      history={p.data.history.map((h) => h.valor)}
+                      labels={p.data.history.map((h) => h.hora)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
+        )}
       </div>
 
-      {/* Rango de Análisis Temporal */}
-      <section className="bg-[#F0F2FA] border border-[#E2E6F5] rounded-xl p-3 flex items-center justify-between text-[#4B5563] text-xs font-semibold">
-        <div className="flex items-center gap-2">
-          <Calendar size={16} className="text-[#6B7280]" />
-          <span>PERÍODO DE ANÁLISIS:</span>
-          <span className="text-[#0E3B8C] uppercase">{mounted ? `${startDateStr} - ${endDateStr}` : 'Cargando...'}</span>
-        </div>
-      </section>
-
-      {/* Acción de Exportación Principal */}
-      <button 
-        onClick={descargarCSV}
-        disabled={isExporting}
-        className="w-full bg-[#0056C6] text-white py-4 px-6 rounded-xl font-bold flex items-center justify-center gap-2 text-base transition-all active:scale-[0.98] shadow-md shadow-blue-600/10 disabled:opacity-50"
-      >
-        <Download size={18} className="stroke-[2.5]" />
-        {isExporting ? 'Exportando...' : 'Exportar CSV'}
-      </button>
-
-      {/* Resumen Ejecutivo Superior (Widgets) */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)]">
-          <span className="text-xs font-bold text-[#9CA3AF] uppercase block mb-1">Nivel de Riesgo</span>
-          <span className={`${riesgoColorText} font-extrabold text-lg flex items-center justify-center gap-1`}>
-            {mounted ? `${riesgoIcon} ${nivelRiesgo}` : '---'}
-          </span>
-        </div>
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 text-center shadow-[0_4px_15px_rgba(0,0,0,0.01)]">
-          <span className="text-xs font-bold text-[#9CA3AF] uppercase block mb-1">Puntaje IRCA</span>
-          <span className="text-[#111827] font-extrabold text-xl block">{mounted ? `${irca.toFixed(1)}%` : '---'}</span>
-          <span className={`${riesgoColorText} text-[11px] font-bold`}>{mounted ? `Riesgo ${nivelRiesgo}` : '---'}</span>
-        </div>
-      </section>
-
-      {/* Tarjeta de Tendencia Global del IRCA */}
-      <section className="bg-white border border-slate-100 rounded-3xl p-5 shadow-[0_10px_25px_rgba(0,0,0,0.015)]">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-[#111827] font-extrabold text-lg">Tendencia IRCA</h3>
-          <Activity size={18} className="text-[#9CA3AF]" />
-        </div>
-        <p className="text-[#6B7280] text-xs leading-relaxed font-medium mb-4">
-          El Índice de Riesgo de la Calidad del Agua (IRCA) es un puntaje que evalúa la potabilidad. Permite identificar preventivamente niveles de contaminación.
-        </p>
-        {/* Gráfico Sparkline del IRCA */}
-        <div className="h-20 w-full bg-slate-50/50 rounded-xl overflow-hidden flex items-end">
-          <SimpleSparkline data={ircaHistory} color="#0056C6" />
-        </div>
-        <div className="flex justify-between text-[10px] text-[#9CA3AF] font-bold mt-2 px-1 uppercase">
-          <span>{mounted ? sparkStart : '---'}</span>
-          <span>{mounted && sparkMid !== '---' ? sparkMid : ''}</span>
-          <span>{mounted ? sparkEnd : '---'}</span>
-        </div>
-      </section>
-
-      {/* ⚠️ SECCIÓN CRÍTICA: ALERTAS ACTUALES (Solo si hay parámetros fuera de rango) */}
-      {mounted && alertParams.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-center gap-2 text-[#EF4444] font-extrabold text-base uppercase tracking-wider px-1">
-            <AlertTriangle size={18} className="fill-[#EF4444] text-white" />
-            <h3>Alertas Actuales</h3>
-          </div>
-          <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {alertParams.map((p, idx) => (
-              <ParameterCard 
-                key={idx}
-                name={p.name}
-                icon={p.icon}
-                value={p.data?.valor ?? '---'}
-                unit={p.data?.unit ?? ''}
-                min={p.data?.min ?? 0}
-                max={p.data?.max ?? 0}
-                description={p.data?.desc ?? ''}
-                history={p.data?.history || []}
-                isAlert={true}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* SECCIÓN GENERAL: ANÁLISIS DE PARÁMETROS (Resto de métricas en rango normal) */}
-      <section className="space-y-3 pt-2">
-        <h3 className="text-[#111827] font-extrabold text-lg px-1">Análisis de Parámetros</h3>
-        <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {normalParams.map((p, idx) => (
-            <ParameterCard 
-              key={idx}
-              name={p.name}
-              icon={p.icon}
-              value={p.data?.valor ?? '---'}
-              unit={p.data?.unit ?? ''}
-              min={p.data?.min ?? 0}
-              max={p.data?.max ?? 0}
-              description={p.data?.desc ?? ''}
-              history={p.data?.history || []}
-              isAlert={false}
-            />
-          ))}
-        </div>
-      </section>
-
+      {/* BARRA DE NAVEGACIÓN MÓVIL */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 flex justify-around items-center z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600 transition-colors">
+          <Home size={20} /><span className="text-[10px] font-bold">Inicio</span>
+        </button>
+        <button className="flex flex-col items-center gap-1 text-blue-600 transition-colors">
+          <BarChart2 size={20} /><span className="text-[10px] font-bold">Reportes</span>
+        </button>
+        <button className="flex flex-col items-center gap-1 text-slate-400 hover:text-blue-600 transition-colors">
+          <Settings size={20} /><span className="text-[10px] font-bold">Ajustes</span>
+        </button>
+      </div>
     </main>
-  );
-}
-
-// Subcomponente atómico local ultra-ligero para dibujar las curvas de tendencia en SVG puro
-function SimpleSparkline({ data, color }: { data: number[], color: string }) {
-  if (!data || data.length === 0) return <div className="m-auto text-xs text-slate-300">Sin histórico</div>;
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min;
-  const width = 350;
-  const height = 70;
-  
-  const points = data.map((val, index) => {
-    const x = (index / (data.length - 1)) * width;
-    const y = height - ((val - min) / range) * (height - 10) - 5;
-    return `${x},${y}`;
-  }).join(' ');
-
-  return (
-    <svg className="w-full h-full p-2" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
-      <polyline fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={points} />
-    </svg>
   );
 }

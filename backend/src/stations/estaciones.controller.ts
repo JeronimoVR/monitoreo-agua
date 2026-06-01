@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Sse, MessageEvent } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { EstacionesService } from './estaciones.service';
 import { CreateEstacionDto } from './dto/create-estacion.dto';
@@ -7,11 +7,23 @@ import { Roles } from '../auth/decorators/roles.decorators';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { UserRole } from 'src/users/entities/usuario.entity';
+import { SseService } from '../common/sse/sse.service';
+import { Observable } from 'rxjs';
 
 @ApiTags('estaciones')
-@Controller('estaciones')
+@Controller(['estaciones', 'staciones'])
 export class EstacionesController {
-    constructor(private readonly estacionesService: EstacionesService) { }
+    constructor(
+        private readonly estacionesService: EstacionesService,
+        private readonly sseService: SseService,
+    ) { }
+
+    @Sse('stream')
+    @ApiOperation({ summary: 'Stream SSE de estaciones', description: 'Canal SSE para eventos en tiempo real (muestreos y estado de sensores).' })
+    @ApiResponse({ status: 200, description: 'Conexión SSE establecida.' })
+    streamEvents(): Observable<MessageEvent> {
+        return this.sseService.getEventStream();
+    }
 
     @Post()
     @ApiBearerAuth()

@@ -1,11 +1,12 @@
-'use client';
+﻿'use client';
 import React, { createContext, useContext, useState } from 'react';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { apiClient } from '@service/api-client';
 
 interface MuestreoContextType {
   generarReporte: (rango: { inicio: Date; fin: Date }) => Promise<void>;
-  descargarCSV: () => void;
+  // AHORA: Acepta fechas string opcionales del filtro de la pantalla
+  descargarCSV: (fechaInicio?: string, fechaFin?: string) => Promise<void>;
   isExporting: boolean;
 }
 
@@ -19,13 +20,11 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
     if (!estacionSeleccionada) return;
     setIsExporting(true);
     try {
-      // La función export devuelve la URL de descarga
       const url = apiClient.muestreos.export({
-        estacionId: String(estacionSeleccionada.id),
+        estacionId: estacionSeleccionada.id,
         fechaInicio: rango.inicio.toISOString(),
         fechaFin: rango.fin.toISOString()
       });
-
       window.open(url, '_blank');
     } catch (error) {
       console.error("Error al exportar:", error);
@@ -34,36 +33,51 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
-const descargarCSV = async () => {
-  if (!estacionSeleccionada) return;
-
-  try {
+  // CORREGIDO: Ahora prioriza las fechas seleccionadas en la interfaz
+  const descargarCSV = async (fechaInicio?: string, fechaFin?: string) => {
+    if (!estacionSeleccionada) return;
     setIsExporting(true);
-
-    const now = new Date();
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(now.getMonth() - 1);
-
-    const url = apiClient.muestreos.export({
-      estacionId: String(estacionSeleccionada.id),
-      fechaInicio: oneMonthAgo.toISOString(),
-      fechaFin: now.toISOString()
-    });
-
-    // Crear un link temporal para forzar descarga
     const link = document.createElement('a');
-    link.href = url;
-    link.download = `reporte_${estacionSeleccionada.nombre}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 
-  } catch (error) {
-    console.error("Error al descargar CSV:", error);
-  } finally {
-    setIsExporting(false);
-  }
-};
+    try {
+      let fInicioIso: string;
+      let fFinIso: string;
+
+      // Si hay filtros en pantalla, convertirlos adecuadamente a ISO
+      if (fechaInicio && fechaFin) {
+        const [anoI, mesI, diaI] = fechaInicio.split('-').map(Number);
+        const [anoF, mesF, diaF] = fechaFin.split('-').map(Number);
+        
+        fInicioIso = new Date(anoI, mesI - 1, diaI, 0, 0, 0).toISOString();
+        fFinIso = new Date(anoF, mesF - 1, diaF, 23, 59, 59).toISOString();
+      } else {
+        // Fallback: Si no hay filtro, usar el último mes automáticamente
+        const now = new Date();
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(now.getMonth() - 1);
+        fInicioIso = oneMonthAgo.toISOString();
+        fFinIso = now.toISOString();
+      }
+
+      const url = apiClient.muestreos.export({
+        estacionId: estacionSeleccionada.id,
+        fechaInicio: fInicioIso,
+        fechaFin: fFinIso
+      });
+
+      link.href = url;
+      link.download = `reporte_${estacionSeleccionada.nombre}.csv`;
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al descargar CSV:", error);
+    } finally {
+      if (link.parentNode) {
+        document.body.removeChild(link);
+      }
+      setIsExporting(false);
+    }
+  };
 
   return (
     <MuestreoContext.Provider value={{ generarReporte, descargarCSV, isExporting }}>

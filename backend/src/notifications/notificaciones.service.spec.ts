@@ -5,6 +5,7 @@ import { Alerta } from './alerts/entities/alerta.entity';
 import { SseService } from '../common/sse/sse.service';
 import { MailService } from '../common/mail/mail.service';
 import { Repository } from 'typeorm';
+import { UsuariosService } from '../users/usuarios.service';
 
 describe('NotificacionesService (QA - Alertas y Real-time)', () => {
   let service: NotificacionesService;
@@ -27,6 +28,10 @@ describe('NotificacionesService (QA - Alertas y Real-time)', () => {
     enviarCorreo: jest.fn().mockResolvedValue(true),
   };
 
+  const mockUsuariosService = {
+    getDestinatariosAlertas: jest.fn().mockResolvedValue([]),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +39,7 @@ describe('NotificacionesService (QA - Alertas y Real-time)', () => {
         { provide: getRepositoryToken(Alerta), useValue: mockAlertaRepo },
         { provide: SseService, useValue: mockSseService },
         { provide: MailService, useValue: mockMailService },
+        { provide: UsuariosService, useValue: mockUsuariosService },
       ],
     }).compile();
 

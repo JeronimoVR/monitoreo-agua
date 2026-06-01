@@ -27,8 +27,17 @@ export const apiClient = {
         getHistorial: (idEstacion: string | number) => api.get<Muestreo[]>(`/muestreos/historial/${idEstacion}`).then(res => res.data),
         getById: (id: string | number) => api.get<Muestreo>(`/muestreos/${id}`).then(res => res.data),
         export: (params?: MuestreosFilters) => {
-            const query = new URLSearchParams(params as any).toString();
-            return `${BASE_URL}/muestreos/export?${query}`;
+            if (!params) return `${BASE_URL}/muestreos/export`;
+            
+            // Forma limpia y moderna de remover nulos/undefined usando URLSearchParams
+            const searchParams = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    searchParams.append(key, String(value));
+                }
+            });
+            
+            return `${BASE_URL}/muestreos/export?${searchParams.toString()}`;
         }
     },
     estaciones: {

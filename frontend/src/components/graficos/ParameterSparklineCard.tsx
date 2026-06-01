@@ -22,9 +22,7 @@ export const ParameterSparklineCard = ({ label, status, average, unit, reference
     chart: {
       type: 'area',
       sparkline: { enabled: true },
-      animations: { enabled: true,
-        // @ts-ignore: easing exists in ApexCharts but might not be in these types 
-      easing: 'easeinout' as const, speed: 800 }
+      animations: { enabled: true, speed: 800 }
     },
     stroke: { curve: 'smooth', width: 2 },
     fill: {

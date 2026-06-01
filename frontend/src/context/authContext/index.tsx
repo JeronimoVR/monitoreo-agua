@@ -1,45 +1,80 @@
 'use client';
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@hooks/useAuth';
 import { apiClient } from '@service/api-client';
 import { Usuario } from '@shared/users/dto/usuario.dto';
+import { LoginDto } from '@shared/auth/dto/login.dto';
 
-// We can use the imported Usuario directly or extend it if needed
 export type User = Usuario;
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (credentials: any) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    credentials: LoginDto
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   loading: boolean;
   error: string | null;
+  updateUser: (data: Partial<User>) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { login: authLogin, logout: authLogout, loading: authLoading, error: authError } = useAuth();
+export const AuthProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const router = useRouter();
+
+  const {
+    login: authLogin,
+    logout: authLogout,
+    loading: authLoading,
+    error: authError,
+  } = useAuth();
+
   const [user, setUser] = useState<User | null>(null);
   const [initializing, setInitializing] = useState(true);
 
-  // Validación real del token contra el backend
   const verifySession = useCallback(async () => {
+    if (typeof window === 'undefined') return;
+
     const token = localStorage.getItem('token');
     const storedId = localStorage.getItem('userId');
 
     if (!token || !storedId) {
+      setUser(null);
       setInitializing(false);
       return;
     }
 
     try {
-      const profile = await apiClient.usuarios.getById(Number(storedId));
+      const profile = await apiClient.usuarios.getById(
+        Number(storedId)
+      );
+
       setUser(profile);
     } catch (error) {
-      console.error("Sesión inválida o expirada");
+      console.error(
+        'Sesión inválida o expirada en backend:',
+        error
+      );
+
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
+
       setUser(null);
     } finally {
       setInitializing(false);
@@ -50,29 +85,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     verifySession();
   }, [verifySession]);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: LoginDto) => {
     const result = await authLogin(credentials);
+
     if (result.success) {
-      // Tras login exitoso, obtenemos los datos reales del usuario
       await verifySession();
     }
+
     return result;
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     authLogout();
     setUser(null);
-  };
+    router.replace('/');
+  }, [authLogout, router]);
+
+  const updateUser = useCallback(
+    async (data: Partial<User>) => {
+      if (!user?.id) {
+        throw new Error('No hay usuario autenticado');
+      }
+
+      const updatedUser =
+        await apiClient.usuarios.update(
+          user.id,
+          data
+        );
+
+      setUser(updatedUser);
+    },
+    [user]
+  );
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      login,
-      logout,
-      loading: authLoading || initializing,
-      error: authError
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        loading: authLoading || initializing,
+        error: authError,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -80,6 +137,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuthContext debe usarse dentro de AuthProvider');
+
+  if (!context) {
+    throw new Error(
+      'useAuthContext debe usarse dentro de AuthProvider'
+    );
+  }
+
   return context;
 };

@@ -46,7 +46,7 @@ export class SeedService implements OnApplicationBootstrap {
         valorMinimo: 6.5,
         valorMaximo: 9.0,
         puntajeRiesgo: 1.5,
-        descripcion: 'Mide la acidez o alcalinidad del agua. Un pH fuera de 6.5-9.0 puede ser corrosivo o causar incrustaciones, afectando la potabilidad.'
+        descripcion: 'Mide la acidez. Fuera de rango, el agua se vuelve corrosiva o irritante.'
       },
       {
         nombre: 'Turbidez',
@@ -54,7 +54,7 @@ export class SeedService implements OnApplicationBootstrap {
         valorMinimo: 0.0,
         valorMaximo: 2.0,
         puntajeRiesgo: 15.0,
-        descripcion: 'Mide la claridad del agua. Valores superiores a 2 UNT indican presencia de partículas que pueden proteger patógenos y dificultar la desinfección.'
+        descripcion: 'Claridad visual. Indica presencia de lodo o suciedad que impide el paso de la luz.'
       },
       {
         nombre: 'Conductividad',
@@ -62,7 +62,7 @@ export class SeedService implements OnApplicationBootstrap {
         valorMinimo: 0.0,
         valorMaximo: 1000.0,
         puntajeRiesgo: 0.0,
-        descripcion: 'Mide la capacidad del agua para conducir electricidad, relacionada con sales disueltas. Valores altos pueden indicar contaminación mineral o salina.'
+        descripcion: 'Sales disueltas. Un nivel alto indica exceso de minerales o residuos invisibles.'
       },
       {
         nombre: 'Temperatura',
@@ -70,7 +70,7 @@ export class SeedService implements OnApplicationBootstrap {
         valorMinimo: 15.0,
         valorMaximo: 30.0,
         puntajeRiesgo: 0.0,
-        descripcion: 'Parámetro físico crítico que influye en la solubilidad del oxígeno y la velocidad de reacciones químicas y biológicas en el agua.'
+        descripcion: 'Grado de calor. Influye en la vida acuática y la velocidad de descomposición del agua.'
       },
       {
         nombre: 'Oxígeno Disuelto',
@@ -78,7 +78,7 @@ export class SeedService implements OnApplicationBootstrap {
         valorMinimo: 4.0,
         valorMaximo: 10.0,
         puntajeRiesgo: 0.0,
-        descripcion: 'Cantidad de oxígeno gaseoso disuelto. Fundamental para la vida acuática y un indicador clave de la capacidad de autodepuración del agua.'
+        descripcion: 'Aire en el agua. Fundamental para evitar malos olores y mantener la vida acuática.'
       }
     ];
 
@@ -93,11 +93,11 @@ export class SeedService implements OnApplicationBootstrap {
     console.log('✅ Parámetros oficiales sembrados/actualizados');
 
     const classifications = [
-      { clasificacion: 'SIN RIESGO', valor_min: 0, valor_max: 5, descripcion: 'Agua apta para consumo humano. No se observan desviaciones significativas en los parámetros analizados.' },
-      { clasificacion: 'RIESGO BAJO', valor_min: 5.1, valor_max: 14, descripcion: 'Agua con riesgo mínimo. Se recomienda vigilancia continua para prevenir incrementos en la vulnerabilidad del sistema.' },
-      { clasificacion: 'RIESGO MEDIO', valor_min: 14.1, valor_max: 35, descripcion: 'Agua con riesgo moderado. Requiere acciones correctivas inmediatas para mitigar posibles impactos en la salud pública.' },
-      { clasificacion: 'RIESGO ALTO', valor_min: 35.1, valor_max: 80, descripcion: 'Agua no apta para consumo. Riesgo significativo para la salud. Requiere intervención técnica urgente y aviso a la comunidad.' },
-      { clasificacion: 'INVIABLE', valor_min: 80.1, valor_max: 100, descripcion: 'Agua altamente peligrosa. Consumo prohibido. Estado crítico del recurso hídrico que requiere medidas de emergencia sanitaria.' }
+      { clasificacion: 'SIN RIESGO', valor_min: 0, valor_max: 5, descripcion: 'El agua del arroyo está en buenas condiciones fisicoquímicas, garantizando un ecosistema adecuado para la preservación de la biodiversidad.' },
+      { clasificacion: 'BAJO', valor_min: 5.1, valor_max: 14, descripcion: 'El agua del arroyo presenta ligeras variaciones en sus condiciones fisicoquímicas. Aunque el ecosistema mantiene su estabilidad, es recomendable realizar seguimiento para prevenir afectaciones a la biodiversidad.' },
+      { clasificacion: 'MEDIO', valor_min: 14.1, valor_max: 35, descripcion: 'El agua del arroyo presenta alteraciones moderadas en sus condiciones fisicoquímicas, lo que puede generar estrés en algunas especies acuáticas y afectar parcialmente el equilibrio del ecosistema.' },
+      { clasificacion: 'ALTO', valor_min: 35.1, valor_max: 80, descripcion: 'El agua del arroyo presenta un deterioro significativo en sus condiciones fisicoquímicas, comprometiendo la salud de los organismos acuáticos y reduciendo la capacidad del ecosistema para sostener la biodiversidad.' },
+      { clasificacion: 'INVIABLE', valor_min: 80.1, valor_max: 100, descripcion: 'El agua del arroyo presenta condiciones críticas de calidad, generando un alto impacto sobre los organismos acuáticos y poniendo en riesgo la estabilidad y supervivencia de la biodiversidad presente en el ecosistema.' }
     ];
 
     for (const config of classifications) {

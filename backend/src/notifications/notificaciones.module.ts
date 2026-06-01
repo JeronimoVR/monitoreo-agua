@@ -6,11 +6,13 @@ import { SseService } from '../common/sse/sse.service';
 import { Alerta } from './alerts/entities/alerta.entity';
 import { MailModule } from '../common/mail/mail.module';
 import { sseController } from '../common/sse/sse.controller';
+import { UsuariosModule } from '../users/usuarios.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Alerta]),
     MailModule,
+    UsuariosModule,
   ],
   controllers: [NotificacionesController, sseController],
   providers: [NotificacionesService, SseService],

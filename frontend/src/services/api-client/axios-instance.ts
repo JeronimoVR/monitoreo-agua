@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,9 +10,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        if (token) {
+        if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -27,7 +27,12 @@ api.interceptors.response.use(
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
-                window.location.href = '/login';
+
+                // Validamos no estar ya en el login antes de redirigir o recargar
+                const currentPath = window.location.pathname;
+                if (currentPath !== '/login') {
+                    window.location.href = '/login';
+                }
             }
         }
         return Promise.reject(error);

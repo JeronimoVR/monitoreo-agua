@@ -28,9 +28,6 @@ export class UsuariosService {
    * @throws ConflictException Si el correo ya está registrado.
    */
   async crear(dto: CreateUsuarioDto) {
-    if (dto.password !== dto.passwordConfirm) {
-      throw new BadRequestException('Las contraseñas no coinciden');
-    }
 
     const existe = await this.usuariosRepository.findOne({ where: { correo: dto.correo } });
     if (existe) throw new ConflictException('El correo ya está registrado');
@@ -174,5 +171,34 @@ export class UsuariosService {
 
   async getAlertConfig(estacionId: string) {
     return await this.configRepository.find({ where: { estacion: { id: parseInt(estacionId) } }, relations: ['usuario'] });
+  }
+
+  /**
+   * Obtiene la configuración de alertas del usuario autenticado para una estación específica.
+   */
+  async getAlertConfigForUser(usuarioId: number, estacionId: number) {
+    const config = await this.configRepository.findOne({
+      where: { usuario: { id: usuarioId }, estacion: { id: estacionId } },
+    });
+
+    if (!config) {
+      // Si por algún motivo no existe, retornamos el valor por defecto esperado por CU006
+      return { recibeAlerta: false };
+    }
+    return config;
+  }
+
+  /**
+   * Retorna correos de usuarios con alertas activadas para una estación.
+   */
+  async getDestinatariosAlertas(estacionId: number): Promise<string[]> {
+    const configs = await this.configRepository.find({
+      where: { estacion: { id: estacionId }, recibeAlerta: true },
+      relations: ['usuario'],
+    });
+
+    return configs
+      .map(c => c.usuario?.correo)
+      .filter((correo): correo is string => typeof correo === 'string' && correo.length > 0);
   }
 }

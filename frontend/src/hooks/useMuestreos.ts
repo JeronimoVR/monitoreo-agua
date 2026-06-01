@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
+import { Muestreo, MuestreosFilters } from '@shared/sampling/dto/muestreo.dto';
 
 export const useMuestreo = (estacionId: string | null) => {
-    const [datos, setDatos] = useState([]);
+    const [datos, setDatos] = useState<Muestreo[]>([]);
     const [loading, setLoading] = useState(false);
 
     const cargarHistorial = useCallback(async () => {
@@ -22,9 +23,9 @@ export const useMuestreo = (estacionId: string | null) => {
         cargarHistorial();
     }, [cargarHistorial]);
 
-    const descargarReporte = (params?: any) => {
+    const descargarReporte = (params?: Omit<MuestreosFilters, 'estacionId'>) => {
         if (!estacionId) return;
-        const url = apiClient.muestreos.export({ ...params, estacionId });
+        const url = apiClient.muestreos.export({ ...params, estacionId: Number(estacionId) });
         window.open(url, '_blank');
     };
 

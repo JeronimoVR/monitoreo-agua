@@ -1,10 +1,20 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { User, Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
+import { User, Mail, Lock, ShieldCheck, AlertCircle, CheckCircle } from 'lucide-react';
+import { CreateUsuarioDto } from '@shared/users/dto/create-usuario.dto';
+import { registerSchema } from '@/src/lib/validations';
 
-export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onValidationError }: any) => {
+interface RegisterFormProps {
+  onSubmit: (data: CreateUsuarioDto) => void | Promise<void>;
+  loading: boolean;
+  error?: string | null;
+  success?: string | null;
+  onValidationError?: (hasError: boolean) => void;
+}
+
+export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onValidationError }: RegisterFormProps) => {
   const [formData, setFormData] = useState({
     nombre: '',
     correo: '',
@@ -13,7 +23,6 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
   });
   const [localError, setLocalError] = useState<string | null>(null);
 
-  // Notificar al padre si hay algún error activo (API o Local)
   const activeError = apiError || localError;
   useEffect(() => {
     if (onValidationError) {
@@ -23,36 +32,29 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (success) return; // Evitar re-envío si ya tuvo éxito
+    if (success) return;
     setLocalError(null);
 
 
-    // Validación de campos vacíos
-    if (!formData.nombre || !formData.correo || !formData.password || !formData.confirmPassword) {
-      setLocalError("Por favor, completa todos los campos obligatorios.");
-      return;
-    }
+      const result = registerSchema.safeParse(formData);
 
-    // Validación de coincidencia de contraseñas
-    if (formData.password !== formData.confirmPassword) {
-      setLocalError("Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo.");
-      return;
-    }
+  if (!result.success) {
+    setLocalError(result.error.issues[0].message); 
+    return;
+  }
 
-    // Validación de longitud mínima
-    if (formData.password.length < 8) {
-      setLocalError("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
-
-    const { confirmPassword, ...dataToSend } = formData;
+    const dataToSend = {
+      nombre: formData.nombre,
+      correo: formData.correo,
+      password: formData.password
+    };
     onSubmit(dataToSend);
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-[2vh]">
       
-      {/* Alerta de Éxito */}
+      {/* Alerta de Ã‰xito */}
       {success && (
         <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm border border-emerald-100 font-medium mb-2 flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
           <CheckCircle size={18} className="shrink-0" />
@@ -73,7 +75,7 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
           label="Nombre Completo"
           placeholder="Ingresa tu nombre"
           iconLeft={<User size={18} />}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setFormData({...formData, nombre: e.target.value});
           }}
@@ -82,11 +84,11 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
         />
         
         <Input 
-          label="Correo Electrónico"
+          label="Correo Electronico"
           type="email"
-          placeholder="ejemplo@correo.com"
+          placeholder="Ingresa tu correo"
           iconLeft={<Mail size={18} />}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setFormData({...formData, correo: e.target.value});
           }}
@@ -99,7 +101,7 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
           type="password"
           placeholder="Mínimo 8 caracteres"
           iconLeft={<Lock size={18} />}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setFormData({...formData, password: e.target.value});
           }}
@@ -112,7 +114,7 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
           type="password"
           placeholder="Repite tu contraseña"
           iconLeft={<ShieldCheck size={18} />}
-          onChange={(e: any) => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setLocalError(null);
             setFormData({...formData, confirmPassword: e.target.value});
           }}
@@ -128,11 +130,12 @@ export const RegisterForm = ({ onSubmit, loading, error: apiError, success, onVa
           disabled={!!success}
           className={`w-full h-14 text-lg transition-all ${success ? 'bg-emerald-500 hover:bg-emerald-600' : ''}`}
         >
-          {success ? '¡Registro Exitoso!' : 'Registrarse →'}
+          {success ? '¡Registro Exitoso!' : 'Registrarse'}
         </Button>
       </div>
 
     </form>
   );
 };
+
 

@@ -121,7 +121,7 @@ export class UsuariosController {
   @ApiOperation({ summary: 'Consultar configuración de alerta', description: 'Obtiene si el usuario tiene activas las alertas para una estación.' })
   @ApiParam({ name: 'estacionId', description: 'ID de la estación' })
   @ApiResponse({ status: 200, description: 'Estado de la configuración de alerta.' })
-  async getConfig(@Param('estacionId') estacionId: string) {
-    return this.usuariosService.getAlertConfig(estacionId);
+  async getConfig(@Request() req, @Param('estacionId', ParseIntPipe) estacionId: number) {
+    return this.usuariosService.getAlertConfigForUser(req.user.id, estacionId);
   }
-}
+}

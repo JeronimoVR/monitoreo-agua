@@ -1,13 +1,10 @@
 import { Controller, Query, Res, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { MuestreosService } from './muestreos.service';
-import { AuthGuard } from '@nestjs/passport'; // Opcional: Proteger consultas
 import express from 'express';
 
 @ApiTags('Muestreos')
-@ApiBearerAuth()
 @Controller('muestreos')
-@UseGuards(AuthGuard('jwt'))
 export class MuestreosController {
   constructor(private readonly muestreosService: MuestreosService) { }
 
