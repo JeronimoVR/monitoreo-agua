@@ -7,6 +7,7 @@ import { UpdateUsuarioDto } from '@/src/shared/users/dto/update-usuario.dto';
 import { Usuario } from '@/src/shared/users/dto/usuario.dto';
 import { Estacion } from '@/src/shared/stations/dto/estacion.dto';
 import { Muestreo, MuestreosFilters } from '@/src/shared/sampling/dto/muestreo.dto';
+import { ChangePasswordDto } from '@/src/shared/auth/dto/change-password';
 
 export const apiClient = {
     auth: {
@@ -21,6 +22,7 @@ export const apiClient = {
         getAlertConfig: (estacionId: string | number) => api.get(`/usuarios/config-alertas/${estacionId}`).then(res => res.data),
         configAlertas: (estacionId: string | number, recibeAlerta: boolean) => api.put(`/usuarios/config-alertas/${estacionId}`, { recibeAlerta }).then(res => res.data),
         softDelete: (id: string | number) => api.patch(`/usuarios/${id}/eliminar`).then(res => res.data),
+        changePassword: (data: ChangePasswordDto) => api.patch<Usuario>(`/usuarios/change-password`, data).then(res => res.data),
     },
     muestreos: {
         getFiltered: (params: MuestreosFilters) => api.get<Muestreo[]>('/muestreos/filtro/busqueda', { params }).then(res => res.data),

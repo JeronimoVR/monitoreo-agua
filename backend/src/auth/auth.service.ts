@@ -34,13 +34,20 @@ export class AuthService {
    * @returns Datos del usuario si hay coincidencias, u objeto `null` en caso de error.
    */
   async validateUser(correo: string, pass: string): Promise<any> {
+    console.log(`[Login] Intentando validar usuario con correo: ${correo}`);
     const user = await this.usuariosService.buscarPorCorreoConPassword(correo);
 
     if (!user) {
+      console.log(`[Login] Usuario no encontrado para el correo: ${correo}`);
       throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
     }
 
+    console.log(`[Login] Usuario encontrado. ID: ${user.id}`);
+    console.log(`[Login] Hash en base de datos: "${user.passwordHash}"`);
+    console.log(`[Login] Contraseña proporcionada en texto plano (longitud): ${pass ? pass.length : 0}`);
+
     const isMatch = await bcrypt.compare(pass, user.passwordHash);
+    console.log(`[Login] ¿Coincide la contraseña?: ${isMatch}`);
 
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
@@ -151,5 +158,7 @@ export class AuthService {
 
     return { message: 'Contraseña actualizada con éxito' };
   }
+
+  
 
 }

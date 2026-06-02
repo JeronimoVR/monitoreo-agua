@@ -31,6 +31,57 @@ export class UsuariosController {
   }
 
   /**
+    * Cambia la contraseña del usuario logueado.
+    */
+  @Patch('change-password') // Quitamos cualquier rastro de :id de la URL
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt')) // SOLO necesitas el guard de JWT
+  @ApiOperation({ summary: 'Cambiar contraseña', description: 'Cambia la contraseña del usuario que inició sesión.' })
+  @ApiBody({ schema: { properties: { password: { type: 'string' }, nuevaPassword: { type: 'string' } } } })
+  @ApiResponse({ status: 200, description: 'Contraseña cambiada exitosamente.' })
+  changePassword(
+    @Request() req: any,
+    @Body() body: { password: string, nuevaPassword: string },
+  ) {
+    const usuarioId = req.user.id;
+
+    console.log(`Cambiando contraseña para el usuario logueado con ID: ${usuarioId}`);
+
+    return this.usuariosService.changePassword(usuarioId, body.password, body.nuevaPassword);
+  }
+
+  /**
+   * Actualiza la configuración de alertas de un usuario para una estación específica.
+   */
+  @Put('config-alertas/:estacionId')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Configurar alertas de estación', description: 'Activa o desactiva las notificaciones por correo para una estación específica.' })
+  @ApiParam({ name: 'estacionId', description: 'ID de la estación' })
+  @ApiBody({ schema: { properties: { recibeAlerta: { type: 'boolean', example: true } } } })
+  @ApiResponse({ status: 200, description: 'Configuración de alerta actualizada.' })
+  actualizarAlertas(
+    @Request() req,
+    @Param('estacionId', ParseIntPipe) estacionId: number,
+    @Body('recibeAlerta') recibeAlerta: boolean,
+  ) {
+    return this.usuariosService.actualizarConfigAlerta(req.user.id, estacionId, recibeAlerta);
+  }
+
+  /**
+   * Obtiene la configuración de alertas de un usuario para una estación específica.
+   */
+  @Get('config-alertas/:estacionId')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Consultar configuración de alerta', description: 'Obtiene si el usuario tiene activas las alertas para una estación.' })
+  @ApiParam({ name: 'estacionId', description: 'ID de la estación' })
+  @ApiResponse({ status: 200, description: 'Estado de la configuración de alerta.' })
+  async getConfig(@Request() req, @Param('estacionId', ParseIntPipe) estacionId: number) {
+    return this.usuariosService.getAlertConfigForUser(req.user.id, estacionId);
+  }
+
+  /**
    * Obtiene un usuario específico por su ID.
    * @param id Identificador único del usuario.
    * @returns El usuario encontrado.
@@ -92,36 +143,5 @@ export class UsuariosController {
   @ApiResponse({ status: 200, description: 'Usuario eliminado permanentemente.' })
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.usuariosService.eliminar(id);
-  }
-
-  /**
-   * Actualiza la configuración de alertas de un usuario para una estación específica.
-   */
-  @Put('config-alertas/:estacionId')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Configurar alertas de estación', description: 'Activa o desactiva las notificaciones por correo para una estación específica.' })
-  @ApiParam({ name: 'estacionId', description: 'ID de la estación' })
-  @ApiBody({ schema: { properties: { recibeAlerta: { type: 'boolean', example: true } } } })
-  @ApiResponse({ status: 200, description: 'Configuración de alerta actualizada.' })
-  actualizarAlertas(
-    @Request() req,
-    @Param('estacionId', ParseIntPipe) estacionId: number,
-    @Body('recibeAlerta') recibeAlerta: boolean,
-  ) {
-    return this.usuariosService.actualizarConfigAlerta(req.user.id, estacionId, recibeAlerta);
-  }
-
-  /**
-   * Obtiene la configuración de alertas de un usuario para una estación específica.
-   */
-  @Get('config-alertas/:estacionId')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Consultar configuración de alerta', description: 'Obtiene si el usuario tiene activas las alertas para una estación.' })
-  @ApiParam({ name: 'estacionId', description: 'ID de la estación' })
-  @ApiResponse({ status: 200, description: 'Estado de la configuración de alerta.' })
-  async getConfig(@Request() req, @Param('estacionId', ParseIntPipe) estacionId: number) {
-    return this.usuariosService.getAlertConfigForUser(req.user.id, estacionId);
   }
 }

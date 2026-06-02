@@ -8,5 +8,5 @@ export class ResetPasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8, { message: 'La nueva contraseña debe ser de al menos 8 caracteres' })
-  nuevaPassword!: string; // Ojo: mapear 'password' del form a 'nuevaPassword' en el submit
+  nuevaPassword!: string;
 }

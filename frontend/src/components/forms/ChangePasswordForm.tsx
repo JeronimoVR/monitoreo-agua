@@ -4,31 +4,28 @@ import { Button } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, Key, Shield } from 'lucide-react';
 
-interface ChangePasswordFormProps {
-  onSubmit: (currentPassword: string, newPassword: string, confirmPassword: string) => void;
+interface ResetPasswordFormProps {
+  onSubmit: (newPassword: string) => void;
   loading?: boolean;
   error?: string | null;
   onValidationError?: (active: boolean) => void;
 }
 
-export function ChangePasswordForm({ 
+export function ResetPasswordForm({ 
   onSubmit, 
   loading = false, 
   error = null, 
   onValidationError 
-}: ChangePasswordFormProps) {
-  const [currentPassword, setCurrentPassword] = useState('');
+}: ResetPasswordFormProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
   // Estados para mostrar/ocultar contraseñas
-  const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   
   // Estados de validación
   const [touched, setTouched] = useState({
-    current: false,
     new: false,
     confirm: false
   });
@@ -38,7 +35,6 @@ export function ChangePasswordForm({
   // Validaciones en tiempo real
   const isNewPasswordValid = newPassword.length >= 6;
   const doPasswordsMatch = newPassword === confirmPassword;
-  const isNewPasswordDifferent = currentPassword !== newPassword && currentPassword !== '';
 
   // Calcular fortaleza de la contraseña
   const getPasswordStrength = () => {
@@ -48,7 +44,7 @@ export function ChangePasswordForm({
     if (newPassword.length >= 8) strength++;
     if (newPassword.match(/[A-Z]/)) strength++;
     if (newPassword.match(/[0-9]/)) strength++;
-    if (newPassword.match(/[^A-Za-z0-9]/)) strength++;
+   
     
     if (strength === 0) return { level: 1, text: 'Muy débil', color: 'bg-red-500' };
     if (strength === 1) return { level: 2, text: 'Débil', color: 'bg-orange-500' };
@@ -61,11 +57,6 @@ export function ChangePasswordForm({
 
   const validateForm = () => {
     // Validación de campos vacíos
-    if (!currentPassword.trim()) {
-      setLocalError('Ingresa tu contraseña actual');
-      onValidationError?.(true);
-      return false;
-    }
     if (!newPassword.trim()) {
       setLocalError('Ingresa una nueva contraseña');
       onValidationError?.(true);
@@ -78,22 +69,15 @@ export function ChangePasswordForm({
     }
     
     // Validación de longitud mínima de nueva contraseña
-    if (newPassword.length < 6) {
-      setLocalError('La nueva contraseña debe tener al menos 6 caracteres');
+    if (newPassword.length < 8) {
+      setLocalError('La contraseña debe tener al menos 8 caracteres');
       onValidationError?.(true);
       return false;
     }
     
-    // Validación de coincidencia de nueva contraseña
+    // Validación de coincidencia
     if (newPassword !== confirmPassword) {
-      setLocalError('Las contraseñas nuevas no coinciden');
-      onValidationError?.(true);
-      return false;
-    }
-    
-    // Validación de que la nueva contraseña sea diferente a la actual
-    if (currentPassword === newPassword) {
-      setLocalError('La nueva contraseña debe ser diferente a la actual');
+      setLocalError('Las contraseñas no coinciden');
       onValidationError?.(true);
       return false;
     }
@@ -106,50 +90,22 @@ export function ChangePasswordForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(currentPassword, newPassword, confirmPassword);
+      onSubmit(newPassword);
     }
   };
 
-  const handleBlur = (field: 'current' | 'new' | 'confirm') => {
+  const handleBlur = (field: 'new' | 'confirm') => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Contraseña Actual */}
-      <div>
-        <Input
-          label="CONTRASEÑA ACTUAL"
-          type={showCurrent ? "text" : "password"}
-          placeholder="••••••••"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          onBlur={() => handleBlur('current')}
-          disabled={loading}
-          iconLeft={<Lock size={18} />}
-          iconRight={
-            <button
-              type="button"
-              onClick={() => setShowCurrent(!showCurrent)}
-              className="focus:outline-none"
-            >
-              {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          }
-        />
-        {touched.current && !currentPassword && (
-          <p className="mt-1 text-xs text-red-600 flex items-center gap-1 ml-1">
-            <AlertCircle size={12} /> La contraseña actual es requerida
-          </p>
-        )}
-      </div>
-
       {/* Nueva Contraseña */}
       <div>
         <Input
           label="NUEVA CONTRASEÑA"
           type={showNew ? "text" : "password"}
-          placeholder="•••••••• (mínimo 6 caracteres)"
+          placeholder="•••••••• (mínimo 8 caracteres)"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           onBlur={() => handleBlur('new')}
@@ -192,7 +148,7 @@ export function ChangePasswordForm({
             <ul className="text-xs text-gray-500 space-y-0.5 mt-1">
               <li className={`flex items-center gap-1 ${newPassword.length >= 6 ? 'text-green-600' : ''}`}>
                 {newPassword.length >= 6 ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
-                Mínimo 6 caracteres
+                Mínimo 8 caracteres
               </li>
               <li className={`flex items-center gap-1 ${/[A-Z]/.test(newPassword) ? 'text-green-600' : ''}`}>
                 {/[A-Z]/.test(newPassword) ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
@@ -202,6 +158,7 @@ export function ChangePasswordForm({
                 {/[0-9]/.test(newPassword) ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
                 Un número
               </li>
+
             </ul>
           </div>
         )}
@@ -267,7 +224,7 @@ export function ChangePasswordForm({
         </p>
       </div>
 
-      {/* Botón de cambio */}
+      {/* Botón de restablecer */}
       <Button
         type="submit"
         variant="solid"
@@ -277,10 +234,10 @@ export function ChangePasswordForm({
         {loading ? (
           <div className="flex items-center justify-center gap-2">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Actualizando contraseña...
+            Restableciendo contraseña...
           </div>
         ) : (
-          'Cambiar Contraseña'
+          'Restablecer Contraseña'
         )}
       </Button>
     </form>

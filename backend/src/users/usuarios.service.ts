@@ -36,10 +36,10 @@ export class UsuariosService {
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     try {
-      const nuevo = this.usuariosRepository.create({ 
+      const nuevo = this.usuariosRepository.create({
         nombre: dto.nombre,
         correo: dto.correo,
-        passwordHash 
+        passwordHash
       });
       const usuarioGuardado = await this.usuariosRepository.save(nuevo);
 
@@ -127,7 +127,7 @@ export class UsuariosService {
    * @returns El resultado de la operación.
    */
   async eliminar(id: number) {
-    return await this.usuariosRepository.delete(id); 
+    return await this.usuariosRepository.delete(id);
   }
 
   /**
@@ -200,5 +200,47 @@ export class UsuariosService {
     return configs
       .map(c => c.usuario?.correo)
       .filter((correo): correo is string => typeof correo === 'string' && correo.length > 0);
+  }
+
+  async changePassword(
+    id: number,
+    password: string,
+    nuevaPassword: string,
+  ) {
+    const usuario = await this.usuariosRepository.findOne({
+      where: { id },
+      select: ['id', 'nombre', 'correo', 'passwordHash', 'rol']
+    });
+
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    console.log(`Verificando contraseña actual para el usuario ID: ${id}`);
+    const passwordValida = await bcrypt.compare(
+      password,
+      usuario.passwordHash,
+    );
+
+    if (!passwordValida) {
+      throw new BadRequestException(
+        'Contraseña actual incorrecta',
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const nuevoHash = await bcrypt.hash(
+      nuevaPassword,
+      salt,
+    );
+
+    console.log(`Contraseña verificada con éxito. Actualizando hash para usuario ID: ${id}`);
+    
+    // Usamos update() directo para evitar cualquier conflicto de estado/rastreo en TypeORM
+    await this.usuariosRepository.update(id, { passwordHash: nuevoHash });
+
+    console.log(`Contraseña actualizada con éxito en la base de datos para el usuario ID: ${id}`);
+
+    return await this.buscarPorId(id);
   }
 }
