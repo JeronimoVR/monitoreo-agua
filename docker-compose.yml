@@ -1,6 +1,6 @@
 services:
   # --- INFRAESTRUCTURA DE DATOS ---
-  db:
+    db:
     image: postgres:15-alpine
     container_name: agua_db
     restart: always
@@ -8,6 +8,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+      TZ: America/Bogota
     ports:
       - "${DB_PORT}:5432"
     volumes:
@@ -22,6 +23,7 @@ services:
       environment:
         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        TZ: America/Bogota
       ports:
         - "5050:80"
       volumes:
@@ -63,6 +65,7 @@ services:
       MQTT_USER: ${MQTT_USER}
       MQTT_PASSWORD: ${MQTT_PASSWORD}
       NEST_API_URL: http://192.168.110.87:${PORT_BACKEND}
+      TZ: America/Bogota
     depends_on:
       - db
       - mosquitto
@@ -79,6 +82,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001/api
       NEXT_PUBLIC_STREAM_URL: http://localhost:3001/api/sse/stream
+      TZ: America/Bogota
     depends_on:
       - backend
     volumes:

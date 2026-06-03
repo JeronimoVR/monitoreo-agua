@@ -22,7 +22,7 @@ export default function DashboardPage() {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: 'UTC',
+      timeZone: 'America/Bogota',
     });
 
     const fullStr = fecha.toLocaleString('es-CO', {
@@ -33,14 +33,14 @@ export default function DashboardPage() {
       minute: '2-digit',
       second: '2-digit',
       hour12: true,
-      timeZone: 'UTC',
+      timeZone: 'America/Bogota',
     });
 
     const fechaFormateada = fecha.toLocaleDateString('es-CO', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-      timeZone: 'UTC',
+      timeZone: 'America/Bogota',
     });
 
     return { horaStr, fullStr, fechaFormateada };

@@ -53,7 +53,7 @@ export default function ReportsPage() {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: 'UTC',
+      timeZone: 'America/Bogota',
     });
 
     const fullStr = fecha.toLocaleString('es-CO', {
@@ -64,7 +64,7 @@ export default function ReportsPage() {
       minute: '2-digit',
       second: '2-digit',
       hour12: true,
-      timeZone: 'UTC',
+      timeZone: 'America/Bogota',
     });
 
     return { horaStr, fullStr };
@@ -158,7 +158,7 @@ export default function ReportsPage() {
           const m = sample.medidas?.find((med) => (med.parametro?.nombre || '').trim() === name);
           if (m && typeof m.valor === 'number') {
             const { horaStr } = normalizarHoraLocal(sample.fechaMuestreo);
-            return { valor: m.valor, hora: horaStr };
+            return { valor: m.valor, hora: sample.fechaMuestreo };
           }
           return null;
         })
@@ -188,17 +188,17 @@ export default function ReportsPage() {
   });
 
   // Datos limpios y sincronizados para el gráfico de barras/líneas del IRCA
+// Datos limpios y sincronizados para el gráfico de barras/líneas del IRCA
   const ircaChartData = useMemo(() => {
     if (!muestrasOrdenadas.length) return [];
     return [...muestrasOrdenadas]
       .reverse()
-      .slice(-7)
       .map((n) => ({
         valor: Number(n.irca_calculado ?? 0),
-        hora: normalizarHoraLocal(n.fechaMuestreo).horaStr
+        hora: n.fechaMuestreo // <--- ¡Pasamos el ISO completo: "2026-06-02T23:07:17.000Z"!
       }));
-  }, [muestrasOrdenadas, normalizarHoraLocal]);
-
+  }, [muestrasOrdenadas]);
+console.log(muestrasOrdenadas);
   const clasificacionRiesgo = useMemo(() => {
     if (!hasResults) {
       return { nivel: 'SIN DATOS', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200' };
@@ -302,7 +302,8 @@ export default function ReportsPage() {
 
               {/* GRÁFICO IRCA */}
               <div className="lg:col-span-2">
-                <IrcaChartCard data={ircaChartData} />
+                <IrcaChartCard data={ircaChartData} 
+                />
               </div>
 
               {/* COMPONENTE WEB */}

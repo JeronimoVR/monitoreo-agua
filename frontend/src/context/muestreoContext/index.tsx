@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { createContext, useContext, useState } from 'react';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { apiClient } from '@service/api-client';
@@ -43,13 +43,10 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       let fInicioIso: string;
       let fFinIso: string;
 
-      // Si hay filtros en pantalla, convertirlos adecuadamente a ISO
+      // Si hay filtros en pantalla, convertirlos adecuadamente a ISO en America/Bogota
       if (fechaInicio && fechaFin) {
-        const [anoI, mesI, diaI] = fechaInicio.split('-').map(Number);
-        const [anoF, mesF, diaF] = fechaFin.split('-').map(Number);
-        
-        fInicioIso = new Date(anoI, mesI - 1, diaI, 0, 0, 0).toISOString();
-        fFinIso = new Date(anoF, mesF - 1, diaF, 23, 59, 59).toISOString();
+        fInicioIso = `${fechaInicio}T00:00:00-05:00`;
+        fFinIso = `${fechaFin}T23:59:59-05:00`;
       } else {
         // Fallback: Si no hay filtro, usar el último mes automáticamente
         const now = new Date();

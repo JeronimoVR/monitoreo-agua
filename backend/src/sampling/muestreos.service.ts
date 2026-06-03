@@ -205,7 +205,7 @@ export class MuestreosService {
         };
 
         const rows = data.map(m => {
-            const fecha = m.fechaMuestreo ? new Date(m.fechaMuestreo).toISOString() : '';
+            const fecha = m.fechaMuestreo ? new Date(m.fechaMuestreo).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : '';
             const estacion = m.estacion?.nombre || m.estacionId || '';
 
             return [

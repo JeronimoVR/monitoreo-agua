@@ -15,7 +15,7 @@ export const RiskIndicator = ({ nivel, color = '#10b981' }: RiskIndicatorProps) 
           boxShadow: `0 20px 40px -10px ${color}20` 
         }}
       >
-        <span className="text-[11px] md:text-xs font-bold text-[#9CA3AF] tracking-widest mb-1 uppercase">
+        <span className="text-[11px] md:text-sm font-bold text-[#1F1f1f] tracking-widest mb-1 uppercase">
           Nivel de Riesgo
         </span>
         <strong 

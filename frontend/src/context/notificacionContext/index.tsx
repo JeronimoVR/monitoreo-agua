@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { streamClient } from '@service/stream-client';
@@ -122,16 +122,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     };
   }, [estacionSeleccionada, fetchLatestData, transformData]); // ¡isOnline removido de aquí para evitar reconexiones infinitas!
 
-  // Efecto secundario: Watchdog para declarar al sensor "Offline" si no transmite datos en 70 segundos
-  useEffect(() => {
-    const watchdogInterval = setInterval(() => {
-      if (lastActivityRef.current && Date.now() - lastActivityRef.current > 70000) {
-        setIsOnline(false);
-      }
-    }, 5000);
 
-    return () => clearInterval(watchdogInterval);
-  }, []);
 
   return (
     <NotificationContext.Provider value={{
