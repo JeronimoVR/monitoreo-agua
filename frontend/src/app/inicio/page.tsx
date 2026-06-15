@@ -209,8 +209,8 @@ export default function DashboardPage() {
             {/* Meta-información Geográfica y Temporal */}
             <section className="flex flex-col items-center text-center space-y-2 px-2">
               <div className="flex items-center justify-center gap-1.5 text-[#6B7280] text-[14px] font-medium">
-                <MapPin size={16} className="text-[#9CA3AF]" />
-                <span>Ubicación de los sensores: Arroyo Sede Sur, UNIAJC</span>
+                
+                <span className='flex'><MapPin size={16} className="text-[#9CA3AF]" />Ubicación de los sensores: Arroyo UNIAJC Sede Sur</span>
               </div>
               <div className="flex items-center justify-center gap-1.5 bg-[#F3F4F6] px-3 py-1 rounded-md text-[#4B5563] text-[12px] font-semibold">
                 <Calendar size={13} className="text-[#6B7280]" />

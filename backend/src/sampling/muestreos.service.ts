@@ -40,7 +40,6 @@ export class MuestreosService {
                     parametro: { id: m.id_parametro }
                 }))
             });
-            console.log('NUevo muestreo \n\n\n\n', nuevoMuestreo)
             const muestreoGuardado = await this.muestreoRepository.save(nuevoMuestreo);
 
             const muestreoCompleto = await this.muestreoRepository.findOne({

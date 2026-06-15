@@ -208,7 +208,6 @@ export default function ReportsPage() {
         hora: n.fechaMuestreo // <--- ¡Pasamos el ISO completo: "2026-06-02T23:07:17.000Z"!
       }));
   }, [muestrasOrdenadas]);
-console.log(muestrasOrdenadas);
   const clasificacionRiesgo = useMemo(() => {
     if (!hasResults) {
       return { nivel: 'SIN DATOS', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-200' };
