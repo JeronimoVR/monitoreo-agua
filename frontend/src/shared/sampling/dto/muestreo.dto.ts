@@ -10,7 +10,7 @@ export interface Muestreo {
   id: number;
   estacionId: number;
   fechaMuestreo: string;
-  irca_calculado: number; // Generalmente viene así del cálculo de base de datos
+  irca_calculado: number;
   medidas: Medida[];
   clasificacionIrca?: {
     clasificacion?: string;

@@ -35,7 +35,6 @@ export const useAuth = () => {
     try {
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
-      // Forzar redirección limpia al login para romper ciclos del estado de React
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

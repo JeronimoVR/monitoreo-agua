@@ -1,6 +1,6 @@
 services:
   # --- INFRAESTRUCTURA DE DATOS ---
-    db:
+  db:
     image: postgres:15-alpine
     container_name: agua_db
     restart: always
@@ -17,22 +17,22 @@ services:
       - agua_network
 
   pgadmin:
-      image: dpage/pgadmin4
-      container_name: agua_pgadmin
-      restart: always
-      environment:
-        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-        TZ: America/Bogota
-      ports:
-        - "5050:80"
-      volumes:
-        - pgadmin_data:/var/lib/pgadmin
-        - ./pgadmin/servers.json:/pgadmin4/servers.json
-      networks:
-        - agua_network
-      depends_on:
-        - db
+    image: dpage/pgadmin4
+    container_name: agua_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      TZ: America/Bogota
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+    networks:
+      - agua_network
+    depends_on:
+      - db
 
   # --- BROKER MQTT (IoT) ---
   mosquitto:
@@ -40,8 +40,8 @@ services:
     container_name: agua_mosquitto
     restart: always
     ports:
-      - "${MQTT_PORT}:1883"     # Puerto MQTT estándar
-      - "${MQTT_DASHBOARD_PORT}:9001" # WebSockets (para ver datos en el navegador)
+      - "${MQTT_PORT}:1883"           # Puerto MQTT estándar
+      - "${MQTT_DASHBOARD_PORT}:9001" # WebSockets
     volumes:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
@@ -59,9 +59,9 @@ services:
       - "${PORT_BACKEND}:3001"
     environment:
       DATABASE_HOST: db
-      DATABASE_PORT: ${DB_PORT}
+      DATABASE_PORT: 5432 # Corregido: Comunicación interna de Docker
       MQTT_HOST: mosquitto
-      MQTT_PORT: 1883
+      MQTT_PORT: 1883     # Comunicación interna de Docker
       MQTT_USER: ${MQTT_USER}
       MQTT_PASSWORD: ${MQTT_PASSWORD}
       NEST_API_URL: http://192.168.110.87:${PORT_BACKEND}
@@ -72,7 +72,7 @@ services:
     networks:
       - agua_network
 
-  # Frontend (Next.js)
+  # --- FRONTEND (Next.js) ---
   frontend:
     build: ./frontend
     container_name: agua_frontend

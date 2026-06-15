@@ -5,7 +5,6 @@ import { apiClient } from '@service/api-client';
 
 interface MuestreoContextType {
   generarReporte: (rango: { inicio: Date; fin: Date }) => Promise<void>;
-  // AHORA: Acepta fechas string opcionales del filtro de la pantalla
   descargarCSV: (fechaInicio?: string, fechaFin?: string) => Promise<void>;
   isExporting: boolean;
 }
@@ -33,7 +32,6 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
-  // CORREGIDO: Ahora prioriza las fechas seleccionadas en la interfaz
   const descargarCSV = async (fechaInicio?: string, fechaFin?: string) => {
     if (!estacionSeleccionada) return;
     setIsExporting(true);
@@ -43,12 +41,10 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       let fInicioIso: string;
       let fFinIso: string;
 
-      // Si hay filtros en pantalla, convertirlos adecuadamente a ISO en America/Bogota
       if (fechaInicio && fechaFin) {
         fInicioIso = `${fechaInicio}T00:00:00-05:00`;
         fFinIso = `${fechaFin}T23:59:59-05:00`;
       } else {
-        // Fallback: Si no hay filtro, usar el último mes automáticamente
         const now = new Date();
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(now.getMonth() - 1);

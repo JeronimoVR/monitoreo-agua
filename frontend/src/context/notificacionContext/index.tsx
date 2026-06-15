@@ -22,13 +22,11 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const [isOnline, setIsOnline] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Usamos una referencia para el timestamp de actividad para evitar romper el useEffect del SSE
   const lastActivityRef = useRef<number>(0);
 
   const transformData = useCallback((payload: any): Muestreo => {
     if (payload.medidas) return payload as Muestreo;
 
-    // Adaptado al estándar camelCase unificado previamente
     const parametro: Parametro = {
       id: payload.parametro?.id,
       nombre: (payload.parametro?.nombre || payload.parametro || 'S/N').toUpperCase(),
@@ -68,20 +66,15 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     }
   }, [estacionSeleccionada]);
 
-  // Efecto Principal: Control de la conexión SSE y Sondeo (Polling) de respaldo
   useEffect(() => {
     if (!estacionSeleccionada) return;
 
     fetchLatestData(true);
 
-    // Polling de seguridad cada 30s
-    const pollInterval = setInterval(() => fetchLatestData(false), 30000);
-
     const disconnect = streamClient.connect(
       (data: any) => {
         if (!data || typeof data !== 'object') return;
 
-        // 1. Procesar latidos de estatus de sensores
         if ('status' in data) {
           const statusValue = String(data.status || '').toLowerCase();
           const newStatus = statusValue === 'online' || statusValue === 'conectado';
@@ -91,16 +84,13 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           return;
         }
 
-        // 2. Errores de persistencia de base de datos desde el broker
         if (data.error === true) {
           console.error(`ERROR BD: ${String(data.mensaje || '')}`, data.detalle);
           return;
         }
 
-        // 3. Procesar nuevo muestreo en tiempo real
         const transformed = transformData(data);
 
-        // Descartar si pertenece a otra estación de monitoreo
         if (transformed.estacionId && String(transformed.estacionId) !== String(estacionSeleccionada.id)) {
           return;
         }
@@ -117,12 +107,9 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
     );
 
     return () => {
-      clearInterval(pollInterval);
       disconnect();
     };
-  }, [estacionSeleccionada, fetchLatestData, transformData]); // ¡isOnline removido de aquí para evitar reconexiones infinitas!
-
-
+  }, [estacionSeleccionada, fetchLatestData, transformData]);
 
   return (
     <NotificationContext.Provider value={{

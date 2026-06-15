@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNotificationsContext } from '@context/notificacionContext';
@@ -71,10 +71,10 @@ export default function ReportsPage() {
   }, []);
 
   // Petición activa al API get 
-  const cargarDatosFiltrados = useCallback(async () => {
+  const cargarDatosFiltrados = useCallback(async (showLoading = true) => {
     if (!estacionSeleccionada?.id) return;
 
-    setIsLoadingData(true);
+    if (showLoading) setIsLoadingData(true);
     try {
       const data = await apiClient.muestreos.getFiltered({
         estacionId: estacionSeleccionada.id,
@@ -87,13 +87,23 @@ export default function ReportsPage() {
       console.error("Error al traer muestras filtradas:", error);
       setMuestras([]);
     } finally {
-      setIsLoadingData(false);
+      if (showLoading) setIsLoadingData(false);
     }
   }, [estacionSeleccionada?.id, fechaInicio, fechaFin]);
 
   useEffect(() => {
-    cargarDatosFiltrados();
+    cargarDatosFiltrados(true);
   }, [cargarDatosFiltrados]);
+
+  const { notifications } = useNotificationsContext();
+  const latestNotificationId = notifications[0]?.id;
+
+  // Actualizar datos automáticamente en tiempo real cuando llega una nueva muestra
+  useEffect(() => {
+    if (latestNotificationId) {
+      cargarDatosFiltrados(false);
+    }
+  }, [latestNotificationId, cargarDatosFiltrados]);
 
   // Garantizar orden descendente (más reciente primero) para las métricas superiores
   const muestrasOrdenadas = useMemo(() => {

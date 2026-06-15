@@ -31,7 +31,6 @@ export const apiClient = {
         export: (params?: MuestreosFilters) => {
             if (!params) return `${BASE_URL}/muestreos/export`;
             
-            // Forma limpia y moderna de remover nulos/undefined usando URLSearchParams
             const searchParams = new URLSearchParams();
             Object.entries(params).forEach(([key, value]) => {
                 if (value !== undefined && value !== null && value !== '') {

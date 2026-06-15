@@ -27,8 +27,6 @@ api.interceptors.response.use(
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
-
-                // Validamos no estar ya en el login antes de redirigir o recargar
                 const currentPath = window.location.pathname;
                 if (currentPath !== '/login') {
                     window.location.href = '/login';
