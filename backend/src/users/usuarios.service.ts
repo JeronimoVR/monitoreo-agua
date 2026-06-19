@@ -76,7 +76,6 @@ export class UsuariosService {
    * @param correo El correo del usuario a buscar.
    * @returns El usuario con su hash de contraseña, si se encuentra.
    */
-  // Este lo usará tu AuthModule para el login
   async buscarPorCorreoConPassword(correo: string) {
     return await this.usuariosRepository.findOne({
       where: { correo },
