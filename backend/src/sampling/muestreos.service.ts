@@ -193,7 +193,7 @@ export class MuestreosService {
             'Turbidez',
             'Conductividad',
             'Temperatura',
-            'Oxígeno Disuelto',
+            'Oxigeno Disuelto',
             'IRCA',
         ].join(',') + '\n';
 
@@ -214,7 +214,7 @@ export class MuestreosService {
                 csvEscape(getMedida(m, 'Turbidez')),
                 csvEscape(getMedida(m, 'Conductividad')),
                 csvEscape(getMedida(m, 'Temperatura')),
-                csvEscape(getMedida(m, 'Oxígeno Disuelto')),
+                csvEscape(getMedida(m, 'Oxigeno Disuelto')),
                 csvEscape(typeof m.irca_calculado === 'number' ? m.irca_calculado : ''),
             ].join(',');
         }).join('\n');

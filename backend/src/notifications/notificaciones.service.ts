@@ -58,7 +58,6 @@ export class NotificacionesService {
 
     this.logger.log(`🔔 Evaluando alerta - Estación ID: ${estacionId}, Clasificación: ${clasificacion}, Puntaje: ${puntaje}%`);
 
-    // 1. Evaluación de umbral de disparo (14.1% o clasificaciones MEDIO/ALTO/INVIABLE)
     const umbralDisparo = 35;
     const ameritaAlerta = Number.isFinite(puntaje) && (
       puntaje >= umbralDisparo ||
@@ -82,7 +81,7 @@ export class NotificacionesService {
     const { puede, horasRestantes } =
       await this.puedeEnviarAlerta(estacionId);
     if (!puede) {
-      this.logger.log(`⏰ Prevención de spam: No se envía alerta para estación ${estacionId}. Próxima alerta disponible en ${horasRestantes?.toFixed(1)} horas`);
+      this.logger.log(`⏰ Prevención de spam: No se envía alerta para estación ${estacionId}. Próxima alerta disponible en ${horasRestantes?.toFixed(2)} horas`);
       return {
         enviado: false,
         motivo: `Intervalo de spam no cumplido. Próxima alerta en ${horasRestantes?.toFixed(1)} horas`,
@@ -146,7 +145,7 @@ export class NotificacionesService {
         irca: puntaje,
         clasificacion: muestreo.clasificacionIrca?.clasificacion || null,
         parametrosFueraRango,
-        fechaMuestreo: muestreo.fechaMuestreo,
+        fechaMuestreo: fecha,
       },
     }));
 
@@ -243,6 +242,7 @@ export class NotificacionesService {
       });
 
       const hace2Horas = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      this.logger.log(`Hace 2 horas: ${hace2Horas.toISOString()}`);
 
       if (!ultimaAlerta || ultimaAlerta.fechaCreacion < hace2Horas) {
         // Registrar alerta crítica
@@ -261,9 +261,7 @@ export class NotificacionesService {
             tipoSensor,
             valor,
             estacionId,
-            fecha: new Date().toLocaleString('es-CO', {
-              timeZone: 'America/Bogota',
-            })
+            fecha: new Date()
           }
         );
 
@@ -367,7 +365,7 @@ export class NotificacionesService {
         fechaCreacion: 'DESC',
       },
     });
-
+    this.logger.log(`Última alerta: ${ultimaAlerta?.fechaCreacion.toISOString()}`);
     if (!ultimaAlerta) {
       return { puede: true };
     }
@@ -382,7 +380,7 @@ export class NotificacionesService {
     if (!puede) {
       const horasRestantes =
         (this.INTERVALO_MS - tiempoTranscurrido) /
-        (1000 * 60 * 60);
+        (2 * 1000 * 60 * 60);
 
       return {
         puede: false,

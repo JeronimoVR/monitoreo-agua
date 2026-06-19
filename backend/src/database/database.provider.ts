@@ -20,7 +20,7 @@ export const databaseProvider = {
       synchronize: true, // false en producción
       logging: true,
       extra: {
-        options: '-c timezone=UTC',
+        options: '-c timezone=America/Bogota',
       },
     };
   },

@@ -53,7 +53,7 @@ export class SeedService implements OnApplicationBootstrap {
         unidadMedida: 'UNT',
         valorMinimo: 0.0,
         valorMaximo: 2.0,
-        puntajeRiesgo: 15.0,
+        puntajeRiesgo: 1.5,
         descripcion: 'Claridad visual. Indica presencia de lodo o suciedad que impide el paso de la luz.'
       },
       {
@@ -61,7 +61,7 @@ export class SeedService implements OnApplicationBootstrap {
         unidadMedida: 'µS/cm',
         valorMinimo: 0.0,
         valorMaximo: 1000.0,
-        puntajeRiesgo: 0.0,
+        puntajeRiesgo: 1.5,
         descripcion: 'Sales disueltas. Un nivel alto indica exceso de minerales o residuos invisibles.'
       },
       {
@@ -69,7 +69,7 @@ export class SeedService implements OnApplicationBootstrap {
         unidadMedida: '°C',
         valorMinimo: 15.0,
         valorMaximo: 30.0,
-        puntajeRiesgo: 0.0,
+        puntajeRiesgo: 1.5,
         descripcion: 'Grado de calor. Influye en la vida acuática y la velocidad de descomposición del agua.'
       },
       {
@@ -77,7 +77,7 @@ export class SeedService implements OnApplicationBootstrap {
         unidadMedida: 'mg/L',
         valorMinimo: 4.0,
         valorMaximo: 10.0,
-        puntajeRiesgo: 0.0,
+        puntajeRiesgo: 1.5,
         descripcion: 'Aire en el agua. Fundamental para evitar malos olores y mantener la vida acuática.'
       }
     ];
