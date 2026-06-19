@@ -30,12 +30,14 @@ export class EmailLog {
   tiempoEnvioMs: number;
 
   @CreateDateColumn({
-    type: 'timestamptz',
+    type: 'timestamp without time zone',
+    default: () => "timezone('America/Bogota', now())",
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    type: 'timestamptz',
+    type: 'timestamp without time zone',
+    default: () => "timezone('America/Bogota', now())",
   })
   updatedAt: Date;
 }
