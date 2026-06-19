@@ -77,7 +77,6 @@ export class NotificacionesService {
 
     this.logger.log(`⚠️ Clasificación "${clasificacion}" (${puntaje}%) supera umbral - Generando alerta`);
 
-    // 2. Prevención de spam - verificar intervalo de 2 horas
     const { puede, horasRestantes } =
       await this.puedeEnviarAlerta(estacionId);
     if (!puede) {
@@ -90,7 +89,6 @@ export class NotificacionesService {
       };
     }
 
-    // 3. Filtrar parámetros fuera de rango
     const parametrosFueraRango = (muestreo.medidas || [])
       .filter(m => {
         const min = m.parametro?.valorMinimo;
@@ -106,12 +104,9 @@ export class NotificacionesService {
         max: m.parametro?.valorMaximo,
       }));
 
-    // Si no hay parámetros fuera de rango pero el IRCA es alto (ejemplo: parámetros faltantes)
     if (parametrosFueraRango.length === 0 && puntaje >= umbralDisparo) {
       this.logger.warn(`⚠️ IRCA alto (${puntaje}%) pero no se detectaron parámetros fuera de rango`);
     }
-
-    // 4. Obtener destinatarios (usuarios con notificaciones activadas)
     const destinatarios = await this.usuariosService.getDestinatariosAlertas(estacionId);
     if (destinatarios.length === 0) {
       this.logger.warn(`⚠️ No hay destinatarios con notificaciones activadas para estación ${estacionId}`);
@@ -125,7 +120,6 @@ export class NotificacionesService {
 
     this.logger.log(`📧 Destinatarios encontrados: ${destinatarios.join(', ')}`);
 
-    // 5. Preparar datos para la alerta
     const estacionNombre = muestreo.estacion?.nombre || `Estación ${estacionId}`;
     const fecha = muestreo.fechaMuestreo
       ? new Date(muestreo.fechaMuestreo).toLocaleString('es-CO', { timeZone: 'America/Bogota' })
@@ -133,7 +127,6 @@ export class NotificacionesService {
 
     const mensaje = `Alerta IRCA ${clasificacion || 'N/D'} (${puntaje.toFixed(2)}%) en ${estacionNombre}`;
 
-    // 6. Registrar trazabilidad en BD
     const alerta = await this.alertaRepo.save(this.alertaRepo.create({
       mensaje,
       tipo: 'IRCA',
@@ -151,16 +144,10 @@ export class NotificacionesService {
 
     this.logger.log(`📝 Alerta registrada en BD con ID: ${alerta.id}`);
 
-    // 7. Notificación SSE para el dashboard
     this.sseService.enviarEvento(alerta, 'alerta-irca');
 
-    // 8. Generar contenido enriquecido para el email
-    // En notificaciones.service.ts - dentro de evaluarYGenerarAlertas()
-
-    // 8. Generar contenido enriquecido para el email
     const subject = `🚨 ALERTA: ${estacionNombre} - IRCA ${puntaje.toFixed(1)}% (${clasificacion || 'N/D'})`;
 
-    // 🔧 Agregar clasificacionCss al contexto
     const getClasificacionCss = (clasificacion: string): string => {
       const clasif = (clasificacion || '').toUpperCase();
       if (clasif.includes('ALTO') || clasif.includes('INVIABLE')) return 'high';
@@ -173,7 +160,7 @@ export class NotificacionesService {
       fecha,
       puntaje: puntaje.toFixed(2),
       clasificacion: clasificacion || 'N/D',
-      clasificacionCss: getClasificacionCss(clasificacion), // ✅ Agregar esta línea
+      clasificacionCss: getClasificacionCss(clasificacion),
       color: this.getColorPorClasificacion(clasificacion),
       descripcion: muestreo.clasificacionIrca?.descripcion || 'Se ha detectado una alteración en la calidad del agua. Se recomienda revisar los parámetros fuera de rango.',
       parametros: parametrosFueraRango || [],
@@ -182,7 +169,6 @@ export class NotificacionesService {
       anio: new Date().getFullYear(),
     };
 
-    // 9. Envío de emails a todos los destinatarios
     const resultadosEmail = await Promise.allSettled(
       destinatarios.map(async (to) => {
         try {
@@ -200,8 +186,6 @@ export class NotificacionesService {
     const fallidos = resultadosEmail.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && r.value.estado === 'FALLIDO')).length;
 
     this.logger.log(`📊 Resultado envío: ${exitosos} exitosos, ${fallidos} fallidos`);
-
-    // 10. Actualizar último envío para prevención de spam
 
     this.logger.log(`✅ Alerta procesada para estación ${estacionNombre} - Próxima alerta disponible en ${this.INTERVALO_HORAS} horas`);
 
@@ -227,10 +211,8 @@ export class NotificacionesService {
     if (valor > limite) {
       this.logger.warn(`⚠️ Valor crítico detectado - Estación: ${estacionId}, Sensor: ${tipoSensor}, Valor: ${valor}`);
 
-      // Notificación SSE para el dashboard
       this.sseService.enviarEvento({ estacionId, valor, tipoSensor }, 'alerta-visual');
 
-      // Verificar última alerta crítica (prevención de spam para alertas críticas)
       const ultimaAlerta = await this.alertaRepo.findOne({
         where: {
           estacion: { id: estacionId },
@@ -245,14 +227,12 @@ export class NotificacionesService {
       this.logger.log(`Hace 2 horas: ${hace2Horas.toISOString()}`);
 
       if (!ultimaAlerta || ultimaAlerta.fechaCreacion < hace2Horas) {
-        // Registrar alerta crítica
         const alerta = await this.alertaRepo.save({
           mensaje: `Valor crítico: ${valor} (${tipoSensor})`,
           tipo: 'CRITICA',
           estacion: { id: estacionId }
         });
 
-        // Notificar por email al administrador
         await this.mailService.enviarCorreo(
           process.env.EMAIL_USER || 'admin@tesis.com',
           'ALERTA CRÍTICA - Sensor',
@@ -286,10 +266,8 @@ export class NotificacionesService {
     const alertaGuardada = await this.alertaRepo.save(nuevaAlerta);
     this.logger.log(`📝 Alerta manual creada - ID: ${alertaGuardada.id}, Tipo: ${tipo}`);
 
-    // Notificación SSE
     this.sseService.enviarEvento(alertaGuardada, 'nueva-alerta');
 
-    // Si es crítica, enviar email al administrador
     if (tipo === 'CRITICA') {
       await this.mailService.enviarCorreo(
         process.env.EMAIL_USER || 'admin@tesis.com',
