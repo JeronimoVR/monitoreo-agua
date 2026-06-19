@@ -24,8 +24,6 @@ export class IngestionController {
   @MessagePattern('sensores/datos')
   async handleSensorData(@Payload() data: any, @Ctx() context: MqttContext) {
     try {
-      // 1. Normalización (Asegura consistencia entre hardware y backend)
-      // El ESP32 puede enviar idEstacion o id_estacion, fecha o fecha_muestreo, etc.
       const nuevoMuestreo: CreateMuestreoDto = {
         id_estacion: Number(data.id_estacion || data.idEstacion || data.stationId),
         fecha_muestreo: new Date(data.fecha_muestreo || data.fecha || Date.now()).toISOString(),
@@ -50,10 +48,8 @@ export class IngestionController {
         throw new Error('Payload inválido: se recibieron medidas incompletas o no numéricas.');
       }
 
-      // 2. Comunicación con Sampling: Análisis e Inserción
       const result = await this.muestreosService.crear(nuevoMuestreo);
 
-      // 3. Notificación en Tiempo Real vía SSE
       this.sseService.enviarEvento(result, 'nuevo-muestreo');
       this.sensorStatusService.recordHeartbeat(nuevoMuestreo.id_estacion);
       return result;
@@ -61,7 +57,6 @@ export class IngestionController {
       console.error('Error en Ingestión MQTT:', error.message);
       console.error('Stack trace:', error.stack);
 
-      // Enviar evento de error vía SSE para el administrador/dashboard
       this.sseService.enviarEvento({
         error: true,
         mensaje: 'Fallo al guardar en Base de Datos desde MQTT',
