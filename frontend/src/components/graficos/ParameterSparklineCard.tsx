@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 import dynamic from 'next/dynamic';
 
 // Importación dinámica para evitar errores de SSR con ApexCharts

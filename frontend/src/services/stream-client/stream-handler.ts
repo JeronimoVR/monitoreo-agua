@@ -1,4 +1,5 @@
 import { NotificationData } from './types';
+import { logger } from '@/src/lib/logger';
 
 const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL;
 
@@ -8,7 +9,7 @@ export const streamClient = {
         onError?: (error: unknown) => void
     ) => {
         if (!STREAM_URL) {
-            console.error("SSE Error: NEXT_PUBLIC_STREAM_URL no está definida.");
+            logger.error("SSE Error: NEXT_PUBLIC_STREAM_URL no está definida.");
             return () => { };
         }
 
@@ -30,7 +31,7 @@ export const streamClient = {
                     const parsedData: NotificationData = JSON.parse(event.data);
                     onMessage(parsedData);
                 } catch (err) {
-                    console.error("Error parseando datos de SSE:", err);
+                    logger.error("Error parseando datos de SSE:", err);
                 }
             };
 
@@ -40,9 +41,9 @@ export const streamClient = {
             eventSource.onerror = (err) => {
                 const target = err.target as EventSource | null;
                 if (target?.readyState === EventSource.CLOSED) {
-                    console.error("La conexión fue RECHAZADA de forma definitiva por el servidor (Posible 404, 500 o CORS).");
+                    logger.error("La conexión fue RECHAZADA de forma definitiva por el servidor (Posible 404, 500 o CORS).");
                 } else if (target?.readyState === EventSource.CONNECTING) {
-                    console.error("El servidor cerró el socket temporalmente, pero el navegador está intentando reconectar automáticamente.");
+                    logger.error("El servidor cerró el socket temporalmente, pero el navegador está intentando reconectar automáticamente.");
                 }
 
                 if (onError) onError(err);
@@ -56,7 +57,7 @@ export const streamClient = {
             if (reconnectTimeout) clearTimeout(reconnectTimeout);
             if (eventSource) {
                 eventSource.close();
-                console.log("Conexión SSE finalizada de manera limpia.");
+                logger.log("Conexión SSE finalizada de manera limpia.");
             }
         };
     },

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { apiClient } from '@service/api-client';
+import { logger } from '@/src/lib/logger';
 
 interface MuestreoContextType {
   generarReporte: (rango: { inicio: Date; fin: Date }) => Promise<void>;
@@ -26,7 +27,7 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       });
       window.open(url, '_blank');
     } catch (error) {
-      console.error("Error al exportar:", error);
+      logger.error({ err: error }, "Error al exportar:");
     } finally {
       setIsExporting(false);
     }
@@ -63,7 +64,7 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       document.body.appendChild(link);
       link.click();
     } catch (error) {
-      console.error("Error al descargar CSV:", error);
+      logger.error({ err: error }, "Error al descargar CSV:");
     } finally {
       if (link.parentNode) {
         document.body.removeChild(link);

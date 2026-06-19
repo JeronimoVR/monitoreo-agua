@@ -13,7 +13,6 @@ interface MetricCardProps {
 
 export const MetricCard = ({ label, value, unit, description, range, icon, status = 'normal' }: MetricCardProps) => {
   
-  // Colores de estado basados en la lógica de AquaLab
   const statusColors = {
     normal: 'bg-emerald-500',
     warning: 'bg-amber-500',

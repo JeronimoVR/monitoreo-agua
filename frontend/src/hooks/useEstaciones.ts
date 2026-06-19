@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@service/api-client';
 import { Estacion } from '../shared/stations/dto/estacion.dto';
+import { logger } from '@/src/lib/logger';
 
 export const useEstaciones = () => {
     const [estaciones, setEstaciones] = useState<Estacion[]>([]);
@@ -16,7 +17,7 @@ export const useEstaciones = () => {
                     setEstacionSeleccionada((prev) => prev ?? String(data[0].id));
                 }
             } catch (error) {
-                console.error("Error cargando estaciones:", error);
+                logger.error({ err: error }, "Error cargando estaciones:");
             } finally {
                 setLoading(false);
             }

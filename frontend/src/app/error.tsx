@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button } from '@components/ui/Button';
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
+import { logger } from '@/src/lib/logger';
 
 export default function GlobalError({
   error,
@@ -12,8 +13,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service if available
-    console.error('Unhandled Global Error:', error);
+    console.error({ err: error }, 'Unhandled Global Error:');
   }, [error]);
 
   return (

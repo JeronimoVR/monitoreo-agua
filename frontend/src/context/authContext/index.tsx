@@ -68,9 +68,8 @@ export const AuthProvider = ({
 
       setUser(profile);
     } catch (error) {
-      logger.error(
-        'Sesión inválida o expirada en backend:',
-        error
+      logger.error({ err: error },
+        'Sesión inválida o expirada en backend:'
       );
 
       localStorage.removeItem('token');

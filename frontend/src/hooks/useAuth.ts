@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 import { useState, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 import { LoginDto } from '@shared/auth/dto/login.dto';
 import { AxiosError } from 'axios';
+import { logger } from '@/src/lib/logger';
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export const useAuth = () => {
         window.location.href = '/login';
       }
     } catch (error) {
-      console.error("Error al limpiar almacenamiento de sesión:", error);
+      logger.error({ err: error }, "Error al limpiar almacenamiento de sesión:");
     }
   }, []);
 

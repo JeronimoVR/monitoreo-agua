@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 import { Muestreo, MuestreosFilters } from '@shared/sampling/dto/muestreo.dto';
+import { logger } from '@/src/lib/logger';
 
 export const useMuestreo = (estacionId: string | null) => {
     const [datos, setDatos] = useState<Muestreo[]>([]);
@@ -13,7 +14,7 @@ export const useMuestreo = (estacionId: string | null) => {
             const res = await apiClient.muestreos.getHistorial(estacionId);
             setDatos(res);
         } catch (error) {
-            console.error("Error al obtener historial:", error);
+            logger.error({ err: error }, "Error al obtener historial:");
         } finally {
             setLoading(false);
         }

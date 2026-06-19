@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@service/api-client';
 import { Estacion } from '@shared/stations/dto/estacion.dto';
+import { logger } from '@/src/lib/logger';
 
 interface EstacionesContextType {
   estaciones: Estacion[];
@@ -33,7 +34,7 @@ export const EstacionesProvider = ({ children }: { children: React.ReactNode }) 
         setEstacionSeleccionada(data[0]);
       }
     } catch (error) {
-      console.error('Error cargando estaciones:', error);
+      logger.error({ err: error }, 'Error cargando estaciones:');
     } finally {
       setLoading(false);
     }

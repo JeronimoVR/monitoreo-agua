@@ -11,6 +11,7 @@ import { ParameterCard } from '@components/graficos/ParameterCard';
 import { SensorStatus } from '@components/graficos/SensorStatus';
 import { FilterSection } from '@components/graficos/FilterSection';
 import { IrcaChartCard } from '@components/graficos/IrcaChartCard';
+import { logger } from '@/src/lib/logger';
 
 type ParamCardData = {
   valor: number;

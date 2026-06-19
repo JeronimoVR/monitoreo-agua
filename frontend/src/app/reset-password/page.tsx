@@ -3,7 +3,6 @@
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ResetPasswordForm } from '@components/forms/ChangePasswordForm';
-import { SensorStatus } from '@components/graficos/SensorStatus';
 import { AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { apiClient } from '@service/api-client';

@@ -6,6 +6,7 @@ import { apiClient } from '@service/api-client';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { Muestreo, Medida } from '@/src/shared/sampling/dto/muestreo.dto';
 import { Parametro } from '@/src/shared/sampling/dto/parametro.dto';
+import { logger } from '@/src/lib/logger';
 
 interface NotificationContextType {
   notifications: Muestreo[];
@@ -60,7 +61,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const sorted = history.sort((a, b) => new Date(b.fechaMuestreo).getTime() - new Date(a.fechaMuestreo).getTime());
       setNotifications(sorted);
     } catch (error) {
-      console.error('Error obteniendo historial:', error);
+      logger.error('Error obteniendo historial:', error);
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -85,7 +86,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         }
 
         if (data.error === true) {
-          console.error(`ERROR BD: ${String(data.mensaje || '')}`, data.detalle);
+          logger.error(`ERROR BD: ${String(data.mensaje || '')}`, data.detalle);
           return;
         }
 
@@ -103,7 +104,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           return [transformed, ...prev].slice(0, 100);
         });
       },
-      (err) => console.error('SSE Error en Provider:', err)
+      (err) => logger.error('SSE Error en Provider:', err)
     );
 
     return () => {

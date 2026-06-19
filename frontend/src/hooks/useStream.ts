@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { streamClient } from '@service/stream-client';
 import { NotificationData } from '@service/stream-client/types';
+import { logger } from '@/src/lib/logger';
 
 export const useStream = (enabled: boolean = true) => {
     const [lastNotification, setLastNotification] = useState<NotificationData | null>(null);
@@ -20,7 +21,7 @@ export const useStream = (enabled: boolean = true) => {
                 setHistory((prev) => [data, ...prev].slice(0, 30));
             },
             (error) => {
-                console.error("Fallo en flujo de notificaciones (SSE):", error);
+                logger.error("Fallo en flujo de notificaciones (SSE):", error);
             }
         );
 
