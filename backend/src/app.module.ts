@@ -53,6 +53,6 @@ import { EmailLog } from './common/mail/entities/email-log.entity';
       limit: 10,
     }]),
   ],
-  providers: [SeedService],
+  providers: [],
 })
 export class AppModule { }
