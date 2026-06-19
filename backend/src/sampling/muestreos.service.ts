@@ -180,46 +180,69 @@ export class MuestreosService {
      */
     async generateCsvBuffer(filters: any): Promise<string> {
         const data = await this.getFilteredMuestreos(filters);
+        if (data.length === 0) return '';
 
         const csvEscape = (value: unknown) => {
             const str = String(value ?? '');
-            return `\"${str.replaceAll('\"', '\"\"')}\"`;
+            return `"${str.replaceAll('"', '""')}"`;
         };
+
+        const TZ = 'America/Bogota';
+
+        // Descubrir dinámicamente todos los parámetros presentes en los datos
+        const nombresParametros = Array.from(
+            new Set(
+                data.flatMap(m =>
+                    (m.medidas || [])
+                        .map(med => med.parametro?.nombre)
+                        .filter((nombre): nombre is string => !!nombre)
+                )
+            )
+        ).sort();
 
         const header = [
             'Fecha',
+            'Hora',
             'Estacion',
-            'pH',
-            'Turbidez',
-            'Conductividad',
-            'Temperatura',
-            'Oxigeno Disuelto',
-            'IRCA',
+            ...nombresParametros,
+            'IRCA (%)',
+            'Clasificacion IRCA',
         ].join(',') + '\n';
 
-        const getMedida = (muestreo: Muestreo, nombreParametro: string) => {
-            const target = nombreParametro.trim().toUpperCase();
-            const medida = (muestreo.medidas || []).find(m => (m.parametro?.nombre || '').trim().toUpperCase() === target);
-            return medida?.valor ?? '';
-        };
-
         const rows = data.map(m => {
-            const fecha = m.fechaMuestreo ? new Date(m.fechaMuestreo).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : '';
-            const estacion = m.estacion?.nombre || m.estacionId || '';
+            const fechaObj = m.fechaMuestreo ? new Date(m.fechaMuestreo) : null;
+            const fecha = fechaObj
+                ? fechaObj.toLocaleDateString('es-CO', { timeZone: TZ })
+                : '';
+            const hora = fechaObj
+                ? fechaObj.toLocaleTimeString('es-CO', { timeZone: TZ })
+                : '';
+            const estacion = m.estacion?.nombre || String(m.estacionId ?? '');
+
+            // Mapa nombre → valor para acceso O(1) por parámetro
+            const medidasMap = new Map<string, number | string>(
+                (m.medidas || [])
+                    .filter(med => !!med.parametro?.nombre)
+                    .map(med => [med.parametro.nombre, med.valor])
+            );
+
+            const valoresParametros = nombresParametros.map(nombre =>
+                csvEscape(medidasMap.get(nombre) ?? '')
+            );
 
             return [
                 csvEscape(fecha),
+                csvEscape(hora),
                 csvEscape(estacion),
-                csvEscape(getMedida(m, 'pH')),
-                csvEscape(getMedida(m, 'Turbidez')),
-                csvEscape(getMedida(m, 'Conductividad')),
-                csvEscape(getMedida(m, 'Temperatura')),
-                csvEscape(getMedida(m, 'Oxigeno Disuelto')),
-                csvEscape(typeof m.irca_calculado === 'number' ? m.irca_calculado : ''),
+                ...valoresParametros,
+                csvEscape(typeof m.irca_calculado === 'number'
+                    ? m.irca_calculado.toFixed(2)
+                    : ''),
+                csvEscape(m.clasificacionIrca?.clasificacion ?? ''),
             ].join(',');
         }).join('\n');
 
-        return header + rows + (rows ? '\n' : '');
+        return header + rows + '\n';
     }
 
     /**
