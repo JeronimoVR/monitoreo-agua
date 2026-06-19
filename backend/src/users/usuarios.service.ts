@@ -182,7 +182,6 @@ export class UsuariosService {
     });
 
     if (!config) {
-      // Si por algún motivo no existe, retornamos el valor por defecto esperado por CU006
       return { recibeAlerta: false };
     }
     return config;
@@ -216,7 +215,6 @@ export class UsuariosService {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
-    console.log(`Verificando contraseña actual para el usuario ID: ${id}`);
     const passwordValida = await bcrypt.compare(
       password,
       usuario.passwordHash,
@@ -233,14 +231,7 @@ export class UsuariosService {
       nuevaPassword,
       salt,
     );
-
-    console.log(`Contraseña verificada con éxito. Actualizando hash para usuario ID: ${id}`);
-    
-    // Usamos update() directo para evitar cualquier conflicto de estado/rastreo en TypeORM
     await this.usuariosRepository.update(id, { passwordHash: nuevoHash });
-
-    console.log(`Contraseña actualizada con éxito en la base de datos para el usuario ID: ${id}`);
-
     return await this.buscarPorId(id);
   }
 }
