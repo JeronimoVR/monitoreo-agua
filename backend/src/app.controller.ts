@@ -13,7 +13,7 @@ export class AppController {
    * @returns Un mensaje de saludo
    */
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  Welcome(): string {
+    return this.appService.Welcome();
   }
 }

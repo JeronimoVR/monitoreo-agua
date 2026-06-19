@@ -49,8 +49,8 @@ import { EmailLog } from './common/mail/entities/email-log.entity';
     ]),
     DatabaseModule,
     ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 segundos (1 minuto)
-      limit: 10,  // Máximo 10 peticiones por minuto por IP
+      ttl: 60000,
+      limit: 10,
     }]),
   ],
   providers: [SeedService],
