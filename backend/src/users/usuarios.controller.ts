@@ -4,9 +4,9 @@ import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { SelfOrAdminGuard } from 'src/auth/guards/selfAdmin.guards';
-import { RolesGuard } from 'src/auth/guards/roles.guards';
-import { Roles } from 'src/auth/decorators/roles.decorators';
+import { SelfOrAdminGuard } from '../auth/guards/selfAdmin.guards';
+import { RolesGuard } from '../auth/guards/roles.guards';
+import { Roles } from '../auth/decorators/roles.decorators';
 import { UserRole } from './entities/usuario.entity';
 
 /**

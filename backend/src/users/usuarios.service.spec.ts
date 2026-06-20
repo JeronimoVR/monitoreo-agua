@@ -6,7 +6,98 @@ import { ConfigAlerta } from './entities/config-alerta.entity';
 import { ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-describe('UsuariosService (QA - CU004)', () => {
+describe('Pruebas unitarias - Registro de usuario', () => {
+  let service: UsuariosService;
+
+  const mockUsuarioRepo = {
+    findOne: jest.fn(),
+    create: jest.fn().mockImplementation(dto => dto),
+    save: jest.fn().mockImplementation(u => Promise.resolve({ id: 1, ...u })),
+  };
+
+  const mockConfigRepo = {
+    create: jest.fn().mockImplementation(dto => dto),
+    save: jest.fn().mockImplementation(c => Promise.resolve({ id: 1, ...c })),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsuariosService,
+        {
+          provide: getRepositoryToken(Usuario),
+          useValue: mockUsuarioRepo,
+        },
+        {
+          provide: getRepositoryToken(ConfigAlerta),
+          useValue: mockConfigRepo,
+        },
+      ],
+    }).compile();
+
+    service = module.get<UsuariosService>(UsuariosService);
+    jest.clearAllMocks();
+  });
+
+  describe('CPU-AUT-003 - La contraseña no debe almacenarse en texto plano', () => {
+    it('debe transformar la contraseña en hash antes de persistirla', async () => {
+      const dto = {
+        nombre: 'Jeronimo',
+        correo: 'jvelezr@estudiante.uniajc.edu.co',
+        password: 'Admin123',
+      };
+
+      mockUsuarioRepo.findOne.mockResolvedValue(null);
+
+      const result = await service.crear(dto as any);
+
+      expect(result.passwordHash).toBeDefined();
+      expect(result.passwordHash).not.toBe(dto.password);
+
+      const isMatch = await bcrypt.compare(dto.password, result.passwordHash);
+      expect(isMatch).toBe(true);
+
+      expect(mockUsuarioRepo.save).toHaveBeenCalled();
+      expect(mockConfigRepo.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('Validaciones complementarias de registro', () => {
+    it('debe lanzar ConflictException si el correo ya existe', async () => {
+      const dto = {
+        nombre: 'Jeronimo',
+        correo: 'existente@uniajc.edu.co',
+        password: 'Admin123',
+      };
+
+      mockUsuarioRepo.findOne.mockResolvedValue({ id: 1, correo: dto.correo });
+
+      await expect(service.crear(dto as any)).rejects.toThrow(ConflictException);
+      expect(mockUsuarioRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('debe crear configuración de alertas por defecto al registrarse', async () => {
+      const dto = {
+        nombre: 'Jeronimo',
+        correo: 'nuevo@uniajc.edu.co',
+        password: 'Admin123',
+      };
+
+      mockUsuarioRepo.findOne.mockResolvedValue(null);
+
+      await service.crear(dto as any);
+
+      expect(mockConfigRepo.create).toHaveBeenCalled();
+      expect(mockConfigRepo.save).toHaveBeenCalled();
+    });
+  });
+});
+
+
+
+
+
+/*describe('UsuariosService (QA - CU004)', () => {
   let service: UsuariosService;
 
   // Mock de Repositorio de Usuarios
@@ -111,4 +202,4 @@ describe('UsuariosService (QA - CU004)', () => {
       expect(result?.correo).toBe(correo);
     });
   });
-});
+});*/

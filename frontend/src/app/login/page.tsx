@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthContext } from '@context/authContext';
 import { AuthLayout } from '@components/layout/AuthLayout';
-import { LoginForm } from '@components/forms/LoginForm';
+import { LoginForm } from '@components/forms/loginForm';
 import { LoginDto } from '@shared/auth/dto/login.dto';
 
 export default function LoginPage() {
