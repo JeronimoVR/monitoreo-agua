@@ -7,6 +7,7 @@ import { useAuthContext } from '@context/authContext';
 import { AuthLayout } from '@components/layout/AuthLayout';
 import { LoginForm } from '@components/forms/loginForm';
 import { LoginDto } from '@shared/auth/dto/login.dto';
+import { logger } from '@/src/lib/logger';
 
 export default function LoginPage() {
   const { login, loading, error } = useAuthContext();

@@ -10,11 +10,11 @@ export class Parametro {
 
   @ApiProperty()
   @Column({ unique: true })
-  nombre: string; // Ej: pH, Turbidez, Cloro Libre Residual
-
+  nombre: string;
+  
   @ApiProperty()
   @Column({ name: 'unidad_medida' })
-  unidadMedida: string; // Ej: mg/L, UNT, Unidades pH
+  unidadMedida: string;
 
   @ApiProperty()
   @Column({ name: 'valor_minimo', type: 'float' })

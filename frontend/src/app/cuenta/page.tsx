@@ -12,6 +12,7 @@ import { Lock, LogOut, UserPlus, LogIn, AlertCircle, CheckCircle } from 'lucide-
 import { apiClient } from '@service/api-client';
 import { SensorStatus } from '@components/graficos/SensorStatus';
 import { EditNameModal } from '@components/account/EditNameModal';
+import { logger } from '@/src/lib/logger';
 
 export default function AccountSettingsPage() {
   const { logout, isAuthenticated, loading, user, updateUser } = useAuthContext();
@@ -78,6 +79,7 @@ export default function AccountSettingsPage() {
       showAlert('success', `Notificaciones ${next ? 'activadas' : 'desactivadas'} correctamente`);
     } catch (error) {
       setRiskNotifs(!next);
+      console.error('Error al guardar la configuración:', error);
       showAlert('error', 'Error al guardar la configuración. Inténtalo de nuevo.');
     }
   };

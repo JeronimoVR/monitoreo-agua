@@ -12,6 +12,7 @@ import { useAuth } from '@hooks/useAuth';
 import { apiClient } from '@service/api-client';
 import { Usuario } from '@shared/users/dto/usuario.dto';
 import { LoginDto } from '@shared/auth/dto/login.dto';
+import { logger } from '@/src/lib/logger';
 
 export type User = Usuario;
 
@@ -67,9 +68,8 @@ export const AuthProvider = ({
 
       setUser(profile);
     } catch (error) {
-      console.error(
-        'Sesión inválida o expirada en backend:',
-        error
+      logger.error({ err: error },
+        'Sesión inválida o expirada en backend:'
       );
 
       localStorage.removeItem('token');

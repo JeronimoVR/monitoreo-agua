@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AuthLayout } from '@components/layout/AuthLayout';
 import { RecoverPasswordForm } from '@components/forms/RecoverPasswordForm';
 import { apiClient } from '@service/api-client';
+import { logger } from '@/src/lib/logger';
 
 export default function RecuperarPasswordPage() {
   const [loading, setLoading] = useState(false);

@@ -109,6 +109,7 @@ sonar-project.properties
 /frontend/.next
 /frontend/build
 
+
 #firmware
 /firmware/include/
 /firmware/src/

@@ -27,8 +27,8 @@ import { MailModule } from '../common/mail/mail.module';
       imports: [ConfigModule, MailModule, UsuariosModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET, // Usa variables de entorno (.env)
-        signOptions: { expiresIn: '8h' }, // Tiempo de vida del token
+        secret: configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET,
+        signOptions: { expiresIn: '120h' },
       }),
     }),
   ],

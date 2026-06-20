@@ -9,6 +9,6 @@ export class CreateUsuarioDto {
   correo!: string;
 
   @IsString()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' }) // Sincronizado con Login
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   password!: string;
 }

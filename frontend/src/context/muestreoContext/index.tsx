@@ -2,10 +2,10 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useEstacionesContext } from '@context/estacionesContext';
 import { apiClient } from '@service/api-client';
+import { logger } from '@/src/lib/logger';
 
 interface MuestreoContextType {
   generarReporte: (rango: { inicio: Date; fin: Date }) => Promise<void>;
-  // AHORA: Acepta fechas string opcionales del filtro de la pantalla
   descargarCSV: (fechaInicio?: string, fechaFin?: string) => Promise<void>;
   isExporting: boolean;
 }
@@ -27,13 +27,12 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       });
       window.open(url, '_blank');
     } catch (error) {
-      console.error("Error al exportar:", error);
+      logger.error({ err: error }, "Error al exportar:");
     } finally {
       setIsExporting(false);
     }
   };
 
-  // CORREGIDO: Ahora prioriza las fechas seleccionadas en la interfaz
   const descargarCSV = async (fechaInicio?: string, fechaFin?: string) => {
     if (!estacionSeleccionada) return;
     setIsExporting(true);
@@ -43,12 +42,10 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       let fInicioIso: string;
       let fFinIso: string;
 
-      // Si hay filtros en pantalla, convertirlos adecuadamente a ISO en America/Bogota
       if (fechaInicio && fechaFin) {
         fInicioIso = `${fechaInicio}T00:00:00-05:00`;
         fFinIso = `${fechaFin}T23:59:59-05:00`;
       } else {
-        // Fallback: Si no hay filtro, usar el último mes automáticamente
         const now = new Date();
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(now.getMonth() - 1);
@@ -67,7 +64,7 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       document.body.appendChild(link);
       link.click();
     } catch (error) {
-      console.error("Error al descargar CSV:", error);
+      logger.error({ err: error }, "Error al descargar CSV:");
     } finally {
       if (link.parentNode) {
         document.body.removeChild(link);

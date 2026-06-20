@@ -5,7 +5,7 @@ import { Activity } from 'lucide-react';
 
 interface ChartData {
   valor: number;
-  hora: string; // Recibe el formato ISO completo de fechaMuestreo
+  hora: string; 
 }
 
 interface TooltipInfo {

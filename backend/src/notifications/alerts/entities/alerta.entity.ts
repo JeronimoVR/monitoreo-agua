@@ -20,8 +20,7 @@ export class Alerta {
   @Column({ default: false })
   leida: boolean;
 
-  @ApiProperty()
-  @CreateDateColumn({ name: 'fecha_creacion' })
+  @Column({ name: 'fecha_creacion', type: 'timestamp without time zone', default: () => 'NOW()' })
   fechaCreacion: Date;
 
   @ApiProperty({ required: false, description: 'Lista de correos destinatarios (separados por coma) para trazabilidad' })

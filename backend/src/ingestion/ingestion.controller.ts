@@ -23,12 +23,7 @@ export class IngestionController {
   @ApiOperation({ summary: 'Recepción de datos IoT', description: 'Tópico MQTT: sensores/datos' })
   @MessagePattern('sensores/datos')
   async handleSensorData(@Payload() data: any, @Ctx() context: MqttContext) {
-    console.info('--- RECEPCIÓN DE DATOS IoT ---');
-    console.log('Payload recibido:', JSON.stringify(data));
-
     try {
-      // 1. Normalización (Asegura consistencia entre hardware y backend)
-      // El ESP32 puede enviar idEstacion o id_estacion, fecha o fecha_muestreo, etc.
       const nuevoMuestreo: CreateMuestreoDto = {
         id_estacion: Number(data.id_estacion || data.idEstacion || data.stationId),
         fecha_muestreo: new Date(data.fecha_muestreo || data.fecha || Date.now()).toISOString(),
@@ -42,8 +37,6 @@ export class IngestionController {
         })
       };
 
-      console.log('Datos normalizados para guardar:', JSON.stringify(nuevoMuestreo));
-
       if (!Number.isFinite(nuevoMuestreo.id_estacion)) {
         throw new Error('Payload inválido: id_estacion no numérico.');
       }
@@ -55,21 +48,15 @@ export class IngestionController {
         throw new Error('Payload inválido: se recibieron medidas incompletas o no numéricas.');
       }
 
-      // 2. Comunicación con Sampling: Análisis e Inserción
-      console.log('🚀 ANTES de llamar a muestreosService.crear');
       const result = await this.muestreosService.crear(nuevoMuestreo);
-      console.log('✅ DESPUÉS de llamar a muestreosService.crear - Resultado:', JSON.stringify(result));
 
-      // 3. Notificación en Tiempo Real vía SSE
       this.sseService.enviarEvento(result, 'nuevo-muestreo');
       this.sensorStatusService.recordHeartbeat(nuevoMuestreo.id_estacion);
-      console.log('Datos recibidos del MQTT =====================================\n\n')
       return result;
     } catch (error: any) {
       console.error('Error en Ingestión MQTT:', error.message);
       console.error('Stack trace:', error.stack);
 
-      // Enviar evento de error vía SSE para el administrador/dashboard
       this.sseService.enviarEvento({
         error: true,
         mensaje: 'Fallo al guardar en Base de Datos desde MQTT',
@@ -90,7 +77,6 @@ export class IngestionController {
 
       const estacionId = Number(data?.id_estacion || data?.idEstacion || data?.stationId || data?.estacionId);
       const status = String(data?.status || data?.estado || data?.message || data?.payload || '');
-      console.log('Estado recibido:', data, 'ID Estación:', estacionId, 'Estado:', status);
       if (Number.isFinite(estacionId) && status) {
         this.sensorStatusService.recordStatus(estacionId, status);
       }

@@ -16,7 +16,6 @@ export class SelfOrAdminGuard implements CanActivate {
       return true;
     }
 
-    console.log('Usuario NO es admin y NO es el mismo');
     throw new ForbiddenException('No tienes permiso para realizar esta accion');
   }
 }

@@ -34,20 +34,13 @@ export class AuthService {
    * @returns Datos del usuario si hay coincidencias, u objeto `null` en caso de error.
    */
   async validateUser(correo: string, pass: string): Promise<any> {
-    console.log(`[Login] Intentando validar usuario con correo: ${correo}`);
     const user = await this.usuariosService.buscarPorCorreoConPassword(correo);
 
     if (!user) {
-      console.log(`[Login] Usuario no encontrado para el correo: ${correo}`);
       throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
     }
 
-    console.log(`[Login] Usuario encontrado. ID: ${user.id}`);
-    console.log(`[Login] Hash en base de datos: "${user.passwordHash}"`);
-    console.log(`[Login] Contraseña proporcionada en texto plano (longitud): ${pass ? pass.length : 0}`);
-
     const isMatch = await bcrypt.compare(pass, user.passwordHash);
-    console.log(`[Login] ¿Coincide la contraseña?: ${isMatch}`);
 
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales inválidas o el usuario no existe');
@@ -86,7 +79,6 @@ export class AuthService {
   async generarTokenRecuperacion(correo: string) {
     const usuario = await this.usuariosService.buscarPorCorreoParaAuth(correo);
     if (!usuario) {
-      // Devolver éxito genérico para prevenir enumeración
       return { message: 'Si el correo está registrado, recibirá un enlace de recuperación pronto' };
     }
 
@@ -105,7 +97,7 @@ export class AuthService {
     try {
       await this.mailService.enviarCorreo(
         usuario.correo,
-        'Recuperación de Contraseña - Sistema IoT',
+        'Recuperación de Contraseña - Sistema de Monitoreo de Calidad del Agua',
         'recuperación',
         {
           nombre: usuario.nombre,
@@ -113,7 +105,6 @@ export class AuthService {
         }
       );
     } catch (error) {
-      console.error('Error al enviar correo:', error);
       throw new InternalServerErrorException('No se pudo enviar el correo de recuperación');
     }
 
@@ -131,7 +122,6 @@ export class AuthService {
    * @returns Objeto `{ message: string }` indicando la correcta renovación de credencial.
    */
   async restablecerPassword(token: string, nuevaPassword: string) {
-    // Buscar el token con su relación de usuario
     const registro = await this.tokenRepo.findOne({
       where: { token },
       relations: ['usuario'],
@@ -149,10 +139,7 @@ export class AuthService {
       throw new UnauthorizedException('El token ha expirado. Por favor, solicita uno nuevo.');
     }
 
-    // Actualizar la contraseña del usuario
     await this.usuariosService.actualizarPassword(registro.usuario.id, nuevaPassword);
-
-    // Marcar el token como usado (Quemar el token)
     registro.usado = true;
     await this.tokenRepo.save(registro);
 

@@ -17,10 +17,10 @@ export const databaseProvider = {
       password: configService.get<string>('DB_PASSWORD'),
       database: configService.get<string>('DB_NAME'),
       autoLoadEntities: true,
-      synchronize: true, // false en producción
+      synchronize: true,
       logging: true,
       extra: {
-        options: '-c timezone=UTC',
+        options: '-c timezone=America/Bogota',
       },
     };
   },

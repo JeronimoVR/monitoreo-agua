@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useAuthContext } from '@context/authContext';
 import { Pencil } from 'lucide-react';
 

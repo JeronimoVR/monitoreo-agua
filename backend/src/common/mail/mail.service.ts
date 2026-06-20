@@ -13,13 +13,12 @@ export class MailService {
     private readonly mailerService: MailerService,
     @InjectRepository(EmailLog)
     private readonly emailLogRepo: Repository<EmailLog>,
-  ) {}
+  ) { }
 
   /**
    * Envía un correo electrónico utilizando una plantilla predefinida y registra el intento.
    */
   async enviarCorreo(to: string, subject: string, template: string, context: any) {
-    // 1. Crear registro PENDIENTE
     let emailLog = this.emailLogRepo.create({
       destinatario: to,
       asunto: subject,
@@ -30,7 +29,6 @@ export class MailService {
     });
     emailLog = await this.emailLogRepo.save(emailLog);
 
-    // 2. Ejecutar envío y guardar tiempo/errores
     await this.ejecutarEnvio(emailLog);
   }
 
@@ -48,22 +46,20 @@ export class MailService {
       emailLog.estado = 'EXITOSO';
       emailLog.tiempoEnvioMs = endTime - startTime;
       emailLog.error = '';
-      
+
       await this.emailLogRepo.save(emailLog);
-      this.logger.log(`Correo enviado a ${emailLog.destinatario} en ${emailLog.tiempoEnvioMs}ms`);
 
     } catch (error: unknown) {
       const endTime = Date.now();
       emailLog.estado = 'FALLIDO';
       emailLog.tiempoEnvioMs = endTime - startTime;
-      
+
       const errorMessage = error instanceof Error ? error.message : String(error);
-      emailLog.error = errorMessage.substring(0, 500); // Evitar exceder el campo de BD
-      
+      emailLog.error = errorMessage.substring(0, 500);
+
       await this.emailLogRepo.save(emailLog);
       this.logger.error(`Error al enviar correo a ${emailLog.destinatario}: ${emailLog.error}`);
-      
-      // Lanzamos error para que AuthController sepa que falló de inmediato en el intento original
+
       throw error;
     }
   }
@@ -82,16 +78,15 @@ export class MailService {
 
     if (reintentables.length > 0) {
       this.logger.log(`Iniciando reintento automático de ${reintentables.length} correos fallidos...`);
-      
+
       for (const log of reintentables) {
         log.reintentos += 1;
         await this.emailLogRepo.save(log);
-        
+
         this.logger.log(`Reintento #${log.reintentos} para el correo a ${log.destinatario}`);
         try {
           await this.ejecutarEnvio(log);
         } catch {
-          // Ya se registró como FALLIDO en ejecutarEnvio, continuamos con el siguiente.
         }
       }
     }

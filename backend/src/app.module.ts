@@ -49,15 +49,10 @@ import { EmailLog } from './common/mail/entities/email-log.entity';
     ]),
     DatabaseModule,
     ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 segundos (1 minuto)
-      limit: 10,  // Máximo 10 peticiones por minuto por IP
+      ttl: 60000,
+      limit: 10,
     }]),
   ],
-  providers: [SeedService],
+  providers: [],
 })
 export class AppModule { }
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_PORT:', process.env.DB_PORT);
-console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-console.log('DB_NAME:', process.env.DB_NAME);
