@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthContext } from '@context/authContext';
 import { AuthLayout } from '@components/layout/AuthLayout';
-import { LoginForm } from '@components/forms/loginForm';
+import { LoginForm } from '@components/forms/LoginForm';
 import { LoginDto } from '@shared/auth/dto/login.dto';
 import { logger } from '@/src/lib/logger';
 
@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const handleLogin = async (credentials: LoginDto) => {
     setIsErrorActive(false);
-
+    
     try {
       const result = await login(credentials);
 

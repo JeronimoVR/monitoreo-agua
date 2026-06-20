@@ -117,3 +117,6 @@ sonar-project.properties
 #mosquito
 /mosquitto/data
 /mosquitto/log
+
+simulador-esp32/*
+firmware/*
