@@ -38,18 +38,42 @@ export class NotificacionesService {
     return colores[clasificacion?.toUpperCase()] || '#ef4444';
   }
 
+  // Cola de promesas para serializar la evaluación de alertas por estación (Mutex en memoria)
+  private alertLocks = new Map<number, Promise<any>>();
+
+  /**
+   * Encola la evaluación de un muestreo para evitar condiciones de carrera (ej. ráfaga de datos MQTT).
+   * Se procesarán uno a uno por estación.
+   */
+  async evaluarYGenerarAlertas(muestreo: Muestreo) {
+    const estacionId = muestreo.estacionId;
+    const previousPromise = this.alertLocks.get(estacionId) || Promise.resolve();
+
+    const currentPromise = previousPromise
+      .then(() => this.procesarAlertaSecuencial(muestreo))
+      .catch((err) => {
+        this.logger.error(`❌ Error en procesamiento secuencial de alerta para estación ${estacionId}:`, err);
+        // Si falla, retornamos el error pero permitimos que la cadena continúe para la siguiente muestra
+        return { enviado: false, error: err.message };
+      });
+
+    this.alertLocks.set(estacionId, currentPromise);
+
+    // Limpieza de la memoria cuando termine para no acumular promesas completadas
+    currentPromise.finally(() => {
+      if (this.alertLocks.get(estacionId) === currentPromise) {
+        this.alertLocks.delete(estacionId);
+      }
+    });
+
+    return await currentPromise;
+  }
+
   /**
    * Evalúa un muestreo recién creado y, si la clasificación es "RIESGO MEDIO" o superior,
    * genera el flujo de alertas por correo únicamente para usuarios con alertas activadas.
-   *
-   * Reglas (pruebas.xlsx / CU007):
-   * - Umbral: "Media" o superior (14.1%).
-   * - Filtrado de destinatarios: sólo usuarios con `recibeAlerta=true` para la estación.
-   * - Mensaje: debe incluir estación, clasificación, puntaje, fecha y parámetros fuera de rango.
-   * - Trazabilidad: se registra en la tabla de alertas.
-   * - Prevención de spam: mínimo 2 horas entre alertas para la misma estación.
    */
-  async evaluarYGenerarAlertas(muestreo: Muestreo) {
+  private async procesarAlertaSecuencial(muestreo: Muestreo) {
     const puntaje = typeof muestreo.irca_calculado === 'number'
       ? muestreo.irca_calculado
       : Number(muestreo.irca_calculado);
