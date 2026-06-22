@@ -53,6 +53,7 @@ services:
   # --- BACKEND (NestJS) ---
   backend:
     build: ./backend
+    image: jeronimo21/monitoreo-agua-backend:latest
     container_name: agua_backend
     restart: always
     ports:
@@ -75,6 +76,7 @@ services:
   # --- FRONTEND (Next.js) ---
   frontend:
     build: ./frontend
+    image: jeronimo21/monitoreo-agua-frontend:lates
     container_name: agua_frontend
     restart: always
     ports:

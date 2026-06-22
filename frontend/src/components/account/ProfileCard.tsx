@@ -5,9 +5,10 @@ import { Pencil } from 'lucide-react';
 
 interface ProfileCardProps {
   onEditName?: () => void;
+  onEditEmail?: () => void;
 }
 
-export const ProfileCard = ({ onEditName }: ProfileCardProps) => {
+export const ProfileCard = ({ onEditName, onEditEmail }: ProfileCardProps) => {
   const { user } = useAuthContext();
 
   const displayName = user?.nombre || 'Usuario';
@@ -42,9 +43,19 @@ export const ProfileCard = ({ onEditName }: ProfileCardProps) => {
           />
         </button>
 
-        <p className="text-[#6B7280] font-medium text-[15px] mt-0.5">
-          {displayEmail} 
-        </p>
+        <button
+          type="button"
+          onClick={onEditEmail}
+          className="flex items-center gap-2 group mt-0.5"
+        >
+          <p className="text-[#6B7280] font-medium text-[15px]">
+            {displayEmail} 
+          </p>
+          <Pencil
+            size={14}
+            className="text-[#0056C6] stroke-[2.5] opacity-0 group-hover:opacity-100 transition-opacity"
+          />
+        </button>
       </div>
     </div>
   );

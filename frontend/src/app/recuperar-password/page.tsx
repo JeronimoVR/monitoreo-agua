@@ -20,7 +20,7 @@ export default function RecuperarPasswordPage() {
 
       setMessage({
         type: 'success',
-        text: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.',
+        text: 'Si el correo electrónico digitado está registrado, recibirás un enlace para restablecer tu contraseña. Por favor, revisa el correo electrónico proporcionado.',
       });
     } catch (error) {
       console.error(error);

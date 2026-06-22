@@ -12,4 +12,9 @@ export class UpdateUsuarioDto {
   @IsOptional()
   @MinLength(6)
   password?: string;
+
+  @ApiPropertyOptional({ example: 'nuevo@correo.com', description: 'Nuevo correo electrónico' })
+  @IsString()
+  @IsOptional()
+  correo?: string;
 }

@@ -99,6 +99,15 @@ export class UsuariosService {
     }
 
     if (dto.nombre) usuario.nombre = dto.nombre;
+
+    if (dto.correo && dto.correo !== usuario.correo) {
+      const existe = await this.usuariosRepository.findOne({ where: { correo: dto.correo } });
+      if (existe && existe.id !== id) {
+        throw new ConflictException('El correo ya se encuentra registrado');
+      }
+      usuario.correo = dto.correo;
+    }
+
     try {
       return await this.usuariosRepository.save(usuario);
     } catch (error) {
