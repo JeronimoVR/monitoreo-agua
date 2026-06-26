@@ -5,11 +5,13 @@ import { ArrowLeft } from 'lucide-react';
 
 export const AuthLayout = ({ 
   children, 
-  title, 
+  title,
+  route,
   hideBackButton = false 
 }: { 
   children: React.ReactNode, 
   title: string,
+  route: string,
   hideBackButton?: boolean
 }) => {
   return (
@@ -17,7 +19,7 @@ export const AuthLayout = ({
       {!hideBackButton && (
         <div className="absolute top-8 left-8 sm:top-12 sm:left-12">
           <Link 
-            href="/" 
+            href={route} 
             className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-all group"
           >
             <div className="p-2 bg-white rounded-xl shadow-sm group-hover:shadow-md transition-all">

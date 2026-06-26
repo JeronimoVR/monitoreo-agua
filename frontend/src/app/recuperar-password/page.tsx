@@ -35,7 +35,7 @@ export default function RecuperarPasswordPage() {
   };
 
   return (
-    <AuthLayout title="">
+    <AuthLayout title="" route='/login'>
       {/* Encabezado con espaciado consistente */}
       <div className="text-center mb-[4vh] flex flex-col items-center">
         <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
@@ -65,14 +65,6 @@ export default function RecuperarPasswordPage() {
         loading={loading}
       />
 
-      <footer className="text-center mt-8">
-        <a
-          href="/login"
-          className="text-sm font-bold text-blue-600 hover:underline flex items-center justify-center gap-2"
-        >
-          ← Volver al inicio de sesión
-        </a>
-      </footer>
     </AuthLayout>
 
   );

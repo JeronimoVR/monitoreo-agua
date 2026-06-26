@@ -32,7 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthLayout title="" hideBackButton={isErrorActive || !!error}>
+    <AuthLayout title="" route='/' hideBackButton={isErrorActive || !!error}>
       <div
         className="
           w-full

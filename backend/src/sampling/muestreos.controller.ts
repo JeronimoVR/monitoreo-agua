@@ -42,7 +42,7 @@ export class MuestreosController {
       'Content-Type': 'text/csv',
       'Content-Disposition': `attachment; filename="muestreo-aqualab-${Date.now()}.csv"`,
     });
-    return res.send(buffer);
+    res.send(buffer);
   }
 
   @Get('historial/:idEstacion')

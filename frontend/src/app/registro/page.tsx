@@ -48,27 +48,11 @@ export default function RegisterPage() {
   return (
     <AuthLayout
       title=""
+      route='/'
       hideBackButton={isErrorActive || !!error || !!success}
     >
       <div className="w-full max-w-md lg:max-w-sm mx-auto mb-6">
-  <button
-    type="button"
-    onClick={() => router.back()}
-    className="
-      flex
-      items-center
-      gap-2
-      text-slate-600
-      hover:text-blue-600
-      transition-colors
-      font-medium
-      text-sm
-      lg:text-xs
-    "
-  >
-    <ArrowLeft size={18} />
-    Volver
-  </button>
+
 </div>
       <div
         className="
