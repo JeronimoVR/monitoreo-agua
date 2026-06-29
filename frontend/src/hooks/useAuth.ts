@@ -24,7 +24,10 @@ export const useAuth = () => {
       throw new Error('No se recibió el token de acceso');
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string }>;
-      const msg = axiosError.response?.data?.message || 'Error de conexión con el servidor';
+      const statusCode = axiosError.response?.status;
+      const message = axiosError.response?.data?.message || "";
+      const isInternalError = statusCode === 500 || message.toLowerCase().includes('internal server');
+      const msg = isInternalError ? "Ha ocurrido un error inesperado, inténtalo de nuevo más tarde." : (message || 'Error de conexión con el servidor');
       setError(msg);
       return { success: false, error: msg };
     } finally {

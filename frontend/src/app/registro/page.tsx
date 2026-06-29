@@ -35,10 +35,14 @@ export default function RegisterPage() {
       }, 3000);
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message?: string }>;
+      const statusCode = axiosError.response?.status;
+      const message = axiosError.response?.data?.message || "";
+      const isInternalError = statusCode === 500 || message.toLowerCase().includes('internal server');
 
       setError(
-        axiosError.response?.data?.message ||
-          'Error al crear la cuenta'
+        isInternalError
+          ? "Ha ocurrido un error inesperado, inténtalo de nuevo más tarde."
+          : (message || 'Error al crear la cuenta')
       );
     } finally {
       setLoading(false);

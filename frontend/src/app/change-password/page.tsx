@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -66,7 +66,8 @@ export default function ChangePasswordPage() {
         setError(errorMsg);
         showAlert('error', errorMsg);
       } else {
-        const errorMsg = message || "Error al actualizar la contraseña. Inténtalo de nuevo.";
+        const isInternalError = statusCode === 500 || message.toLowerCase().includes('internal server');
+        const errorMsg = isInternalError ? "Ha ocurrido un error inesperado, inténtalo de nuevo más tarde." : (message || "Error al actualizar la contraseña. Inténtalo de nuevo.");
         setError(errorMsg);
         showAlert('error', errorMsg);
       }
@@ -90,8 +91,20 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFE]">
-      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8 pt-6 pb-12">
+    <main className="min-h-screen bg-[#FAFAFE] relative">
+      <div className="absolute top-6 left-4 sm:top-12 sm:left-12 z-10">
+        <Link 
+          href="/cuenta" 
+          className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold transition-all group"
+        >
+          <div className="p-2 bg-white rounded-xl shadow-sm group-hover:shadow-md transition-all border border-slate-100">
+            <ArrowLeft size={20} />
+          </div>
+          <span className="hidden sm:inline">Volver</span>
+        </Link>
+      </div>
+
+      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-12 pb-12">
 
         {/* Alerta flotante */}
         {alertMessage && (
@@ -132,16 +145,7 @@ export default function ChangePasswordPage() {
           />
         </div>
 
-        {/* Botón para volver */}
-        <div className="mt-6 text-center">
-          <Link
-            href="/cuenta"
-            className="text-sm text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center gap-1"
-          >
-            <ArrowLeft size={14} />
-            Volver a configuración
-          </Link>
-        </div>
+
       </div>
     </main>
   );

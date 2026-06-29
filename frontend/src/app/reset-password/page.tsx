@@ -65,7 +65,8 @@ function ResetPasswordContent() {
         setError(errorMsg);
         showAlert('error', errorMsg);
       } else {
-        const errorMsg = message || "Error al restablecer la contraseña. Inténtalo de nuevo.";
+        const isInternalError = statusCode === 500 || message.toLowerCase().includes('internal server');
+        const errorMsg = isInternalError ? "Ha ocurrido un error inesperado, inténtalo de nuevo más tarde." : (message || "Error al restablecer la contraseña. Inténtalo de nuevo.");
         setError(errorMsg);
         showAlert('error', errorMsg);
       }

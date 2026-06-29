@@ -98,7 +98,7 @@ export const AuthProvider = ({
   const logout = useCallback(() => {
     authLogout();
     setUser(null);
-    router.replace('/');
+    router.replace('/cuenta');
   }, [authLogout, router]);
 
   const updateUser = useCallback(
