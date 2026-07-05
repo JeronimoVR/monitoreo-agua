@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: aqualab
     steps:
       - name: Descargar el código del repositorio
         uses: actions/checkout@v4
