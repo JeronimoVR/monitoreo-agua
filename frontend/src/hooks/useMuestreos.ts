@@ -14,7 +14,7 @@ export const useMuestreo = (estacionId: string | null) => {
             const res = await apiClient.muestreos.getHistorial(estacionId);
             setDatos(res);
         } catch (error) {
-            logger.error({ err: error }, "Error al obtener historial:");
+            console.error({ err: error }, "Error al obtener historial:");
         } finally {
             setLoading(false);
         }

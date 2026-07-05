@@ -34,7 +34,7 @@ export const EstacionesProvider = ({ children }: { children: React.ReactNode }) 
         setEstacionSeleccionada(data[0]);
       }
     } catch (error) {
-      logger.error({ err: error }, 'Error cargando estaciones:');
+      console.error({ err: error }, 'Error cargando estaciones:');
     } finally {
       setLoading(false);
     }

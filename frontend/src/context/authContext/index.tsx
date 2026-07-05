@@ -68,7 +68,7 @@ export const AuthProvider = ({
 
       setUser(profile);
     } catch (error) {
-      logger.error({ err: error },
+      console.error({ err: error },
         'Sesión inválida o expirada en backend:'
       );
 

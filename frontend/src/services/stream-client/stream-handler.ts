@@ -31,7 +31,7 @@ export const streamClient = {
                     const parsedData: NotificationData = JSON.parse(event.data);
                     onMessage(parsedData);
                 } catch (err) {
-                    logger.error("Error parseando datos de SSE:", err);
+                    console.error("Error parseando datos de SSE:", err);
                 }
             };
 
@@ -41,9 +41,9 @@ export const streamClient = {
             eventSource.onerror = (err) => {
                 const target = err.target as EventSource | null;
                 if (target?.readyState === EventSource.CLOSED) {
-                    logger.error("La conexión fue RECHAZADA de forma definitiva por el servidor (Posible 404, 500 o CORS).");
+                    console.error("La conexión fue RECHAZADA de forma definitiva por el servidor (Posible 404, 500 o CORS).");
                 } else if (target?.readyState === EventSource.CONNECTING) {
-                    logger.error("El servidor cerró el socket temporalmente, pero el navegador está intentando reconectar automáticamente.");
+                    console.error("El servidor cerró el socket temporalmente, pero el navegador está intentando reconectar automáticamente.");
                 }
 
                 if (onError) onError(err);
@@ -57,7 +57,7 @@ export const streamClient = {
             if (reconnectTimeout) clearTimeout(reconnectTimeout);
             if (eventSource) {
                 eventSource.close();
-                logger.log("Conexión SSE finalizada de manera limpia.");
+                console.log("Conexión SSE finalizada de manera limpia.");
             }
         };
     },

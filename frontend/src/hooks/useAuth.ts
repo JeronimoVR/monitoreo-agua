@@ -43,7 +43,7 @@ export const useAuth = () => {
         window.location.href = '/login';
       }
     } catch (error) {
-      logger.error({ err: error }, "Error al limpiar almacenamiento de sesión:");
+      console.error({ err: error }, "Error al limpiar almacenamiento de sesión:");
     }
   }, []);
 

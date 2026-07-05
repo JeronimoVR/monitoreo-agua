@@ -27,7 +27,7 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       });
       window.open(url, '_blank');
     } catch (error) {
-      logger.error({ err: error }, "Error al exportar:");
+      console.error({ err: error }, "Error al exportar:");
     } finally {
       setIsExporting(false);
     }
@@ -64,7 +64,7 @@ export const MuestreoProvider = ({ children }: { children: React.ReactNode }) =>
       document.body.appendChild(link);
       link.click();
     } catch (error) {
-      logger.error({ err: error }, "Error al descargar CSV:");
+      console.error({ err: error }, "Error al descargar CSV:");
     } finally {
       if (link.parentNode) {
         document.body.removeChild(link);

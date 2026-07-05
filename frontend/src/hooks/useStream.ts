@@ -21,7 +21,7 @@ export const useStream = (enabled: boolean = true) => {
                 setHistory((prev) => [data, ...prev].slice(0, 30));
             },
             (error) => {
-                logger.error("Fallo en flujo de notificaciones (SSE):", error);
+                console.error("Fallo en flujo de notificaciones (SSE):", error);
             }
         );
 

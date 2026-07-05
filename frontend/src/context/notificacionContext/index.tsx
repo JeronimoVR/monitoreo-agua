@@ -86,7 +86,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
         }
 
         if (data.error === true) {
-          logger.error(`ERROR BD: ${String(data.mensaje || '')}`, data.detalle);
+          console.error(`ERROR BD: ${String(data.mensaje || '')}`, data.detalle);
           return;
         }
 
@@ -104,7 +104,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
           return [transformed, ...prev].slice(0, 100);
         });
       },
-      (err) => logger.error('SSE Error en Provider:', err)
+      (err) => console.error('SSE Error en Provider:', err)
     );
 
     return () => {

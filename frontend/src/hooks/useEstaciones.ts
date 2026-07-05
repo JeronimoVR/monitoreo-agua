@@ -17,7 +17,7 @@ export const useEstaciones = () => {
                     setEstacionSeleccionada((prev) => prev ?? String(data[0].id));
                 }
             } catch (error) {
-                logger.error({ err: error }, "Error cargando estaciones:");
+                console.error({ err: error }, "Error cargando estaciones:");
             } finally {
                 setLoading(false);
             }
