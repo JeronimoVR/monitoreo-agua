@@ -1,0 +1,40 @@
+name: Build and Push Docker Images
+
+# Se ejecuta cada vez que subes cambios a la rama main
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Docker Buildx (motor de build)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir y publicar imagen del backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: jeronimo21/monitoreo-agua-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Construir y publicar imagen del frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: jeronimo21/monitoreo-agua-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
