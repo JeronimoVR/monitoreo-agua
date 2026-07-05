@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@service/api-client';
 import { AuthLayout } from '@components/layout/AuthLayout';
-import { RegisterForm } from '@components/forms/RegisterForm';
+import { RegisterForm } from '@components/forms/registerForm';
 import { CreateUsuarioDto } from '@shared/users/dto/create-usuario.dto';
 import { AxiosError } from 'axios';
 import { ArrowLeft } from 'lucide-react';
