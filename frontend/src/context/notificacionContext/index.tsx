@@ -61,7 +61,7 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       const sorted = history.sort((a, b) => new Date(b.fechaMuestreo).getTime() - new Date(a.fechaMuestreo).getTime());
       setNotifications(sorted);
     } catch (error) {
-      logger.error('Error obteniendo historial:', error);
+      console.log('Error obteniendo historial:', error);
     } finally {
       if (showLoading) setLoading(false);
     }
